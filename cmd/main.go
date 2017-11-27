@@ -14,7 +14,7 @@ const (
 
 var (
 	// Version is the Ceph Nano version
-	Version = "1.0.0"
+	Version = "1.0.0 (43baae2)"
 
 	// WorkingDirectory is the working directory where objects can be put inside S3
 	WorkingDirectory = "/usr/share/ceph-nano"

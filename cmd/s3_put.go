@@ -14,12 +14,8 @@ func CliS3CmdPut() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "put FILE BUCKET",
 		Short: "Put file into bucket",
-		Long: `When you put a file into a bucket, NEVER use the fullpath of the file because Ceph Nano already hardcodes the path of your work directory.
-This means you should be working for within your working directory.
-Then if you want to put an object simply do 'cn s3 put FILE' instead of cn s3 put <working-directory/FILE.
-If you wan to upload a file that is in a directory withing your working directory simply do 'cn s3 put DIRECTORY/FILE.'`,
-		Args: cobra.ExactArgs(2),
-		Run:  S3CmdPut,
+		Args:  cobra.ExactArgs(2),
+		Run:   S3CmdPut,
 		DisableFlagsInUseLine: true,
 	}
 	return cmd

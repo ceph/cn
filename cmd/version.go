@@ -19,11 +19,11 @@ func CliVersionNano() *cobra.Command {
 
 // versionNano print Ceph Nano version
 func versionNano(cmd *cobra.Command, args []string) {
-	fmt.Println("ceph-nano version: " + Version)
+	fmt.Println("ceph-nano version " + Version)
 	if ii := inspectImage(); ii["head"] == "unknown" {
 		fmt.Println("ceph-nano container image version is unknown (no image pulled yet)")
 	} else {
-		fmt.Println("ceph-nano container image version: " + ii["head"])
+		fmt.Println("ceph-nano container image version " + ii["head"])
 	}
 
 }

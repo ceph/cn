@@ -22,9 +22,7 @@
 
 package main
 
-import "github.com/leseb/cn/cmd"
-
-// import cn "github.com/leseb/cn/cmd"
+import "github.com/ceph/cn/cmd"
 
 func main() {
 	cmd.Main()

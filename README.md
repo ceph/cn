@@ -37,11 +37,20 @@ Use "cn s3 [command] --help" for more information about a command.
 cn relies on Docker so it must be installed on your machine. If you're not running a Linux workstation you can install [Docker for Mac](https://docs.docker.com/docker-for-mac/) or [Windows](https://docs.docker.com/docker-for-windows/).
 
 Once Docker is installed you're ready to start.
-Open your terminal and download the cn binary, example below is for Linux, for OSX use cn-v1.0.0-darwin-amd64.
+Open your terminal and download the cn binary.
 
+macOS
+``` 
+$ curl -L https://github.com/ceph/cn/releases/download/v1.0.0/cn-v1.0.0-darwin-amd64 -o cn && chmod +x cn
 ```
-$ curl -L https://github.com/ceph/cn/releases/download/v1.0.0/cn-v1.0.0-linux-x86 -o cn
-$ chmod +x cn
+
+linux
+```
+$ curl -L https://github.com/ceph/cn/releases/download/v1.0.0/cn-v1.0.0-linux-x86 -o cn && chmod +x cn
+```
+
+Test it out
+```
 $ ./cn
 Ceph Nano - One step S3 in container with Ceph.
 

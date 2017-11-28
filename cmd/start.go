@@ -70,6 +70,11 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"RGW_CIVETWEB_PORT=" + RgwPort,
 		"CEPH_DAEMON=demo"}
 
+	ressources := container.Resources{
+		Memory:   536870912, // 512MB
+		NanoCPUs: 1,
+	}
+
 	config := &container.Config{
 		Image:        ImageName,
 		Hostname:     ContainerName + "-faa32aebf00b",
@@ -84,9 +89,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
 		Binds:        []string{WorkingDirectory + ":" + TempPath},
+		Resources:    ressources,
 	}
-
-	// TODO --memory 512m
 
 	resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, ContainerName)
 	if err != nil {

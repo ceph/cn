@@ -16,6 +16,9 @@ var (
 
 	// Help shows a customer help
 	Help bool
+
+	// DeleteAll also deletes the container image
+	DeleteAll bool
 )
 
 // CliPurgeNano is the Cobra CLI call
@@ -29,6 +32,7 @@ func CliPurgeNano() *cobra.Command {
 	}
 	cmd.Flags().SortFlags = false
 	cmd.Flags().BoolVar(&IamSure, "yes-i-am-sure", false, "YES I know what I'm doing and I want to purge")
+	cmd.Flags().BoolVar(&DeleteAll, "all", false, "This also deletes the container image")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for purge")
 	return cmd
 }
@@ -60,4 +64,13 @@ func removeContainer(name string) {
 	// we don't necessarily want to catch errors here
 	// it's not an issue if the container does not exist
 	cli.ContainerRemove(ctx, name, options)
+
+	if DeleteAll {
+		options := types.ImageRemoveOptions{
+			Force:         true,
+			PruneChildren: true,
+		}
+		fmt.Println("Removing container image...")
+		cli.ImageRemove(ctx, ImageName, options)
+	}
 }

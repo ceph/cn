@@ -45,6 +45,7 @@ func startNano(cmd *cobra.Command, args []string) {
 		fmt.Println("Starting ceph-nano...")
 		startContainer()
 	} else {
+		pullImage()
 		fmt.Println("Running ceph-nano...")
 		runContainer(cmd, args)
 	}
@@ -58,8 +59,6 @@ func runContainer(cmd *cobra.Command, args []string) {
 	if err != nil {
 		panic(err)
 	}
-
-	pullImage()
 
 	exposedPorts := nat.PortSet{
 		"8000/tcp": struct{}{},

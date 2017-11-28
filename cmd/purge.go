@@ -56,6 +56,10 @@ func removeContainer(name string) {
 		panic(err)
 	}
 
+	var ImageName string
+	if DeleteAll {
+		ImageName = dockerInspect("image")
+	}
 	options := types.ContainerRemoveOptions{
 		RemoveLinks:   false,
 		RemoveVolumes: true,

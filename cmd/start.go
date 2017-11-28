@@ -20,10 +20,13 @@ func CliStartNano() *cobra.Command {
 		Short: "Start object storage server",
 		Args:  cobra.NoArgs,
 		Run:   startNano,
-		Example: "cn start --work-dir /tmp \n" +
-			"cn start",
+		Example: "cn start \n" +
+			"cn start --work-dir /tmp \n" +
+			"cn start --image ceph/daemon:tag-stable-3.0-luminous-ubuntu-16.04",
 	}
 	cmd.Flags().StringVarP(&WorkingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
+	cmd.Flags().StringVarP(&ImageName, "image", "i", "ceph/daemon", "USE AT YOUR OWN RISK. Ceph container image to use, format is 'username/image:tag'.")
+
 	return cmd
 }
 

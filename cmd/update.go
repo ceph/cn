@@ -19,7 +19,17 @@ func CliUpdateNano() *cobra.Command {
 		Short: "Update the container image",
 		Args:  cobra.NoArgs,
 		Run:   updateNano,
+		Long:  "IMPORTANT: if cn was run with --image option make sure to use the same image if you're expecting to update that image",
 	}
+	cmd.Flags().StringVarP(&ImageName, "image", "i", "ceph/daemon", "Ceph container image to use, format is 'username/image:tag'")
+
+	if status := containerStatus(false, "running"); status {
+		ImageName := dockerInspect("image")
+		if ImageName != "ceph/daemon" {
+			cmd.MarkFlagRequired("image")
+		}
+	}
+
 	return cmd
 }
 

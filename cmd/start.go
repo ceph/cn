@@ -61,7 +61,19 @@ func runContainer(cmd *cobra.Command, args []string) {
 
 	pullImage()
 
-	exposedPorts, portBindings, _ := nat.ParsePortSpecs([]string{":8000:8000"})
+	exposedPorts := nat.PortSet{
+		"8000/tcp": struct{}{},
+	}
+
+	portBindings := nat.PortMap{
+		"8000/tcp": []nat.PortBinding{
+			{
+				HostIP:   "0.0.0.0",
+				HostPort: "8000",
+			},
+		},
+	}
+
 	envs := []string{
 		"DEBUG=verbose",
 		"CEPH_DEMO_UID=" + CephNanoUID,

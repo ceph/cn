@@ -78,7 +78,6 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"DEBUG=verbose",
 		"CEPH_DEMO_UID=" + CephNanoUID,
 		"NETWORK_AUTO_DETECT=4",
-		"MON_IP=127.0.0.1",
 		"RGW_CIVETWEB_PORT=" + RgwPort,
 		"CEPH_DAEMON=demo"}
 

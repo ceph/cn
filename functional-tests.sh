@@ -146,7 +146,7 @@ function s3_rb {
 
 function s3_put {
   err_file=/tmp/err_cn_s3_put
-  dd if=/dev/zero of=/tmp/ooo bs=1m count=10
+  dd if=/dev/zero of=/tmp/ooo bs=1048576 count=10
   ./cn s3 put ooo aaa >"$err_file" 2>&1
   if [[ "$?" -eq 0 ]]; then
     echo "${FUNCNAME[0]}: SUCCESS"

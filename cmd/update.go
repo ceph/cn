@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 )
 
@@ -35,14 +33,8 @@ func CliUpdateNano() *cobra.Command {
 
 // updateNano updates the container image
 func updateNano(cmd *cobra.Command, args []string) {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
 	if !pullImage() {
-		events, err := cli.ImagePull(ctx, ImageName, types.ImagePullOptions{})
+		events, err := getDocker().ImagePull(ctx, ImageName, types.ImagePullOptions{})
 		if err != nil {
 			panic(err)
 		}

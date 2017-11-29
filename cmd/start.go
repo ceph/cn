@@ -7,10 +7,8 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/spf13/cobra"
-	"golang.org/x/net/context"
 )
 
 // CliStartNano is the Cobra CLI call
@@ -57,12 +55,6 @@ func startNano(cmd *cobra.Command, args []string) {
 
 // runContainer creates a new container when nothing exists
 func runContainer(cmd *cobra.Command, args []string) {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
 	exposedPorts := nat.PortSet{
 		"8000/tcp": struct{}{},
 	}
@@ -105,12 +97,12 @@ func runContainer(cmd *cobra.Command, args []string) {
 		Resources:    ressources,
 	}
 
-	resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, ContainerName)
+	resp, err := getDocker().ContainerCreate(ctx, config, hostConfig, nil, ContainerName)
 	if err != nil {
 		panic(err)
 	}
 
-	err = cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
+	err = getDocker().ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 	// The if removes the error:
 	//panic: runtime error: invalid memory address or nil pointer dereference
 	//[signal SIGSEGV: segmentation violation code=0x1 addr=0x20 pc=0x137a2b4]
@@ -132,13 +124,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 
 // startContainer starts a container that is stopped
 func startContainer() {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
-	if err := cli.ContainerStart(ctx, ContainerName, types.ContainerStartOptions{}); err != nil {
+	if err := getDocker().ContainerStart(ctx, ContainerName, types.ContainerStartOptions{}); err != nil {
 		panic(err)
 	}
 }

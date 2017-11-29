@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 )
 
@@ -50,12 +48,6 @@ func purgeNano(cmd *cobra.Command, args []string) {
 }
 
 func removeContainer(name string) {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
 	var ImageName string
 	if DeleteAll {
 		ImageName = dockerInspect("image")
@@ -67,7 +59,7 @@ func removeContainer(name string) {
 	}
 	// we don't necessarily want to catch errors here
 	// it's not an issue if the container does not exist
-	cli.ContainerRemove(ctx, name, options)
+	getDocker().ContainerRemove(ctx, name, options)
 
 	if DeleteAll {
 		options := types.ImageRemoveOptions{
@@ -75,6 +67,6 @@ func removeContainer(name string) {
 			PruneChildren: true,
 		}
 		fmt.Println("Removing container image...")
-		cli.ImageRemove(ctx, ImageName, options)
+		getDocker().ImageRemove(ctx, ImageName, options)
 	}
 }

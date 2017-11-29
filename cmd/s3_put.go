@@ -25,7 +25,7 @@ func CliS3CmdPut() *cobra.Command {
 func S3CmdPut(cmd *cobra.Command, args []string) {
 	notExistCheck()
 	notRunningCheck()
-	dir := dockerInspect()
+	dir := dockerInspect("bind")
 	fileName := args[0]
 	bucketName := args[1]
 	fileNameBase := path.Base(fileName)

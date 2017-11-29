@@ -20,10 +20,13 @@ func CliStartNano() *cobra.Command {
 		Short: "Start object storage server",
 		Args:  cobra.NoArgs,
 		Run:   startNano,
-		Example: "cn start --work-dir /tmp \n" +
-			"cn start",
+		Example: "cn start \n" +
+			"cn start --work-dir /tmp \n" +
+			"cn start --image ceph/daemon:tag-stable-3.0-luminous-ubuntu-16.04",
 	}
 	cmd.Flags().StringVarP(&WorkingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
+	cmd.Flags().StringVarP(&ImageName, "image", "i", "ceph/daemon", "USE AT YOUR OWN RISK. Ceph container image to use, format is 'username/image:tag'.")
+
 	return cmd
 }
 
@@ -45,6 +48,7 @@ func startNano(cmd *cobra.Command, args []string) {
 		fmt.Println("Starting ceph-nano...")
 		startContainer()
 	} else {
+		pullImage()
 		fmt.Println("Running ceph-nano...")
 		runContainer(cmd, args)
 	}
@@ -59,16 +63,30 @@ func runContainer(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
-	pullImage()
+	exposedPorts := nat.PortSet{
+		"8000/tcp": struct{}{},
+	}
 
-	exposedPorts, portBindings, _ := nat.ParsePortSpecs([]string{":8000:8000"})
+	portBindings := nat.PortMap{
+		"8000/tcp": []nat.PortBinding{
+			{
+				HostIP:   "0.0.0.0",
+				HostPort: "8000",
+			},
+		},
+	}
+
 	envs := []string{
 		"DEBUG=verbose",
 		"CEPH_DEMO_UID=" + CephNanoUID,
 		"NETWORK_AUTO_DETECT=4",
-		"MON_IP=127.0.0.1",
 		"RGW_CIVETWEB_PORT=" + RgwPort,
 		"CEPH_DAEMON=demo"}
+
+	ressources := container.Resources{
+		Memory:   536870912, // 512MB
+		NanoCPUs: 1,
+	}
 
 	config := &container.Config{
 		Image:        ImageName,
@@ -84,9 +102,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
 		Binds:        []string{WorkingDirectory + ":" + TempPath},
+		Resources:    ressources,
 	}
-
-	// TODO --memory 512m
 
 	resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, ContainerName)
 	if err != nil {

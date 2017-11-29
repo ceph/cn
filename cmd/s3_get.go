@@ -64,7 +64,7 @@ func S3CmdGet(cmd *cobra.Command, args []string) {
 	command := []string{"s3cmd", "get", S3CmdOpt, "s3://" + BucketObjectName, TempPath}
 	output := execContainer(ContainerName, command)
 
-	dir := dockerInspect()
+	dir := dockerInspect("bind")
 	if fileName != BucketObjectName {
 		//if _, err := os.Stat(fileName); os.Stat.Mode.IsDir(err) {
 		if info, err := os.Stat(fileName); err == nil && info.IsDir() {

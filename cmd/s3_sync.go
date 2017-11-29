@@ -25,7 +25,7 @@ func S3CmdSync(cmd *cobra.Command, args []string) {
 	notRunningCheck()
 	localDir := args[0]
 	bucketName := args[1]
-	dir := dockerInspect()
+	dir := dockerInspect("bind")
 	destDir := TempPath
 
 	if localDir != dir {

@@ -2,8 +2,11 @@
 
 ## The project
 
-cn is a little program written in Go that helps you interacting with S3 by providing a REST S3 compatible gateway.
-This is brought by the power of Ceph and Containers. cn also comes with a set of commands to work with the S3 gateway. Available calls are:
+cn is a little program written in Go that helps you interact with the S3 API by providing a REST S3 compatible gateway. The target audience is developers building their applications on Amazon S3. It is also an exciting tool to showcase Ceph Rados Gateway S3 compatibility.
+This is brought to you by the power of Ceph and Containers. Under the hood, cn runs a Ceph container and exposes a [Rados Gateway](http://docs.ceph.com/docs/master/radosgw/). For convenience, cn also comes with a set of commands to work with the S3 gateway. Before you ask "why not using s3cmd instead?", then you will be happy to read that internally cn uses `s3cmd` and act as a wrapper around the most commonly used commands.
+Also, keep in mind that the CLI is just for convenience, and the primary use case is you developing your application directly on the S3 API.
+
+Available calls are:
 
 ```
 $  ./cn s3 -h

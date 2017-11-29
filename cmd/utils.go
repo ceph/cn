@@ -232,7 +232,7 @@ func cephNanoHealth() {
 	buf.ReadFrom(out)
 	newStr := buf.String()
 	fmt.Println(newStr)
-	fmt.Println("Please open an issue at: https://github.com/ceph/ceph-container.")
+	fmt.Println("Please open an issue at: https://github.com/ceph/cn.")
 	os.Exit(1)
 }
 
@@ -272,7 +272,7 @@ func cephNanoS3Health() {
 	}
 	fmt.Println("S3 gateway is not responding. Showing S3 logs:")
 	showS3Logs()
-	fmt.Println("Please open an issue at: https://github.com/ceph/ceph-nano.")
+	fmt.Println("Please open an issue at: https://github.com/ceph/cn.")
 	os.Exit(1)
 }
 
@@ -294,7 +294,7 @@ func echoInfo() {
 	ips, _ := getInterfaceIPv4s()
 
 	// Get the working directory
-	dir := dockerInspect()
+	dir := dockerInspect("bind")
 
 	InfoLine :=
 		"\n" + strings.TrimSpace(string(c)) + " is the Ceph status \n" +
@@ -333,7 +333,7 @@ func getAwsKey() (string, string) {
 }
 
 // dockerInspect inspect the container Binds
-func dockerInspect() string {
+func dockerInspect(pattern string) string {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -343,8 +343,14 @@ func dockerInspect() string {
 	if err != nil {
 		panic(err)
 	}
-	parts := strings.Split(inspect.HostConfig.Binds[0], ":")
-	return parts[0]
+
+	if pattern == "bind" {
+		parts := strings.Split(inspect.HostConfig.Binds[0], ":")
+		return parts[0]
+	}
+	// this assumes a default that we are looking for the image name
+	parts := inspect.Config.Image
+	return parts
 }
 
 // inspectImage inspect a given image
@@ -354,6 +360,7 @@ func inspectImage() map[string]string {
 	if err != nil {
 		panic(err)
 	}
+	ImageName := dockerInspect("image")
 	i, _, err := cli.ImageInspectWithRaw(ctx, ImageName)
 	if err != nil {
 		var m map[string]string

@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,7 +18,6 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 )
 
 // validateEnv verifies the ability to run the program
@@ -31,16 +29,7 @@ func validateEnv() {
 
 // dockerApiVersion checks docker's API Version
 func dockerAPIVersion() {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
-	sv := fmt.Sprint(cli.ServerVersion(ctx))
-	if err != nil {
-		panic(err)
-	}
+	sv := fmt.Sprint(getDocker().ServerVersion(ctx))
 
 	if strings.Contains(sv, "is too new") {
 		ss := strings.SplitAfter(sv, "Maximum supported API version is ")
@@ -54,13 +43,7 @@ func dockerAPIVersion() {
 
 // dockerExist makes sure Docker is installed
 func dockerExist() {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = cli.Info(ctx)
+	_, err := getDocker().Info(ctx)
 	if err != nil {
 		fmt.Println("Docker is not present on your system or not started.\n" +
 			"Make sure it's started or follow installation instructions at https://docs.docker.com/engine/installation/")
@@ -133,19 +116,13 @@ func getInterfaceIPv4s() ([]net.IP, error) {
 
 // execContainer execs a given command inside the container
 func execContainer(ContainerName string, cmd []string) []byte {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
 	optionsCreate := types.ExecConfig{
 		AttachStdout: true,
 		AttachStderr: true,
 		Cmd:          cmd,
 	}
 
-	response, err := cli.ContainerExecCreate(ctx, ContainerName, optionsCreate)
+	response, err := getDocker().ContainerExecCreate(ctx, ContainerName, optionsCreate)
 	if err != nil {
 		panic(err)
 	}
@@ -154,7 +131,7 @@ func execContainer(ContainerName string, cmd []string) []byte {
 		Detach: false,
 		Tty:    false,
 	}
-	connection, err := cli.ContainerExecAttach(ctx, response.ID, optionsAttach)
+	connection, err := getDocker().ContainerExecAttach(ctx, response.ID, optionsAttach)
 	if err != nil {
 		panic(err)
 	}
@@ -176,12 +153,7 @@ func execContainer(ContainerName string, cmd []string) []byte {
 
 // grepForSuccess searchs for the word 'SUCCESS' inside the container logs
 func grepForSuccess() bool {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-	out, err := cli.ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
+	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		panic(err)
 	}
@@ -204,13 +176,6 @@ func cephNanoHealth() {
 	var poll int
 	poll = 0
 
-	// setting docker connection
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
 	// wait for 60sec to validate that the container started properly
 	for poll < timeout {
 		if health := grepForSuccess(); health {
@@ -224,7 +189,7 @@ func cephNanoHealth() {
 	fmt.Print("The container from Ceph Nano never reached a clean state. Show the container logs:")
 	// ideally we would return the second value of GrepForSuccess when it's false
 	// this would mean having 2 return values for GrepForSuccess
-	out, err := cli.ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
+	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		panic(err)
 	}
@@ -334,12 +299,7 @@ func getAwsKey() (string, string) {
 
 // dockerInspect inspect the container Binds
 func dockerInspect(pattern string) string {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-	inspect, err := cli.ContainerInspect(ctx, ContainerName)
+	inspect, err := getDocker().ContainerInspect(ctx, ContainerName)
 	if err != nil {
 		panic(err)
 	}
@@ -355,13 +315,8 @@ func dockerInspect(pattern string) string {
 
 // inspectImage inspect a given image
 func inspectImage() map[string]string {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
 	ImageName := dockerInspect("image")
-	i, _, err := cli.ImageInspectWithRaw(ctx, ImageName)
+	i, _, err := getDocker().ImageInspectWithRaw(ctx, ImageName)
 	if err != nil {
 		var m map[string]string
 		m = make(map[string]string)
@@ -373,17 +328,12 @@ func inspectImage() map[string]string {
 
 // pullImage downloads the container image
 func pullImage() bool {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-	_, _, err = cli.ImageInspectWithRaw(ctx, ImageName)
+	_, _, err := getDocker().ImageInspectWithRaw(ctx, ImageName)
 	if err != nil {
 		fmt.Print("The container image is not present, pulling it. \n" +
 			"This operation can take a few minutes.")
 
-		out, err := cli.ImagePull(ctx, ImageName, types.ImagePullOptions{})
+		out, err := getDocker().ImagePull(ctx, ImageName, types.ImagePullOptions{})
 		if err != nil {
 			panic(err)
 		}

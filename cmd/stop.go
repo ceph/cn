@@ -5,9 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
-	"golang.org/x/net/context"
 )
 
 // CliStopNano is the Cobra CLI call
@@ -23,12 +21,6 @@ func CliStopNano() *cobra.Command {
 
 // stopNano stops Ceph Nano
 func stopNano(cmd *cobra.Command, args []string) {
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
 	timeout := 5 * time.Second
 	if status := containerStatus(true, "exited"); status {
 		fmt.Println("ceph-nano is already stopped.")
@@ -38,7 +30,7 @@ func stopNano(cmd *cobra.Command, args []string) {
 		os.Exit(0)
 	} else {
 		fmt.Println("Stopping ceph-nano... ")
-		if err := cli.ContainerStop(ctx, ContainerName, &timeout); err != nil {
+		if err := getDocker().ContainerStop(ctx, ContainerName, &timeout); err != nil {
 			panic(err)
 		}
 	}

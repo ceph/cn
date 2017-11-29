@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
+	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +33,7 @@ var (
 	// ImageName is the name of the container image
 	ImageName = "ceph/daemon"
 
-	// Temporary path inside the container
+	// TempPath is the temporary path inside the container
 	TempPath = "/tmp/"
 
 	rootCmd = &cobra.Command{
@@ -40,7 +42,24 @@ var (
 		SuggestFor: []string{"cn"},
 		//Long:
 	}
+
+	// dockerCli initializes the client connection
+	dockerCli *client.Client
+
+	// ctx opens context
+	ctx = context.Background()
 )
+
+func getDocker() *client.Client {
+	if dockerCli == nil {
+		cli, err := client.NewEnvClient()
+		if err != nil {
+			panic(err)
+		}
+		dockerCli = cli
+	}
+	return dockerCli
+}
 
 // Main is the main function calling the whole program
 func Main() {

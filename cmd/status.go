@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
-	"golang.org/x/net/context"
 )
 
 // CliStatusNano is the Cobra CLI call
@@ -28,16 +26,11 @@ func statusNano(cmd *cobra.Command, args []string) {
 // containerStatus checks container status
 // the parameter corresponds to the type listOptions and its entry all
 func containerStatus(allList bool, containerState string) bool {
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
 	listOptions := types.ContainerListOptions{
 		All:   allList,
 		Quiet: true,
 	}
-	containers, err := cli.ContainerList(context.Background(), listOptions)
+	containers, err := getDocker().ContainerList(ctx, listOptions)
 	if err != nil {
 		panic(err)
 	}

@@ -48,7 +48,6 @@ func purgeNano(cmd *cobra.Command, args []string) {
 }
 
 func removeContainer(name string) {
-	var ImageName string
 	if DeleteAll {
 		ImageName = dockerInspect("image")
 	}

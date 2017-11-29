@@ -33,7 +33,7 @@ var (
 	// ImageName is the name of the container image
 	ImageName = "ceph/daemon"
 
-	// Temporary path inside the container
+	// TempPath is the temporary path inside the container
 	TempPath = "/tmp/"
 
 	rootCmd = &cobra.Command{

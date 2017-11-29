@@ -37,7 +37,7 @@ func S3CmdPut(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	command := []string{"s3cmd", "put", "/tmp/" + fileNameBase, "s3://" + bucketName}
+	command := []string{"s3cmd", "put", TempPath + fileNameBase, "s3://" + bucketName}
 	output := execContainer(ContainerName, command)
 	fmt.Printf("%s", output)
 }

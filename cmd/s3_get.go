@@ -61,7 +61,7 @@ func S3CmdGet(cmd *cobra.Command, args []string) {
 		S3CmdOpt = "--continue"
 	}
 	// if args
-	command := []string{"s3cmd", "get", S3CmdOpt, "s3://" + BucketObjectName, "/tmp/"}
+	command := []string{"s3cmd", "get", S3CmdOpt, "s3://" + BucketObjectName, TempPath}
 	output := execContainer(ContainerName, command)
 
 	dir := dockerInspect()

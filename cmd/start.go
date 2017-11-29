@@ -83,7 +83,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
-		Binds:        []string{WorkingDirectory + ":/tmp"},
+		Binds:        []string{WorkingDirectory + ":" + TempPath},
 	}
 
 	// TODO --memory 512m

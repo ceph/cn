@@ -401,7 +401,7 @@ func pullImage() bool {
 }
 
 func notExistCheck() {
-	if status := containerStatus(false, "running"); !status {
+	if (!containerStatus(false, "running")) && (!containerStatus(false, "exited")) {
 		fmt.Println("ceph-nano does not exist yet.")
 		os.Exit(0)
 	}

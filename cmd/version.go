@@ -20,7 +20,7 @@ func CliVersionNano() *cobra.Command {
 
 // versionNano print Ceph Nano version
 func versionNano(cmd *cobra.Command, args []string) {
-	fmt.Println("ceph-nano version " + Version)
+	fmt.Println("ceph-nano version " + cnVersion)
 	if status := containerStatus(true, "exited"); status {
 		os.Exit(0)
 	}

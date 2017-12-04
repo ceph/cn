@@ -18,7 +18,7 @@ const (
 
 var (
 	// Version is the Ceph Nano version
-	Version = "1.0.0 (43baae2)"
+	cnVersion = "undefined"
 
 	// WorkingDirectory is the working directory where objects can be put inside S3
 	WorkingDirectory = "/usr/share/ceph-nano"
@@ -93,7 +93,8 @@ func getDocker() *client.Client {
 }
 
 // Main is the main function calling the whole program
-func Main() {
+func Main(version string) {
+	cnVersion = version
 	validateEnv()
 
 	if err := rootCmd.Execute(); err != nil {

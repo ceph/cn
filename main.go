@@ -24,6 +24,12 @@ package main
 
 import "github.com/ceph/cn/cmd"
 
+var (
+	version = "undefined"
+	tag     = "undefined"
+	branch  = "undefined"
+)
+
 func main() {
-	cmd.Main()
+	cmd.Main(tag + " (" + branch + "/" + version + ")")
 }

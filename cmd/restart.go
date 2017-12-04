@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -22,7 +23,7 @@ func restartNano(cmd *cobra.Command, args []string) {
 	notExistCheck()
 	fmt.Println("Restarting ceph-nano...")
 	if err := getDocker().ContainerRestart(ctx, ContainerName, nil); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	echoInfo()
 }

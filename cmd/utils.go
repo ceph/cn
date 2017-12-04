@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -31,7 +32,7 @@ func seLinux() {
 	if _, err := os.Stat("/sbin/getenforce"); !os.IsNotExist(err) {
 		out, err := exec.Command("getenforce").Output()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		if string(out) == "Enforcing" {
 			if _, err := os.Stat(WorkingDirectory); os.IsNotExist(err) {
@@ -98,7 +99,7 @@ func execContainer(ContainerName string, cmd []string) []byte {
 
 	response, err := getDocker().ContainerExecCreate(ctx, ContainerName, optionsCreate)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	optionsAttach := types.ExecStartCheck{
@@ -107,13 +108,13 @@ func execContainer(ContainerName string, cmd []string) []byte {
 	}
 	connection, err := getDocker().ContainerExecAttach(ctx, response.ID, optionsAttach)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	defer connection.Close()
 	output, err := ioutil.ReadAll(connection.Reader)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// Remove 8 first characters to get a readable content
@@ -129,7 +130,7 @@ func execContainer(ContainerName string, cmd []string) []byte {
 func grepForSuccess() bool {
 	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	buf := new(bytes.Buffer)
@@ -165,7 +166,7 @@ func cephNanoHealth() {
 	// this would mean having 2 return values for GrepForSuccess
 	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(out)
@@ -275,7 +276,7 @@ func getAwsKey() (string, string) {
 func dockerInspect(pattern string) string {
 	inspect, err := getDocker().ContainerInspect(ctx, ContainerName)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	if pattern == "bind" {
@@ -309,7 +310,7 @@ func pullImage() bool {
 
 		out, err := getDocker().ImagePull(ctx, ImageName, types.ImagePullOptions{})
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		reader := bufio.NewReader(out)

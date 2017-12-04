@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -99,7 +100,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 
 	resp, err := getDocker().ContainerCreate(ctx, config, hostConfig, nil, ContainerName)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	err = getDocker().ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
@@ -117,7 +118,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 			cmd.Help()
 			os.Exit(1)
 		} else {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 }
@@ -125,6 +126,6 @@ func runContainer(cmd *cobra.Command, args []string) {
 // startContainer starts a container that is stopped
 func startContainer() {
 	if err := getDocker().ContainerStart(ctx, ContainerName, types.ContainerStartOptions{}); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }

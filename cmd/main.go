@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -56,7 +57,7 @@ func getDocker() *client.Client {
 	if dockerCli == nil {
 		cli, err := client.NewEnvClient()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		// Let's make a first Docker command to check if the protocol is consistent
@@ -74,7 +75,7 @@ func getDocker() *client.Client {
 				apiVersion = ss[1][:len(ss[1])-1]
 			} else {
 				// That's an error we don't know, let's stop here
-				panic(err)
+				log.Fatal(err)
 			}
 
 			// The client version shall be degraded as it's greater than the server's one

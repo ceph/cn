@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/docker/docker/api/types"
 	"github.com/spf13/cobra"
 )
@@ -32,7 +34,7 @@ func containerStatus(allList bool, containerState string) bool {
 	}
 	containers, err := getDocker().ContainerList(ctx, listOptions)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// run the loop on both indexes, it's fine they have the same length

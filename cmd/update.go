@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -36,7 +37,7 @@ func updateNano(cmd *cobra.Command, args []string) {
 	if !pullImage() {
 		events, err := getDocker().ImagePull(ctx, ImageName, types.ImagePullOptions{})
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		d := json.NewDecoder(events)
@@ -57,7 +58,7 @@ func updateNano(cmd *cobra.Command, args []string) {
 				if err == io.EOF {
 					break
 				}
-				panic(err)
+				log.Fatal(err)
 			}
 		}
 

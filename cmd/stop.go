@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -31,7 +32,7 @@ func stopNano(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Println("Stopping ceph-nano... ")
 		if err := getDocker().ContainerStop(ctx, ContainerName, &timeout); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 }

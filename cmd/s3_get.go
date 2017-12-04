@@ -24,7 +24,7 @@ var (
 func CliS3CmdGet() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get BUCKET/OBJECT [LOCAL_FILE]",
-		Short: "Get file into bucket",
+		Short: "Get file out of a bucket",
 		Args:  cobra.RangeArgs(1, 2),
 		Run:   S3CmdGet,
 		DisableFlagsInUseLine: false,

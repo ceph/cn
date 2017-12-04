@@ -22,33 +22,7 @@ import (
 
 // validateEnv verifies the ability to run the program
 func validateEnv() {
-	dockerAPIVersion()
-	dockerExist()
 	seLinux()
-}
-
-// dockerApiVersion checks docker's API Version
-func dockerAPIVersion() {
-	sv := fmt.Sprint(getDocker().ServerVersion(ctx))
-
-	if strings.Contains(sv, "is too new") {
-		ss := strings.SplitAfter(sv, "Maximum supported API version is ")
-		os.Setenv("DOCKER_API_VERSION", ss[1])
-	} else if strings.Contains(sv, "client is newer than server") {
-		ss := strings.SplitAfter(sv, "server API version: ")
-		// trim last character since this 'ss[1]' is '1.24.'
-		os.Setenv("DOCKER_API_VERSION", ss[1][:len(ss[1])-1])
-	}
-}
-
-// dockerExist makes sure Docker is installed
-func dockerExist() {
-	_, err := getDocker().Info(ctx)
-	if err != nil {
-		fmt.Println("Docker is not present on your system or not started.\n" +
-			"Make sure it's started or follow installation instructions at https://docs.docker.com/engine/installation/")
-		os.Exit(1)
-	}
 }
 
 // seLinux checks if Selinux is installed and set to Enforcing,

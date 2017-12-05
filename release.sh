@@ -1,0 +1,162 @@
+#!/bin/bash
+GITHUB_USER=ceph
+repo=cn
+
+fatal() {
+  echo "$@"
+  if [ -e "$CHANGELOG" ]; then
+    rm -f $CHANGELOG
+  fi
+  exit 1
+}
+
+isBinaryExists() {
+  which $1 &>/dev/null || fatal "Cannot find $1 binary, please check your environement"
+}
+
+isVariableExists() {
+  variable_name=$1
+  value=${!variable_name}
+
+  if [ -z "$value" ]; then
+    fatal "Please define $variable_name"
+  fi
+}
+
+isGitRepositoryClean() {
+  git diff --no-ext-diff --quiet --exit-code
+}
+
+isGitTagExists() {
+  git tag -l | grep -qw "$1"
+}
+
+usage() {
+  cat << EOF
+  $0 - create a github release and upload files
+
+  -h            : show help message
+  -g <token>    : github token (can be defined with GITHUB_TOKEN variable)
+  -t <tag>      : tag to be released (can be defined with TAG variable)
+  -p <tag>      : previous tag to make the CHANGELOG (can be defined with PTAG variable)
+EOF
+  exit 2
+}
+
+###################
+###### MAIN #######
+###################
+
+isBinaryExists go
+isBinaryExists git
+
+isGitRepositoryClean || fatal "git repository is not clean, cannot make the release !"
+
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+GIT_LAST_COMMIT=$(git log --format="%H" -n 1)
+
+which github-release &>/dev/null
+if [ $? -ne 0 ]; then
+  echo "Installing github-release"
+  go get github.com/aktau/github-release
+  isBinaryExists github-release
+fi
+
+optspec=":hg:p:t:"
+while getopts "$optspec" optchar; do
+  case "${optchar}" in
+    h)
+      usage
+      ;;
+    g)
+      export GITHUB_TOKEN=${OPTARG}
+      ;;
+    t)
+      export TAG=${OPTARG}
+      ;;
+    p)
+      export PTAG=${OPTARG}
+      ;;
+    *)
+      if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
+        echo "Non-option argument: '-${OPTARG}'" >&2
+      fi
+      ;;
+  esac
+done
+
+isVariableExists GITHUB_TOKEN
+isVariableExists TAG
+
+isGitTagExists $PTAG
+if [ $? -ne 0 ]; then
+  IMPLICIT_PTAG=$(git for-each-ref refs/tags --sort=-taggerdate --format='%(refname)' --count=1 | cut -d '/' -f 3)
+  if [ -z "$IMPLICIT_PTAG" ]; then
+    fatal "Cannot detect any previous release"
+  fi
+  while true; do
+    echo -n "Does $IMPLICIT_PTAG the git tag to consider for builiding the CHANGELOG ? (yes / no) "
+    read answer
+    # Testing lower case version of the answer
+    case ${answer,,} in
+      yes)
+        PTAG=$IMPLICIT_PTAG
+        break
+        ;;
+      no)
+        fatal "Please use the -p option to specify the git tag you want"
+        ;;
+    esac
+  done
+fi
+isVariableExists PTAG
+
+isGitTagExists $TAG
+if [ $? -ne 0 ]; then
+  echo "git tag $TAG doesn't exist !"
+  while true; do
+    echo -n "do you want to tag commit $GIT_BRANCH/$GIT_LAST_COMMIT with tag $TAG ? (yes / no) "
+    read answer
+    # Testing lower case version of the answer
+    case ${answer,,} in
+      yes)
+        git tag $TAG || fatal "Can't tag with tag $TAG"
+        git push >/dev/null || fatal "Can't push branch $GIT_BRANCH"
+        git push origin $TAG >/dev/null || fatal "Can't push TAG $TAG"
+        break
+        ;;
+      no)
+        fatal "Please create git tag $TAG"
+        ;;
+    esac
+  done
+else
+  # Be sure we build the exact code associate to this TAG
+  git checkout -q $TAG || fatal "Cannot checkout tag $TAG"
+fi
+
+echo "Building binary for git tag $TAG"
+make -s TAG=$TAG || fatal "Cannot build ceph-nano !"
+
+# If we did checkout the TAG, we need to return to the previous branch
+GIT_CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$GIT_CURRENT_BRANCH" != "$GIT_BRANCH" ]; then
+  git checkout -q $GIT_BRANCH || fatal "Cannot restore $GIT_BRANCH branch"
+fi
+
+CHANGELOG=$(mktemp /tmp/changelog.XXXXX)
+echo "Building CHANGELOG between $TAG and $PTAG"
+echo "CHANGELOG between version $PTAG and $TAG" > $CHANGELOG
+git log --oneline $PTAG..$TAG --no-decorate >> $CHANGELOG
+
+echo "Creating release $TAG"
+cat $CHANGELOG | github-release release --user $GITHUB_USER --repo $repo --tag ${TAG} -d - || fatal "Cannot create release $TAG"
+
+echo "Uploading CHANGELOG"
+github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name CHANGELOG --file $CHANGELOG || fatal "Cannot upload CHANGELOG"
+rm -f $CHANGELOG
+
+echo "Uploading binary"
+github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name ceph-nano-$TAG --file cn || fatal "Cannot upload cn"
+
+echo "Release can be browsed at https://github.com/$GITHUB_USER/$repo/releases/tag/$TAG"

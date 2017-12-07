@@ -302,6 +302,8 @@ func pullImage() bool {
 
 		out, err := getDocker().ImagePull(ctx, ImageName, types.ImagePullOptions{})
 		if err != nil {
+			// the error message will appear on a new line after the info above
+			log.Println()
 			log.Fatal(err)
 		}
 

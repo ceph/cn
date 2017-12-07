@@ -242,7 +242,7 @@ func echoInfo() {
 
 // getAwsKey gets AWS keys from inside the container
 func getAwsKey() (string, string) {
-	cmd := []string{"/bin/cat", "/nano_user_details"}
+	cmd := []string{"cat", "/nano_user_details"}
 
 	output := execContainer(ContainerName, cmd)
 

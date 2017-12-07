@@ -290,7 +290,7 @@ func dockerInspect(pattern string) string {
 
 // inspectImage inspect a given image
 func inspectImage() map[string]string {
-	ImageName := dockerInspect("image")
+	ImageName = dockerInspect("image")
 	i, _, err := getDocker().ImageInspectWithRaw(ctx, ImageName)
 	if err != nil {
 		var m map[string]string

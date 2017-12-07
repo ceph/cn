@@ -170,8 +170,7 @@ func cephNanoHealth() {
 	buf.ReadFrom(out)
 	newStr := buf.String()
 	fmt.Println(newStr)
-	fmt.Println("Please open an issue at: https://github.com/ceph/cn.")
-	os.Exit(1)
+	log.Fatal("Please open an issue at: https://github.com/ceph/cn.")
 }
 
 // curlS3 queries S3 URL
@@ -208,8 +207,7 @@ func cephNanoS3Health() {
 	}
 	fmt.Println("S3 gateway is not responding. Showing S3 logs:")
 	showS3Logs()
-	fmt.Println("Please open an issue at: https://github.com/ceph/cn.")
-	os.Exit(1)
+	log.Fatal("Please open an issue at: https://github.com/ceph/cn.")
 }
 
 // echoInfo prints useful information about Ceph Nano

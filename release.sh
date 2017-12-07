@@ -157,6 +157,6 @@ github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name CHANG
 rm -f $CHANGELOG
 
 echo "Uploading binary"
-github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name ceph-nano-$TAG --file cn || fatal "Cannot upload cn"
+github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name cn-$TAG --file cn || fatal "Cannot upload cn"
 
 echo "Release can be browsed at https://github.com/$GITHUB_USER/$repo/releases/tag/$TAG"

@@ -146,10 +146,8 @@ func grepForSuccess() bool {
 // cephNanoHealth loops on grepForSuccess for 30 seconds, fails after.
 func cephNanoHealth() {
 	// setting timeout values
-	var timeout int
-	timeout = 60
-	var poll int
-	poll = 0
+	timeout := 60
+	poll := 0
 
 	// wait for 60sec to validate that the container started properly
 	for poll < timeout {
@@ -198,10 +196,8 @@ func curlS3() bool {
 // CephNanoS3Health loops for 30 seconds while testing Ceph RGW heatlh
 func cephNanoS3Health() {
 	// setting timeout
-	var timeout int
-	timeout = 30
-	var poll int
-	poll = 0
+	timeout := 30
+	poll := 0
 
 	for poll < timeout {
 		if s3Health := curlS3(); s3Health {
@@ -265,10 +261,8 @@ func getAwsKey() (string, string) {
 
 	json.Unmarshal(output, &parsedMap)
 
-	var CephNanoAccessKey string
-	CephNanoAccessKey = parsedMap.Keys[0].AccessKey
-	var CephNanoSecretKey string
-	CephNanoSecretKey = parsedMap.Keys[0].SecretKey
+	CephNanoAccessKey := parsedMap.Keys[0].AccessKey
+	CephNanoSecretKey := parsedMap.Keys[0].SecretKey
 	return CephNanoAccessKey, CephNanoSecretKey
 }
 

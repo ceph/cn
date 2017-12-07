@@ -179,7 +179,7 @@ func curlS3() bool {
 	// Taking the first IP is probably not ideal
 	// IMHO, using the interface with most of the traffic is better
 	var url string
-	url = "http://" + ips[0].String() + ":8000"
+	url = "http://" + ips[0].String() + ":" + RgwPort
 
 	response, err := http.Get(url)
 	if err != nil {
@@ -232,7 +232,7 @@ func echoInfo() {
 
 	InfoLine :=
 		"\n" + strings.TrimSpace(string(c)) + " is the Ceph status \n" +
-			"S3 object server address is: http://" + ips[0].String() + ":8000 \n" +
+			"S3 object server address is: http://" + ips[0].String() + ":" + RgwPort + "\n" +
 			"S3 user is: nano \n" +
 			"S3 access key is: " + CephNanoAccessKey + "\n" +
 			"S3 secret key is: " + CephNanoSecretKey + "\n" +

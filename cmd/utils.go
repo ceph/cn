@@ -151,7 +151,7 @@ func cephNanoHealth() {
 
 	// wait for 60sec to validate that the container started properly
 	for poll < timeout {
-		if health := grepForSuccess(); health {
+		if grepForSuccess() {
 			return
 		}
 		time.Sleep(time.Second * 1)
@@ -200,7 +200,7 @@ func cephNanoS3Health() {
 	poll := 0
 
 	for poll < timeout {
-		if s3Health := curlS3(); s3Health {
+		if curlS3() {
 			return
 		}
 		time.Sleep(time.Second * 1)

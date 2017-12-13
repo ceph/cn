@@ -135,8 +135,8 @@ else
   git checkout -q $TAG || fatal "Cannot checkout tag $TAG"
 fi
 
-echo "Building binary for git tag $TAG"
-make -s TAG=$TAG || fatal "Cannot build ceph-nano !"
+echo "Building binaries for git tag $TAG"
+make -s release TAG=$TAG || fatal "Cannot build ceph-nano !"
 
 # If we did checkout the TAG, we need to return to the previous branch
 GIT_CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -156,7 +156,10 @@ echo "Uploading CHANGELOG"
 github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name CHANGELOG --file $CHANGELOG || fatal "Cannot upload CHANGELOG"
 rm -f $CHANGELOG
 
-echo "Uploading binary"
-github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name cn-$TAG --file cn || fatal "Cannot upload cn"
+echo "Uploading binaries"
+for binary in cn*$TAG*; do
+  echo "- $binary"
+  github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name $binary --file $binary || fatal "Cannot upload cn"
+done
 
 echo "Release can be browsed at https://github.com/$GITHUB_USER/$repo/releases/tag/$TAG"

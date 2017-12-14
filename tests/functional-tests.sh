@@ -92,7 +92,15 @@ function test_s3_put {
 
 function test_s3_get {
   runCn s3 get $bucket/${file} get_file
-  deleteFile  get_file
+  deleteFile get_file
+}
+
+function test_s3_del {
+  if [ -z "$1" ]; then
+    runCn s3 del $bucket/${file}
+  else
+    runCn s3 del $1
+  fi
 }
 
 function test_s3_ls {
@@ -128,7 +136,8 @@ function main() {
     test_s3_$test
   done
 
-  ## rb all
+  test_s3_del $bucket/${file}.new
+  test_s3_rb
 
   test_restart
 

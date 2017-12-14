@@ -38,121 +38,103 @@ function runCn() {
   deleteFile $err_file
 }
 
-function start {
+function test_start {
   runCn start -d $tmp_dir
 }
 
-function help {
+function test_help {
   runCn -h
 }
 
-function stop {
+function test_stop {
   runCn stop
 }
 
-function status {
+function test_status {
   runCn status
 }
 
-function restart {
+function test_restart {
   runCn restart
 }
 
-function logs {
+function test_logs {
   runCn logs
 }
 
-function purge {
+function test_purge {
   runCn purge --yes-i-am-sure
 }
 
-function update {
+function test_update {
   runCn update
 }
 
-function version {
+function test_version {
   runCn version
 }
 
-function s3_mb {
+function test_s3_mb {
   runCn s3 mb aaa
 }
 
-function s3_rb {
+function test_s3_rb {
   runCn s3 rb aaa
 }
 
-function s3_put {
+function test_s3_put {
   dd if=/dev/zero of=dd_file bs=1048576 count=10 &>/dev/null || fatal "Cannot run dd"
   runCn s3 put dd_file aaa
   deleteFile dd_file
 }
 
-function s3_get {
+function test_s3_get {
   runCn s3 get aaa/dd_file get_file
   deleteFile  get_file
 }
 
-function s3_ls {
+function test_s3_ls {
   runCn s3 ls aaa
 }
 
-function s3_la {
+function test_s3_la {
   runCn s3 la
 }
 
-function s3_info {
+function test_s3_info {
   runCn s3 info aaa/dd_file
 }
 
-function s3_du {
+function test_s3_du {
   runCn s3 du aaa/dd_file
 }
 
-function s3_mv {
+function test_s3_mv {
   runCn s3 mv aaa/dd_file aaa/dd_file2
 }
 
-function s3_sync {
+function test_s3_sync {
   runCn s3 sync $tmp_dir aaa
 }
 
-function main(){
-  version
-  update
-  purge
-  logs
-  restart
-  status
-  stop
-  start
-  version
-  update
-  status
-  logs
+function main() {
+  for test in version update purge logs restart status stop start version update status logs; do
+    test_$test
+  done
 
-  s3_mb
-  s3_rb
-  s3_mb
-  s3_put
-  s3_get
-  s3_ls
-  s3_la
-  s3_info
-  s3_du
-  s3_mv
-  s3_sync
+  for test in mb rb mb put get ls la info du mv sync; do
+    test_s3_$test
+  done
 
   ## rb all
 
-  restart
+  test_restart
 
   # s3 again
 
-  status
-  version
-  update
-  purge
+  for test in status version update purge; do
+    test_$test
+  done
 }
 
 main

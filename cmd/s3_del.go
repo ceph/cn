@@ -15,7 +15,7 @@ var (
 func CliS3CmdDel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "del BUCKET/OBJECT",
-		Short: "Delete bucket",
+		Short: "Delete file from bucket",
 		Args:  cobra.ExactArgs(1),
 		Run:   S3CmdDel,
 		DisableFlagsInUseLine: true,

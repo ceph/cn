@@ -2,6 +2,7 @@
 # Functional tests
 err_file=""
 tmp_dir=/tmp
+bucket=mybucket
 
 function fatal() {
   echo "$@"
@@ -75,26 +76,26 @@ function test_version {
 }
 
 function test_s3_mb {
-  runCn s3 mb aaa
+  runCn s3 mb $bucket
 }
 
 function test_s3_rb {
-  runCn s3 rb aaa
+  runCn s3 rb $bucket
 }
 
 function test_s3_put {
   dd if=/dev/zero of=dd_file bs=1048576 count=10 &>/dev/null || fatal "Cannot run dd"
-  runCn s3 put dd_file aaa
+  runCn s3 put dd_file $bucket
   deleteFile dd_file
 }
 
 function test_s3_get {
-  runCn s3 get aaa/dd_file get_file
+  runCn s3 get $bucket/dd_file get_file
   deleteFile  get_file
 }
 
 function test_s3_ls {
-  runCn s3 ls aaa
+  runCn s3 ls $bucket
 }
 
 function test_s3_la {
@@ -102,19 +103,19 @@ function test_s3_la {
 }
 
 function test_s3_info {
-  runCn s3 info aaa/dd_file
+  runCn s3 info $bucket/dd_file
 }
 
 function test_s3_du {
-  runCn s3 du aaa/dd_file
+  runCn s3 du $bucket/dd_file
 }
 
 function test_s3_mv {
-  runCn s3 mv aaa/dd_file aaa/dd_file2
+  runCn s3 mv $bucket/dd_file $bucket/dd_file2
 }
 
 function test_s3_sync {
-  runCn s3 sync $tmp_dir aaa
+  runCn s3 sync $tmp_dir $bucket
 }
 
 function main() {

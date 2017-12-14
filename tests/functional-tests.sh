@@ -3,6 +3,7 @@
 err_file=""
 tmp_dir=/tmp
 bucket=mybucket
+file=dd_file
 
 function fatal() {
   echo "$@"
@@ -84,13 +85,13 @@ function test_s3_rb {
 }
 
 function test_s3_put {
-  dd if=/dev/zero of=dd_file bs=1048576 count=10 &>/dev/null || fatal "Cannot run dd"
-  runCn s3 put dd_file $bucket
-  deleteFile dd_file
+  dd if=/dev/zero of=${file} bs=1048576 count=10 &>/dev/null || fatal "Cannot run dd"
+  runCn s3 put ${file} $bucket
+  deleteFile ${file}
 }
 
 function test_s3_get {
-  runCn s3 get $bucket/dd_file get_file
+  runCn s3 get $bucket/${file} get_file
   deleteFile  get_file
 }
 
@@ -103,15 +104,15 @@ function test_s3_la {
 }
 
 function test_s3_info {
-  runCn s3 info $bucket/dd_file
+  runCn s3 info $bucket/${file}
 }
 
 function test_s3_du {
-  runCn s3 du $bucket/dd_file
+  runCn s3 du $bucket/${file}
 }
 
 function test_s3_mv {
-  runCn s3 mv $bucket/dd_file $bucket/dd_file2
+  runCn s3 mv $bucket/${file} $bucket/${file}.new
 }
 
 function test_s3_sync {

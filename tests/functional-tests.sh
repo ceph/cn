@@ -6,9 +6,9 @@ bucket=mybucket
 file=dd_file
 runCnStatus=0
 lastTest=""
+captionForFailure=""
 
 function fatal() {
-  echo "$@"
   if [ -e $err_file ]; then
     cat $err_file
     deleteFile $err_file
@@ -18,22 +18,24 @@ function fatal() {
 
 function getTempFile() {
   filename=$tmp_dir/$1.XXXXX
-  filename=$(mktemp $filename) &>/dev/null || fatal "Cannot create $filename"
+  local captionForFailure="Cannot create $filename"
+  filename=$(mktemp $filename) &>/dev/null
   echo $filename
 }
 
 function deleteFile() {
+  local captionForFailure="Cannot delete file $1"
   if [ -e "$1" ]; then
-    rm -f $1 || fatal "Cannot delete $1"
+    rm -f $1
   fi
 }
 
 function success {
-  printf '%-20s : SUCCESS\n' ${lastTest}
+  printf '%-20s : SUCCESS\n' "${lastTest}"
 }
 
 function failed() {
-  printf '%-20s : ERROR\n' ${lastTest}
+  printf '%-20s : ERROR  : %s\n' "${lastTest}" "${captionForFailure}"
   fatal
 }
 
@@ -118,7 +120,7 @@ function test_s3_rb {
 }
 
 function test_s3_put {
-  dd if=/dev/zero of=${file} bs=1048576 count=10 &>/dev/null || fatal "Cannot run dd"
+  captionForFailure="Cannot run dd" dd if=/dev/zero of=${file} bs=1048576 count=10 &>/dev/null
   runCn s3 put ${file} $bucket
   deleteFile ${file}
   reportSuccess

@@ -181,6 +181,11 @@ function test_s3_mv {
   isS3ObjectExists ${bucket} ${file}.new
   reportSuccess
 }
+
+function test_s3_cp {
+  runCn s3 cp $bucket/${file} $bucket/${file}.copy
+  isS3ObjectExists ${bucket} ${file}.copy
+  reportSuccess
 }
 
 function test_s3_sync {
@@ -195,11 +200,12 @@ function main() {
     test_$test
   done
 
-  for test in mb rb mb put get ls la info du mv sync; do
+  for test in mb rb mb put get ls la info du cp mv sync; do
     test_s3_$test
   done
 
   test_s3_del $bucket/${file}.new
+  test_s3_del $bucket/${file}.copy
   test_s3_rb
 
   test_restart

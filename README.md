@@ -43,13 +43,18 @@ Once Docker is installed you're ready to start.
 Open your terminal and download the cn binary.
 
 macOS
-``` 
-$ curl -L https://github.com/ceph/cn/releases/download/v1.0.0/cn-v1.0.0-darwin-amd64 -o cn && chmod +x cn
+```
+$ curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-darwin-amd64 -o cn && chmod +x cn
 ```
 
-linux
+Linux
 ```
-$ curl -L https://github.com/ceph/cn/releases/download/v1.0.0/cn-v1.0.0-linux-x86 -o cn && chmod +x cn
+$ curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-linux-amd64 -o cn && chmod +x cn
+```
+
+Windows
+```
+$ curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-windows-amd64.exe -o cn && chmod +x cn
 ```
 
 Test it out

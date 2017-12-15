@@ -1,1 +1,4 @@
 theme: jekyll-theme-cayman
+title: Ceph Nano
+description: One step S3 in container with Ceph.
+show_downloads: true

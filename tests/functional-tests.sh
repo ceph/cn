@@ -4,6 +4,7 @@ err_file=""
 tmp_dir=/tmp
 bucket=mybucket
 file=dd_file
+runCnVerbose=""
 runCnStatus=0
 lastTest=""
 captionForFailure=""
@@ -58,10 +59,20 @@ function runCn() {
   err_file=$(getTempFile $lastTest)
   ./cn "$@" &>"$err_file"
   runCnStatus=$?
+
+  if [ -n "$runCnVerbose" ]; then
+    cat $err_file
+  fi
+
   deleteFile $err_file
   return $runCnStatus
 }
 
+function isS3ObjectExists {
+  local bucket=$1
+  local file=$2
+  local captionForFailure="Checking if $bucket/$file exists"
+  runCnVerbose="True" runCn s3 ls $bucket | awk '{print $4}' | sed -e "s|s3://$bucket/||g" | grep -qw "$file"
 }
 
 function test_start {
@@ -122,6 +133,7 @@ function test_s3_rb {
 function test_s3_put {
   captionForFailure="Cannot run dd" dd if=/dev/zero of=${file} bs=1048576 count=10 &>/dev/null
   runCn s3 put ${file} $bucket
+  isS3ObjectExists ${bucket} ${file}
   deleteFile ${file}
   reportSuccess
 }
@@ -133,11 +145,14 @@ function test_s3_get {
 }
 
 function test_s3_del {
-  if [ -z "$1" ]; then
-    runCn s3 del $bucket/${file}
-  else
-    runCn s3 del $1
+  local bucket=$bucket
+  local file=$file
+  if [ $# -eq 1 ]; then
+    bucket=$(echo ${1%/*})
+    file=$(echo ${1#*/})
   fi
+  runCn s3 del $bucket/$file
+  ! isS3ObjectExists ${bucket} ${file}
   reportSuccess
 }
 
@@ -163,6 +178,7 @@ function test_s3_du {
 
 function test_s3_mv {
   runCn s3 mv $bucket/${file} $bucket/${file}.new
+  isS3ObjectExists ${bucket} ${file}.new
   reportSuccess
 }
 }

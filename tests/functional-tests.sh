@@ -8,6 +8,18 @@ runCnVerbose=""
 runCnStatus=0
 lastTest=""
 captionForFailure=""
+start_time=0
+nested_tests=0 # How many test_* are nested
+
+function start_test {
+  # If a test starts another test, don't consider a new start
+  if [ $nested_tests -eq 0 ]; then
+    lastTest=${FUNCNAME[1]}
+    start_time=$(date +%s.%N)
+    printf '%-35s : ' "${lastTest}"
+  fi
+  nested_tests=$(($nested_tests + 1))
+}
 
 function fatal() {
   if [ -e $err_file ]; then
@@ -32,11 +44,17 @@ function deleteFile() {
 }
 
 function success {
-  printf '%-20s : SUCCESS\n' "${lastTest}"
+  nested_tests=$(($nested_tests - 1))
+  # Until we reach the initial test, don't print anything
+  if [ $nested_tests -eq 0 ]; then
+    end=$(date +%s.%N)
+    duration=$(echo "$end - $start_time" | bc -l | sed -e "s/\./,/g")
+    printf 'SUCCESS : %3.2f seconds\n' $duration
+  fi
 }
 
 function failed() {
-  printf '%-20s : ERROR  : %s\n' "${lastTest}" "${captionForFailure}"
+  printf 'ERROR  : %s\n' "${captionForFailure}"
   fatal
 }
 
@@ -55,7 +73,6 @@ function reportSuccess {
 }
 
 function runCn() {
-  lastTest=${FUNCNAME[1]}
   err_file=$(getTempFile $lastTest)
   ./cn "$@" &>"$err_file"
   runCnStatus=$?
@@ -76,61 +93,73 @@ function isS3ObjectExists {
 }
 
 function test_start {
+  start_test
   runCn start -d $tmp_dir
   reportSuccess
 }
 
 function test_help {
+  start_test
   runCn -h
   reportSuccess
 }
 
 function test_stop {
+  start_test
   runCn stop
   reportSuccess
 }
 
 function test_status {
+  start_test
   runCn status
   reportSuccess
 }
 
 function test_restart {
+  start_test
   runCn restart
   reportSuccess
 }
 
 function test_logs {
+  start_test
   runCn logs
   reportSuccess
 }
 
 function test_purge {
+  start_test
   runCn purge --yes-i-am-sure
   reportSuccess
 }
 
 function test_update {
+  start_test
   runCn update
   reportSuccess
 }
 
 function test_version {
+  start_test
   runCn version
   reportSuccess
 }
 
 function test_s3_mb {
+  start_test
   runCn s3 mb $bucket
   reportSuccess
 }
 
 function test_s3_rb {
+  start_test
   runCn s3 rb $bucket
   reportSuccess
 }
 
 function test_s3_put {
+  start_test
   captionForFailure="Cannot run dd" dd if=/dev/zero of=${file} bs=1048576 count=10 &>/dev/null
   runCn s3 put ${file} $bucket
   isS3ObjectExists ${bucket} ${file}
@@ -139,12 +168,14 @@ function test_s3_put {
 }
 
 function test_s3_get {
+  start_test
   runCn s3 get $bucket/${file} get_file
   deleteFile get_file
   reportSuccess
 }
 
 function test_s3_del {
+  start_test
   local bucket=$bucket
   local file=$file
   if [ $# -eq 1 ]; then
@@ -157,42 +188,54 @@ function test_s3_del {
 }
 
 function test_s3_ls {
+  start_test
   runCn s3 ls $bucket
   reportSuccess
 }
 
 function test_s3_la {
+  start_test
   runCn s3 la
   reportSuccess
 }
 
 function test_s3_info {
+  start_test
   runCn s3 info $bucket/${file}
   reportSuccess
 }
 
 function test_s3_du {
+  start_test
   runCn s3 du $bucket/${file}
   reportSuccess
 }
 
 function test_s3_mv {
+  start_test
   runCn s3 mv $bucket/${file} $bucket/${file}.new
   isS3ObjectExists ${bucket} ${file}.new
   reportSuccess
 }
 
 function test_s3_cp {
+  start_test
   runCn s3 cp $bucket/${file} $bucket/${file}.copy
   isS3ObjectExists ${bucket} ${file}.copy
   reportSuccess
 }
 
 function test_s3_sync {
+  start_test
   runCn s3 sync $tmp_dir $bucket
   reportSuccess
 }
 
+#function test_template {
+#start_test
+#runCn
+#reportSuccess
+#}
 function main() {
   set -e
   trap failed 0

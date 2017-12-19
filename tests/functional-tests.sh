@@ -51,7 +51,7 @@ function success {
   # Until we reach the initial test, don't print anything
   if [ $nested_tests -eq 0 ]; then
     end=$(date +%s.%N)
-    duration=$(echo "$end - $start_time" | bc -l | sed -e "s/\./,/g")
+    duration=$(echo "$end - $start_time" | bc -l)
     printf 'SUCCESS : %3.2f seconds\n' $duration
   fi
 }
@@ -446,8 +446,11 @@ function main() {
   trap - 0
 }
 
+export LC_ALL=
+export LANG="en_US.UTF-8"
+export LC_NUMERIC="en_US.UTF-8"
 global_start_time=$(date +%s.%N)
 main "$@"
 global_stop_time=$(date +%s.%N)
-global_duration=$(echo "$global_stop_time - $global_start_time" | bc -l | sed -e "s/\./,/g")
+global_duration=$(echo "$global_stop_time - $global_start_time" | bc -l)
 printf "\nRan %d tests in %.2f seconds\n" "$tests_ran" "$global_duration"

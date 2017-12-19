@@ -380,9 +380,37 @@ function test_s3_delete_10_buckets {
   reportSuccess
 }
 
+function report_configuration {
+  OS=$(uname -s)
+  case "$OS" in
+    "Linux")
+      CPU=$(grep "model name" /proc/cpuinfo | cut -d ":" -f 2 | head -1)
+      RAM=$(free -h | grep "Mem" | awk '{print $2}')
+      ;;
+    "Darwin")
+      CPU=$(sysctl -n machdep.cpu.brand_string)
+      RAM=$(sysctl -a | grep hw.memsize)
+      RAM=$(($RAM / 1024 / 1024))
+      RAM="${RAM}G"
+      ;;
+    *)
+      fatal "Unsupported platform $OS"
+      ;;
+  esac
+  echo "Running tests on host $(hostname)"
+  echo "OS Type   = $OS"
+  echo "CPU Model = $CPU"
+  echo "Total RAM = $RAM"
+  echo "System    = $(uname -a)"
+  echo
+}
+
+
 function main() {
   set -e
   trap failed 0
+
+  report_configuration
 
   # Arguments given on the cli are test names run in sequence
   if [ $# -gt 0 ]; then

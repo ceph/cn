@@ -10,6 +10,7 @@ lastTest=""
 captionForFailure=""
 start_time=0
 nested_tests=0 # How many test_* are nested
+file_extension=""
 
 function start_test {
   # If a test starts another test, don't consider a new start
@@ -88,10 +89,19 @@ function runCn() {
   return $runCnStatus
 }
 
-function isS3ObjectExists {
+function countS3Objects {
   local bucket=$1
-  local file=$2
-  local captionForFailure="Checking if $bucket/$file exists"
+  local captionForFailure="Counting $bucket objects"
+  runCnVerbose="True" runCn s3 ls $bucket | grep -a "s3://" | wc -l
+}
+
+function isS3ObjectExists {
+  local item=$1
+  local bucket
+  local file
+  bucket=$(echo ${item%/*})
+  file=$(echo ${item#*/})
+  local captionForFailure="Checking if ($item) $bucket/$file exists"
   runCnVerbose="True" runCn s3 ls $bucket | awk '{print $4}' | sed -e "s|s3://$bucket/||g" | grep -qw "$file"
 }
 
@@ -161,14 +171,48 @@ function test_s3_rb {
   reportSuccess
 }
 
-function test_s3_put {
+function s3_put {
+  local file=$1
+  local bucket=$2
+  runCn s3 put ${file} $bucket
+  isS3ObjectExists ${bucket}/${file}
+}
+
+function test_s3_put_10MB {
   start_test
   captionForFailure="Cannot run dd" dd if=/dev/zero of=${file} bs=1048576 count=10 &>/dev/null
-  runCn s3 put ${file} $bucket
-  isS3ObjectExists ${bucket} ${file}
+  s3_put ${file} ${bucket}
   deleteFile ${file}
   reportSuccess
 }
+
+function test_s3_put_custom {
+  start_test
+  local upload_count=$1
+  local file_size=$2
+  captionForFailure="Cannot run dd" dd if=/dev/zero of=${file} bs=$file_size count=1 &>/dev/null
+  new_file=$file
+  for i in $(seq 1 $upload_count); do
+    new_file=$file.$i
+    mv ${file} ${new_file}
+    s3_put ${new_file} ${bucket}
+    mv $new_file $file
+  done
+  deleteFile ${file}
+  reportSuccess
+}
+
+function test_s3_put_50x_4K {
+  start_test
+  initial_count=$(countS3Objects $bucket)
+  test_s3_put_custom 50 4096
+  final_count=$(countS3Objects $bucket)
+  delta=$(($final_count - $initial_count))
+  captionForFailure="delta is $delta"
+  [ "$delta" -eq 50 ];
+  reportSuccess
+}
+
 
 function test_s3_get {
   start_test
@@ -185,8 +229,28 @@ function test_s3_del {
     bucket=$(echo ${1%/*})
     file=$(echo ${1#*/})
   fi
-  runCn s3 del $bucket/$file
-  ! isS3ObjectExists ${bucket} ${file}
+  runCn s3 del $bucket/$file${file_extension}
+  ! isS3ObjectExists ${bucket}/${file}${file_extension}
+  reportSuccess
+}
+
+function test_s3_del_custom {
+  start_test
+  local upload_count=$1
+  for i in `seq 1 $upload_count`; do
+    test_s3_del $bucket/$file.${i}
+  done
+  reportSuccess
+}
+
+function test_s3_del_50x {
+  start_test
+  local initial_count=$(countS3Objects $bucket)
+  test_s3_del_custom 50
+  local final_count=$(countS3Objects $bucket)
+  local delta=$(($initial_count - $final_count))
+  captionForFailure="delta is $delta"
+  [ "$delta" -eq 50 ];
   reportSuccess
 }
 
@@ -216,15 +280,71 @@ function test_s3_du {
 
 function test_s3_mv {
   start_test
-  runCn s3 mv $bucket/${file} $bucket/${file}.new
-  isS3ObjectExists ${bucket} ${file}.new
+  source=${1-$bucket/$file}
+  dest=${2-$bucket/${file}.new}
+  runCn s3 mv $source $dest
+  isS3ObjectExists $dest
+  reportSuccess
+}
+
+function test_s3_mv_custom {
+  start_test
+  source=${1-$bucket/$file}
+  count=$2
+  local bucket=$(echo ${source%/*})
+  local file=$(echo ${source#*/})
+  local initial_count=$(countS3Objects $bucket)
+  for loop in $(seq 1 $count); do
+    test_s3_mv ${bucket}/${file}.${loop}${file_extension} ${bucket}/${file}.${loop}
+  done
+  local final_count=$(countS3Objects $bucket)
+  local delta=$(($final_count - $initial_count))
+  captionForFailure="delta is $delta"
+  # It's weird but mv actually copy the file....
+  [ "$delta" -eq $count ];
+  reportSuccess
+}
+
+function test_s3_mv_50x {
+  start_test
+  object=${1-$bucket/$file}
+  test_s3_mv_custom "${object}" 50
+  reportSuccess
+}
+
+function test_s3_mv_50x_after_copy {
+  start_test
+  file_extension=".copy" test_s3_mv_custom ${bucket}/${file} 50
   reportSuccess
 }
 
 function test_s3_cp {
   start_test
-  runCn s3 cp $bucket/${file} $bucket/${file}.copy
-  isS3ObjectExists ${bucket} ${file}.copy
+  source=${1-$file}
+  dest=${2-$source}.copy
+  runCn s3 cp $bucket/${source} $bucket/$dest
+  isS3ObjectExists ${bucket}/${dest}
+  reportSuccess
+}
+
+function test_s3_cp_custom {
+  start_test
+  source=$1
+  count=$2
+  initial_count=$(countS3Objects $bucket)
+  for loop in $(seq 1 $count); do
+    test_s3_cp ${file} ${file}.$loop
+  done
+  final_count=$(countS3Objects $bucket)
+  delta=$(($final_count - $initial_count))
+  captionForFailure="delta is $delta"
+  [ "$delta" -eq 50 ];
+  reportSuccess
+}
+
+function test_s3_cp_50x {
+  start_test
+  test_s3_cp_custom ${file} 50
   reportSuccess
 }
 
@@ -239,29 +359,61 @@ function test_s3_sync {
 #runCn
 #reportSuccess
 #}
+
+function test_s3_create_10_buckets {
+  local bucket
+  start_test
+  for i in `seq 1 10`; do
+    bucket=bucket_$i
+    test_s3_mb
+  done
+  reportSuccess
+}
+
+function test_s3_delete_10_buckets {
+  local bucket
+  start_test
+  for i in `seq 1 10`; do
+    bucket=bucket_$i
+    test_s3_rb
+  done
+  reportSuccess
+}
+
 function main() {
   set -e
   trap failed 0
-  for test in version update purge logs restart status stop start version update status logs; do
-    test_$test
-  done
 
-  for test in mb rb mb put get ls la info du cp mv sync; do
-    test_s3_$test
-  done
+  # Arguments given on the cli are test names run in sequence
+  if [ $# -gt 0 ]; then
+    test_purge
+    test_start
+    test_s3_mb
+    for cli_test in "$@"; do
+      $cli_test
+    done
+  else
+    for test in version update purge logs restart status stop start version update status logs; do
+      test_$test
+    done
 
-  test_s3_del $bucket/${file}.new
-  test_s3_del $bucket/${file}.copy
-  test_s3_rb
+    for test in create_10_buckets delete_10_buckets mb put_50x_4K del_50x put_10MB get ls la info du cp_50x mv_50x_after_copy ; do
+      test_s3_$test
+    done
 
-  test_restart
+    file_extension=".copy" test_s3_del_50x
+    test_s3_sync
+    test_s3_rb
 
-  # s3 again
+    test_restart
 
-  for test in status version update purge; do
-    test_$test
-  done
+    # s3 again
+
+    for test in status version update purge; do
+      test_$test
+    done
+  fi
   trap - 0
 }
 
-main
+main "$@"

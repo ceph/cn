@@ -67,6 +67,7 @@ function reportSuccess {
 
   if [[ "$returnCode" -eq 0 ]]; then
     success
+    captionForFailure=""
   else
     failed
   fi
@@ -74,6 +75,8 @@ function reportSuccess {
 
 function runCn() {
   err_file=$(getTempFile $lastTest)
+  local command="$@"
+  captionForFailure="Failed with $command: $captionForFailure"
   ./cn "$@" &>"$err_file"
   runCnStatus=$?
 

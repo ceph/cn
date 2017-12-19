@@ -11,6 +11,7 @@ captionForFailure=""
 start_time=0
 nested_tests=0 # How many test_* are nested
 file_extension=""
+tests_ran=0
 
 function start_test {
   # If a test starts another test, don't consider a new start
@@ -18,6 +19,7 @@ function start_test {
     lastTest=${FUNCNAME[1]}
     start_time=$(date +%s.%N)
     printf '%-35s : ' "${lastTest}"
+    tests_ran=$(($tests_ran + 1))
   fi
   nested_tests=$(($nested_tests + 1))
 }
@@ -444,4 +446,8 @@ function main() {
   trap - 0
 }
 
+global_start_time=$(date +%s.%N)
 main "$@"
+global_stop_time=$(date +%s.%N)
+global_duration=$(echo "$global_stop_time - $global_start_time" | bc -l | sed -e "s/\./,/g")
+printf "\nRan %d tests in %.2f seconds\n" "$tests_ran" "$global_duration"

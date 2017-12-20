@@ -61,6 +61,7 @@ function failed() {
   fatal
 }
 
+# shellcheck disable=SC2120
 function reportSuccess {
   if [ -n "$1" ]; then
     returnCode=$1
@@ -78,7 +79,7 @@ function reportSuccess {
 
 function runCn() {
   err_file=$(getTempFile $lastTest)
-  local command="$@"
+  local command="$*"
   captionForFailure="Failed with $command: $captionForFailure"
   ./cn "$@" &>"$err_file"
   runCnStatus=$?
@@ -247,9 +248,11 @@ function test_s3_del_custom {
 
 function test_s3_del_50x {
   start_test
-  local initial_count=$(countS3Objects $bucket)
+  local initial_count
+  initial_count=$(countS3Objects $bucket)
   test_s3_del_custom 50
-  local final_count=$(countS3Objects $bucket)
+  local final_count
+  final_count=$(countS3Objects $bucket)
   local delta=$(($initial_count - $final_count))
   captionForFailure="delta is $delta"
   [ "$delta" -eq 50 ];
@@ -293,13 +296,17 @@ function test_s3_mv_custom {
   start_test
   source=${1-$bucket/$file}
   count=$2
-  local bucket=$(echo ${source%/*})
-  local file=$(echo ${source#*/})
-  local initial_count=$(countS3Objects $bucket)
+  local bucket
+  bucket=$(echo ${source%/*})
+  local file
+  file=$(echo ${source#*/})
+  local initial_count
+  initial_count=$(countS3Objects $bucket)
   for loop in $(seq 1 $count); do
     test_s3_mv ${bucket}/${file}.${loop}${file_extension} ${bucket}/${file}.${loop}
   done
-  local final_count=$(countS3Objects $bucket)
+  local final_count
+  final_count=$(countS3Objects $bucket)
   local delta=$(($final_count - $initial_count))
   captionForFailure="delta is $delta"
   # It's weird but mv actually copy the file....

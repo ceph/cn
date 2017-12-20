@@ -64,7 +64,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"8000/tcp": []nat.PortBinding{
 			{
 				HostIP:   "0.0.0.0",
-				HostPort: "8000",
+				HostPort: RgwPort,
 			},
 		},
 	}

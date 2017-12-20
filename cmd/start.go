@@ -74,7 +74,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"CEPH_DEMO_UID=" + CephNanoUID,
 		"NETWORK_AUTO_DETECT=4",
 		"RGW_CIVETWEB_PORT=" + RgwPort,
-		"CEPH_DAEMON=demo"}
+		"CEPH_DAEMON=demo",
+		"DEMO_DAEMONS=mon,mgr,osd,rgw"}
 
 	ressources := container.Resources{
 		Memory:   536870912, // 512MB

@@ -1,5 +1,7 @@
 # cn (ceph-nano)
 
+![Ceph, the future of storage](ceph-nano-logo-vertical.jpg)
+
 ## The project
 
 cn is a little program written in Go that helps you interact with the S3 API by providing a REST S3 compatible gateway. The target audience is developers building their applications on Amazon S3. It is also an exciting tool to showcase Ceph Rados Gateway S3 compatibility.

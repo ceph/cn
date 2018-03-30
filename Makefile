@@ -22,18 +22,18 @@ prepare:
 	go get github.com/jmoiron/jsonq
 
 darwin:
-	make GOOS=darwin
-
-linux:
-	make GOOS=linux
+	make GOOS=darwin GOARCH:=amd64
 
 windows:
-	make GOOS=windows CN_EXTENSION=".exe"
+	make GOOS=windows CN_EXTENSION=".exe" GOARCH:=amd64
+
+linux-%:
+	make GOOS=linux GOARCH:=$*
 
 tests:
 	tests/functional-tests.sh
 
-release: darwin linux windows
+release: darwin windows linux-amd64 linux-arm64
 
 clean:
 	rm -f cn &>/dev/null || true

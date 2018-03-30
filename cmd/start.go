@@ -12,6 +12,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	// PrivilegedContainer whether or not the container should run Privileged
+	PrivilegedContainer bool
+)
+
 // CliStartNano is the Cobra CLI call
 func CliStartNano() *cobra.Command {
 	cmd := &cobra.Command{
@@ -23,8 +28,11 @@ func CliStartNano() *cobra.Command {
 			"cn start --work-dir /tmp \n" +
 			"cn start --image ceph/daemon:tag-stable-3.0-luminous-ubuntu-16.04",
 	}
+	cmd.Flags().SortFlags = false
 	cmd.Flags().StringVarP(&WorkingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
 	cmd.Flags().StringVarP(&ImageName, "image", "i", "ceph/daemon", "USE AT YOUR OWN RISK. Ceph container image to use, format is 'username/image:tag'.")
+	cmd.Flags().BoolVar(&PrivilegedContainer, "privileged", false, "Starts the container in privileged mode")
+	cmd.Flags().BoolVar(&Help, "help", false, "help for start")
 
 	return cmd
 }
@@ -97,6 +105,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		PortBindings: portBindings,
 		Binds:        []string{WorkingDirectory + ":" + TempPath},
 		Resources:    ressources,
+		Privileged:   PrivilegedContainer,
 	}
 
 	resp, err := getDocker().ContainerCreate(ctx, config, hostConfig, nil, ContainerName)

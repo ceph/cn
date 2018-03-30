@@ -16,6 +16,7 @@ func CliS3CmdSync() *cobra.Command {
 		Run:   S3CmdSync,
 		DisableFlagsInUseLine: true,
 	}
+
 	return cmd
 }
 

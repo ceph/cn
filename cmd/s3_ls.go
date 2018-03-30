@@ -14,6 +14,7 @@ func CliS3CmdLs() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run:   S3CmdLs,
 	}
+
 	return cmd
 }
 

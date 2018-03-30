@@ -15,6 +15,7 @@ func CliS3CmdCp() *cobra.Command {
 		Run:   S3CmdCp,
 		DisableFlagsInUseLine: true,
 	}
+
 	return cmd
 }
 

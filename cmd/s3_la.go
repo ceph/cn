@@ -15,6 +15,7 @@ func CliS3CmdLa() *cobra.Command {
 		Run:   S3CmdLa,
 		DisableFlagsInUseLine: true,
 	}
+
 	return cmd
 }
 

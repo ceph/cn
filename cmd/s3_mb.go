@@ -15,6 +15,7 @@ func CliS3CmdMb() *cobra.Command {
 		Run:   S3CmdMb,
 		DisableFlagsInUseLine: true,
 	}
+
 	return cmd
 }
 

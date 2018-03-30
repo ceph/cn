@@ -15,6 +15,7 @@ func CliRestartNano() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run:   restartNano,
 	}
+
 	return cmd
 }
 

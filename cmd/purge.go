@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	// IamSure means whenver or not the user wants to purge
+	// IamSure means whether or not the user wants to purge
 	IamSure bool
 
 	// Help shows a customer help
@@ -32,6 +32,7 @@ func CliPurgeNano() *cobra.Command {
 	cmd.Flags().BoolVar(&IamSure, "yes-i-am-sure", false, "YES I know what I'm doing and I want to purge")
 	cmd.Flags().BoolVar(&DeleteAll, "all", false, "This also deletes the container image")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for purge")
+
 	return cmd
 }
 

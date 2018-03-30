@@ -15,6 +15,7 @@ func CliStatusNano() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run:   statusNano,
 	}
+
 	return cmd
 }
 

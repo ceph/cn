@@ -15,6 +15,7 @@ func CliVersionNano() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run:   versionNano,
 	}
+
 	return cmd
 }
 

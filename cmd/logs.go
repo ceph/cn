@@ -14,6 +14,7 @@ func CliLogsNano() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run:   logsNano,
 	}
+
 	return cmd
 }
 

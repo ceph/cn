@@ -17,6 +17,7 @@ func CliStopNano() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run:   stopNano,
 	}
+
 	return cmd
 }
 

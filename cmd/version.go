@@ -27,12 +27,12 @@ func versionNano(cmd *cobra.Command, args []string) {
 	if status := containerStatus(false, "running"); !status {
 		os.Exit(0)
 	}
-	if ii := inspectImage(); ii["head"] == "unknown" {
+	if ii := inspectImage(); ii["RELEASE"] == "unknown" {
 		fmt.Println("ceph-nano container image version is unknown (no image pulled yet)")
-	} else if len(ii["head"]) == 0 {
+	} else if len(ii["RELEASE"]) == 0 {
 		fmt.Println("ceph-nano container image version is unknown (you're likely running an old image, one that doesn't have a commit label)")
 	} else {
-		fmt.Println("ceph-nano container image version " + ii["head"])
+		fmt.Println("ceph-nano container image version " + ii["RELEASE"])
 	}
 
 }

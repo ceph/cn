@@ -26,11 +26,8 @@ var (
 	// CephNanoUID is the uid of the S3 user
 	CephNanoUID = "nano"
 
-	// RgwPort is the rgw listening port
-	RgwPort = "8000"
-
-	// ContainerName is name of the container
-	ContainerName = "ceph-nano"
+	// ContainerNamePrefix is name of the container
+	ContainerNamePrefix = "ceph-nano-"
 
 	// ImageName is the name of the container image
 	ImageName = "ceph/daemon"
@@ -105,12 +102,7 @@ func Main(version string) {
 
 func init() {
 	rootCmd.AddCommand(
-		CliStartNano(),
-		CliStopNano(),
-		CliStatusNano(),
-		CliPurgeNano(),
-		CliLogsNano(),
-		CliRestartNano(),
+		cmdCluster,
 		cmdS3,
 		cmdImage,
 		CliVersionNano(),

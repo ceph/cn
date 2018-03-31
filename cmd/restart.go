@@ -7,12 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliRestartNano is the Cobra CLI call
-func CliRestartNano() *cobra.Command {
+// CliClusterRestart is the Cobra CLI call
+func CliClusterRestart() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "restart",
 		Short: "Restart object storage server",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run:   restartNano,
 	}
 
@@ -21,10 +21,13 @@ func CliRestartNano() *cobra.Command {
 
 // restartNano restarts Ceph Nano
 func restartNano(cmd *cobra.Command, args []string) {
-	notExistCheck()
-	fmt.Println("Restarting ceph-nano...")
+	ContainerName := ContainerNamePrefix + args[0]
+	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+
+	notExistCheck(ContainerName)
+	fmt.Println("Restarting cluster " + ContainerNameToShow + "...")
 	if err := getDocker().ContainerRestart(ctx, ContainerName, nil); err != nil {
 		log.Fatal(err)
 	}
-	echoInfo()
+	echoInfo(ContainerName)
 }

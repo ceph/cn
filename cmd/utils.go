@@ -128,7 +128,7 @@ func execContainer(ContainerName string, cmd []string) []byte {
 }
 
 // grepForSuccess searches for the word 'SUCCESS' inside the container logs
-func grepForSuccess() bool {
+func grepForSuccess(ContainerName string) bool {
 	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		log.Fatal(err)
@@ -145,14 +145,14 @@ func grepForSuccess() bool {
 }
 
 // cephNanoHealth loops on grepForSuccess for 30 seconds, fails after.
-func cephNanoHealth() {
+func cephNanoHealth(ContainerName string) {
 	// setting timeout values
 	timeout := 60
 	poll := 0
 
 	// wait for 60sec to validate that the container started properly
 	for poll < timeout {
-		if grepForSuccess() {
+		if grepForSuccess(ContainerName) {
 			return
 		}
 		time.Sleep(time.Second * 1)
@@ -160,7 +160,7 @@ func cephNanoHealth() {
 	}
 
 	// if we reach here, something is broken in the container
-	fmt.Print("The container from Ceph Nano never reached a clean state. Show the container logs:")
+	fmt.Println("The container " + ContainerName + " never reached a clean state. Showing the container logs now:")
 	// ideally we would return the second value of GrepForSuccess when it's false
 	// this would mean having 2 return values for GrepForSuccess
 	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
@@ -171,7 +171,7 @@ func cephNanoHealth() {
 	buf.ReadFrom(out)
 	newStr := buf.String()
 	fmt.Println(newStr)
-	log.Fatal("Please open an issue at: https://github.com/ceph/cn.")
+	log.Fatal("Please open an issue at: https://github.com/ceph/cn with the logs above.")
 }
 
 // curlTestURL tests a given URL
@@ -252,15 +252,14 @@ func parseArray(anArray []interface{}, keyType string) {
 }
 
 // CephNanoS3Health loops for 30 seconds while testing Ceph RGW health
-func cephNanoS3Health() {
+func cephNanoS3Health(ContainerName string, RgwPort string) {
 	// setting timeout
 	timeout := 30
 	poll := 0
 	ips, _ := getInterfaceIPv4s()
 	// Taking the first IP is probably not ideal
 	// IMHO, using the interface with most of the traffic is better
-	var url string
-	url = "http://" + ips[0].String() + ":" + RgwPort
+	url := "http://" + ips[0].String() + ":" + RgwPort
 
 	for poll < timeout {
 		if curlTestURL(url) {
@@ -269,19 +268,22 @@ func cephNanoS3Health() {
 		time.Sleep(time.Second * 1)
 		poll++
 	}
-	fmt.Println("S3 gateway is not responding. Showing S3 logs:")
-	showS3Logs()
+	fmt.Println("S3 gateway for cluster " + ContainerName + " is not responding. Showing S3 logs:")
+	showS3Logs(ContainerName)
 	log.Fatal("Please open an issue at: https://github.com/ceph/cn.")
 }
 
 // echoInfo prints useful information about Ceph Nano
-func echoInfo() {
+func echoInfo(ContainerName string) {
+	// Get listening port
+	RgwPort := dockerInspect(ContainerName, "PortBindings")
+
 	// Always wait the container to be ready
-	cephNanoHealth()
-	cephNanoS3Health()
+	cephNanoHealth(ContainerName)
+	cephNanoS3Health(ContainerName, RgwPort)
 
 	// Fetch Amazon Keys
-	CephNanoAccessKey, CephNanoSecretKey := getAwsKey()
+	CephNanoAccessKey, CephNanoSecretKey := getAwsKey(ContainerName)
 
 	// Get Ceph health
 	cmd := []string{"ceph", "health"}
@@ -292,7 +294,7 @@ func echoInfo() {
 	ips, _ := getInterfaceIPv4s()
 
 	// Get the working directory
-	dir := dockerInspect("bind")
+	dir := dockerInspect(ContainerName, "Binds")
 
 	InfoLine :=
 		"\n" + strings.TrimSpace(string(c)) + " is the Ceph status \n" +
@@ -305,7 +307,7 @@ func echoInfo() {
 }
 
 // getAwsKey gets AWS keys from inside the container
-func getAwsKey() (string, string) {
+func getAwsKey(ContainerName string) (string, string) {
 	cmd := []string{"cat", "/nano_user_details"}
 
 	output := execContainer(ContainerName, cmd)
@@ -328,33 +330,50 @@ func getAwsKey() (string, string) {
 	return CephNanoAccessKey, CephNanoSecretKey
 }
 
-// dockerInspect inspect the container Binds
-func dockerInspect(pattern string) string {
+// dockerInspect inspects the container Binds
+func dockerInspect(ContainerName string, pattern string) string {
 	inspect, err := getDocker().ContainerInspect(ctx, ContainerName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if pattern == "bind" {
+	if pattern == "Binds" {
 		parts := strings.Split(inspect.HostConfig.Binds[0], ":")
 		return parts[0]
 	}
+
+	if pattern == "PortBindings" {
+		parts := strings.Split(inspect.Config.Env[0], "=")
+		return parts[1]
+	}
+
 	// this assumes a default that we are looking for the image name
 	parts := inspect.Config.Image
 	return parts
 }
 
-// inspectImage inspect a given image
-func inspectImage() map[string]string {
-	ImageName = dockerInspect("image")
-	i, _, err := getDocker().ImageInspectWithRaw(ctx, ImageName)
+// inspectImage inspects a given image
+func inspectImage(ImageID string, dataType string) string {
+	i, _, err := getDocker().ImageInspectWithRaw(ctx, ImageID)
 	if err != nil {
-		var m map[string]string
-		m = make(map[string]string)
-		m["head"] = "unknown"
-		return m
+		// sometimes the image does not exist anymore, we want to report that
+		return "image is not present, did you remove it?"
 	}
-	return i.Config.Labels
+	if dataType == "tag" {
+		// If the tag disappeared, probably because a newer tag with a same appeared
+		// Let's return RepoDigests
+		if len(i.RepoTags) == 0 {
+			return strings.Join(i.RepoDigests, "")
+		}
+		return strings.Join(i.RepoTags, "")
+	}
+	if dataType == "created" {
+		return i.Created
+	}
+	if len(i.ContainerConfig.Labels["RELEASE"]) == 0 {
+		return "unknown image release, are you running an official image?"
+	}
+	return i.ContainerConfig.Labels["RELEASE"]
 }
 
 // pullImage downloads the container image
@@ -390,16 +409,20 @@ func pullImage() bool {
 	return false
 }
 
-func notExistCheck() {
-	if (!containerStatus(false, "running")) && (!containerStatus(false, "exited")) {
-		fmt.Println("ceph-nano does not exist yet.")
+func notExistCheck(ContainerName string) {
+	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+
+	if (!containerStatus(ContainerName, false, "running")) && (!containerStatus(ContainerName, false, "exited")) {
+		fmt.Println("Cluster " + ContainerNameToShow + " does not exist yet.")
 		os.Exit(0)
 	}
 }
 
-func notRunningCheck() {
-	if status := containerStatus(true, "exited"); status {
-		fmt.Println("ceph-nano is not running.")
+func notRunningCheck(ContainerName string) {
+	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+
+	if status := containerStatus(ContainerName, true, "exited"); status {
+		fmt.Println("Cluster " + ContainerNameToShow + " is not running.")
 		os.Exit(0)
 	}
 }
@@ -493,4 +516,33 @@ func copyDir(src string, dst string) (err error) {
 	}
 
 	return nil
+}
+
+// checkPortInUsed checks if a port is in-used
+func checkPortInUsed(portNum string) bool {
+	hostName := "0.0.0.0"
+	seconds := 1
+	timeOut := time.Duration(seconds) * time.Second
+
+	_, err := net.DialTimeout("tcp", net.JoinHostPort(hostName, portNum), timeOut)
+
+	// if there is an error this means the port is not used
+	// and the connection can not be established
+	if err != nil {
+		return true
+	}
+	return false
+}
+
+// generateRGWPortToUse generates the binding port for Ceph Rados Gateway
+func generateRGWPortToUse() string {
+	maxPort := 8100
+	for i := 8000; i <= maxPort; i++ {
+		portNumStr := fmt.Sprint(i)
+		status := checkPortInUsed(portNumStr)
+		if status {
+			return portNumStr
+		}
+	}
+	return "notfound"
 }

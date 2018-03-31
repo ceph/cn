@@ -7,7 +7,7 @@ import (
 var (
 	cmdS3 = &cobra.Command{
 		Use:   "s3 [command] [arg]",
-		Short: "Interact with S3 object server",
+		Short: "Interact with a particular S3 object server",
 		Args:  cobra.NoArgs,
 	}
 	// S3CmdForce means force operation

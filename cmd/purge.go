@@ -19,12 +19,12 @@ var (
 	DeleteAll bool
 )
 
-// CliPurgeNano is the Cobra CLI call
-func CliPurgeNano() *cobra.Command {
+// CliClusterPurge is the Cobra CLI call
+func CliClusterPurge() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "purge",
 		Short: "Purge object storage server. DANGEROUS!",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run:   purgeNano,
 		DisableFlagsInUseLine: false,
 	}
@@ -38,19 +38,22 @@ func CliPurgeNano() *cobra.Command {
 
 // purgeNano purges Ceph Nano.
 func purgeNano(cmd *cobra.Command, args []string) {
+	ContainerName := ContainerNamePrefix + args[0]
+	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+
 	if !IamSure {
 		fmt.Printf("Purge option is too dangerous please set the right flag. \n \n")
 		cmd.Help()
 		os.Exit(1)
 	}
-	notExistCheck()
-	fmt.Println("Purging ceph-nano... ")
+	notExistCheck(ContainerName)
+	fmt.Println("Purging cluster " + ContainerNameToShow + "...")
 	removeContainer(ContainerName)
 }
 
-func removeContainer(name string) {
+func removeContainer(ContainerName string) {
 	if DeleteAll {
-		ImageName = dockerInspect("image")
+		ImageName = dockerInspect(ContainerName, "image")
 	}
 	options := types.ContainerRemoveOptions{
 		RemoveLinks:   false,
@@ -59,14 +62,14 @@ func removeContainer(name string) {
 	}
 	// we don't necessarily want to catch errors here
 	// it's not an issue if the container does not exist
-	getDocker().ContainerRemove(ctx, name, options)
+	getDocker().ContainerRemove(ctx, ContainerName, options)
 
 	if DeleteAll {
 		options := types.ImageRemoveOptions{
 			Force:         true,
 			PruneChildren: true,
 		}
-		fmt.Println("Removing container image...")
+		fmt.Println("Removing container image" + ImageName + "...")
 		getDocker().ImageRemove(ctx, ImageName, options)
 	}
 }

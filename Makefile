@@ -20,6 +20,7 @@ prepare:
 	go get github.com/inconshreveable/mousetrap
 	go get github.com/spf13/cobra
 	go get github.com/jmoiron/jsonq
+	go get github.com/ryanuber/columnize
 
 darwin:
 	make GOOS=darwin

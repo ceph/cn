@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -23,9 +24,9 @@ var (
 // CliS3CmdGet is the Cobra CLI call
 func CliS3CmdGet() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get BUCKET/OBJECT [LOCAL_FILE]",
+		Use:   "get CLUSTER BUCKET/OBJECT [LOCAL_FILE]",
 		Short: "Get file out of a bucket",
-		Args:  cobra.RangeArgs(1, 2),
+		Args:  cobra.RangeArgs(2, 3),
 		Run:   S3CmdGet,
 		DisableFlagsInUseLine: false,
 	}
@@ -40,13 +41,15 @@ func CliS3CmdGet() *cobra.Command {
 
 // S3CmdGet wraps s3cmd command in the container
 func S3CmdGet(cmd *cobra.Command, args []string) {
-	notExistCheck()
-	notRunningCheck()
-	BucketObjectName := args[0]
+	ContainerName := ContainerNamePrefix + args[0]
+
+	notExistCheck(ContainerName)
+	notRunningCheck(ContainerName)
+	BucketObjectName := args[1]
 	var fileName string
 
 	if len(args) > 1 {
-		fileName = args[1]
+		fileName = args[2]
 	} else {
 		fileName = BucketObjectName
 	}
@@ -62,9 +65,9 @@ func S3CmdGet(cmd *cobra.Command, args []string) {
 	}
 	// if args
 	command := []string{"s3cmd", "get", S3CmdOpt, "s3://" + BucketObjectName, TempPath}
-	output := execContainer(ContainerName, command)
+	output := strings.TrimSuffix(string(execContainer(ContainerName, command)), "\n") + " on cluster " + ContainerName
 
-	dir := dockerInspect("bind")
+	dir := dockerInspect(ContainerName, "Binds")
 	if fileName != BucketObjectName {
 		//if _, err := os.Stat(fileName); os.Stat.Mode.IsDir(err) {
 		if info, err := os.Stat(fileName); err == nil && info.IsDir() {
@@ -77,5 +80,5 @@ func S3CmdGet(cmd *cobra.Command, args []string) {
 
 	}
 
-	fmt.Printf("%s", output)
+	fmt.Println(output)
 }

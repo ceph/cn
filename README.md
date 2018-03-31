@@ -10,7 +10,7 @@ Also, keep in mind that the CLI is just for convenience, and the primary use cas
 
 Available calls are:
 
-```
+```bash
 $  ./cn s3 -h
 Interact with S3 object server
 
@@ -44,23 +44,27 @@ cn relies on Docker so it must be installed on your machine. If you're not runni
 Once Docker is installed you're ready to start.
 Open your terminal and download the cn binary.
 
-macOS
-```
-$ curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-darwin-amd64 -o cn && chmod +x cn
+macOS:
+
+```bash
+curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-darwin-amd64 -o cn && chmod +x cn
 ```
 
-Linux
-```
-$ curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-linux-amd64 -o cn && chmod +x cn
+Linux:
+
+```bash
+curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-linux-amd64 -o cn && chmod +x cn
 ```
 
-Windows
-```
-$ curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-windows-amd64.exe -o cn && chmod +x cn
+Windows:
+
+```bash
+curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-windows-amd64.exe -o cn && chmod +x cn
 ```
 
 Test it out
-```
+
+```bash
 $ ./cn
 Ceph Nano - One step S3 in container with Ceph.
 
@@ -68,14 +72,9 @@ Usage:
   cn [command]
 
 Available Commands:
-  start       Start object storage server
-  stop        Stop object storage server
-  status      Stat object storage server
-  purge       Purge object storage server. DANGEROUS!
-  logs        Print object storage server logs
-  restart     Restart object storage server
+  cluster     Interact with a particular Ceph cluster
   s3          Interact with S3 object server
-  update      Update the container image
+  image       Interact with cn container image
   version     Print the version number of Ceph Nano
   help        Help about any command
 
@@ -89,8 +88,8 @@ Use "cn [command] --help" for more information about a command.
 
 Start the program with a working directory `/tmp`, the initial start might take a few minutes since we need to download the container image:
 
-```
-$ ./cn start -d /tmp
+```bash
+$ ./cn cluster start -d /tmp my-first-cluster
 Running ceph-nano...
 The container image is not present, pulling it.
 This operation can take a few minutes......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
@@ -103,15 +102,46 @@ S3 secret key is: JG5wmxw2bGOxXLc7v6NQ2yg50atPCu3Nxe4XXvEf
 Your working directory is: /tmp
 ```
 
-##  Work with this CLI
+## Your first S3 bucket
 
-Your first S3 bucket!
+Create a bucket with `cn`:
 
-```
-$ ./cn s3 mb my-buc
+```bash
+$ ./cn s3 mb my-first-cluster my-buc
 Bucket 's3://my-buc/' created
 
-$ ./cn s3 put /etc/passwd my-buc
+$ ./cn s3 put my-first-cluster /etc/passwd my-buc
 upload: '/tmp/passwd' -> 's3://my-buc/passwd'  [1 of 1]
  5925 of 5925   100% in    1s     4.57 kB/s  done
  ```
+
+## Multi-cluster support
+
+`cn` can manage any number of clusters on your local machine:
+
+```bash
+$ ./cn cluster ls
+NAME  STATUS   IMAGE                                                                                IMAGE RELEASE      IMAGE CREATED
+d     running  ceph/daemon:latest                                                                   master-77e3d8d     2018-04-05T15:01:40.323603472Z
+c     running  ceph/daemon:v3.0.1-stable-3.0-luminous-centos-7-x86_64                               v3.0.1-stable-3.0  2018-03-15T16:44:10.483600887Z
+b     running  ceph/daemon@sha256:369867e450ccdea9bcea7f54e97ed8b2cb1a0437fbef658d2d01fce2b8a2c648  master-5f44af9     2018-03-30T21:08:31.117367166Z
+a     running  ceph/daemon@sha256:369867e450ccdea9bcea7f54e97ed8b2cb1a0437fbef658d2d01fce2b8a2c648  master-5f44af9     2018-03-30T21:08:31.117367166Z
+```
+
+## List Ceph container images available
+
+`cn` can list the available Ceph container image tag available:
+
+```bash
+$ ./cn image ls
+latest
+master-a104cb7-jewel-ubuntu-16.04-x86_64
+master-a104cb7-kraken-ubuntu-16.04-x86_64
+master-a104cb7-jewel-ubuntu-14.04-x86_64
+master-a104cb7-kraken-centos-7-x86_64
+master-a104cb7-luminous-centos-7-x86_64
+master-a104cb7-luminous-ubuntu-16.04-x86_64
+master-a104cb7-jewel-centos-7-x86_64
+master-5f44af9-kraken-ubuntu-16.04-x86_64
+master-5f44af9-kraken-centos-7-x86_64
+```

@@ -12,6 +12,7 @@ start_time=0
 nested_tests=0 # How many test_* are nested
 file_extension=""
 tests_ran=0
+IMAGE_NAME=ceph/daemon
 
 function start_test {
   # If a test starts another test, don't consider a new start
@@ -95,7 +96,7 @@ function runCn() {
 function countS3Objects {
   local bucket=$1
   local captionForFailure="Counting $bucket objects"
-  runCnVerbose="True" runCn s3 ls $bucket | grep -a "s3://" | wc -l
+  runCnVerbose="True" runCn s3 ls one-cluster-0 $bucket | grep -a "s3://" | wc -l
 }
 
 function isS3ObjectExists {
@@ -105,12 +106,16 @@ function isS3ObjectExists {
   bucket=$(echo ${item%/*})
   file=$(echo ${item#*/})
   local captionForFailure="Checking if ($item) $bucket/$file exists"
-  runCnVerbose="True" runCn s3 ls $bucket | awk '{print $4}' | sed -e "s|s3://$bucket/||g" | grep -qw "$file"
+  runCnVerbose="True" runCn s3 ls one-cluster-0 $bucket | awk '{print $4}' | sed -e "s|s3://$bucket/||g" | grep -qw "$file"
 }
 
 function test_start {
   start_test
-  runCn start -d $tmp_dir
+  for i in $(seq 0 10); do
+    runCn cluster start -d $tmp_dir one-cluster-$i
+  done
+  reportSuccess
+  runCn cluster ls
   reportSuccess
 }
 
@@ -122,37 +127,41 @@ function test_help {
 
 function test_stop {
   start_test
-  runCn stop
+  runCn cluster stop one-cluster-0
   reportSuccess
 }
 
 function test_status {
   start_test
-  runCn status
+  runCn cluster status one-cluster-0
   reportSuccess
 }
 
 function test_restart {
   start_test
-  runCn restart
+  for i in $(seq 0 10); do
+    runCn cluster restart one-cluster-$i
+  done
   reportSuccess
 }
 
 function test_logs {
   start_test
-  runCn logs
+  runCn cluster logs one-cluster-0
   reportSuccess
 }
 
 function test_purge {
   start_test
-  runCn purge --yes-i-am-sure
+  for i in $(seq 0 10); do
+    runCn cluster purge --yes-i-am-sure one-cluster-$i
+  done
   reportSuccess
 }
 
 function test_image_update {
   start_test
-  runCn image update
+  runCn image update $IMAGE_NAME
   reportSuccess
 }
 
@@ -170,20 +179,20 @@ function test_version {
 
 function test_s3_mb {
   start_test
-  runCn s3 mb $bucket
+  runCn s3 mb one-cluster-0 $bucket
   reportSuccess
 }
 
 function test_s3_rb {
   start_test
-  runCn s3 rb $bucket
+  runCn s3 rb one-cluster-0 $bucket
   reportSuccess
 }
 
 function s3_put {
   local file=$1
   local bucket=$2
-  runCn s3 put ${file} $bucket
+  runCn s3 put one-cluster-0 ${file} $bucket
   isS3ObjectExists ${bucket}/${file}
 }
 
@@ -225,7 +234,7 @@ function test_s3_put_50x_4K {
 
 function test_s3_get {
   start_test
-  runCn s3 get $bucket/${file} get_file
+  runCn s3 get one-cluster-0 $bucket/${file} get_file
   deleteFile get_file
   reportSuccess
 }
@@ -238,7 +247,7 @@ function test_s3_del {
     bucket=$(echo ${1%/*})
     file=$(echo ${1#*/})
   fi
-  runCn s3 del $bucket/$file${file_extension}
+  runCn s3 del one-cluster-0 $bucket/$file${file_extension}
   ! isS3ObjectExists ${bucket}/${file}${file_extension}
   reportSuccess
 }
@@ -267,25 +276,25 @@ function test_s3_del_50x {
 
 function test_s3_ls {
   start_test
-  runCn s3 ls $bucket
+  runCn s3 ls one-cluster-0 $bucket
   reportSuccess
 }
 
 function test_s3_la {
   start_test
-  runCn s3 la
+  runCn s3 la one-cluster-0
   reportSuccess
 }
 
 function test_s3_info {
   start_test
-  runCn s3 info $bucket/${file}
+  runCn s3 info one-cluster-0 $bucket/${file}
   reportSuccess
 }
 
 function test_s3_du {
   start_test
-  runCn s3 du $bucket/${file}
+  runCn s3 du one-cluster-0 $bucket/${file}
   reportSuccess
 }
 
@@ -293,7 +302,7 @@ function test_s3_mv {
   start_test
   source=${1-$bucket/$file}
   dest=${2-$bucket/${file}.new}
-  runCn s3 mv $source $dest
+  runCn s3 mv one-cluster-0 $source $dest
   isS3ObjectExists $dest
   reportSuccess
 }
@@ -337,7 +346,7 @@ function test_s3_cp {
   start_test
   source=${1-$file}
   dest=${2-$source}.copy
-  runCn s3 cp $bucket/${source} $bucket/$dest
+  runCn s3 cp one-cluster-0 $bucket/${source} $bucket/$dest
   isS3ObjectExists ${bucket}/${dest}
   reportSuccess
 }
@@ -365,7 +374,7 @@ function test_s3_cp_50x {
 
 function test_s3_sync {
   start_test
-  runCn s3 sync $tmp_dir $bucket
+  runCn s3 sync one-cluster-0 $tmp_dir $bucket
   reportSuccess
 }
 
@@ -429,14 +438,13 @@ function main() {
 
   # Arguments given on the cli are test names run in sequence
   if [ $# -gt 0 ]; then
-    test_purge
     test_start
     test_s3_mb
     for cli_test in "$@"; do
       $cli_test
     done
   else
-    for test in version image_update purge logs restart status stop start version image_update image_list status logs; do
+    for test in version image_update logs restart status stop start version image_update image_list status logs; do
       test_$test
     done
 

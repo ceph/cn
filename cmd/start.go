@@ -17,12 +17,12 @@ var (
 	PrivilegedContainer bool
 )
 
-// CliStartNano is the Cobra CLI call
-func CliStartNano() *cobra.Command {
+// CliClusterStart is the Cobra CLI call
+func CliClusterStart() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
 		Short: "Start object storage server",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run:   startNano,
 		Example: "cn start \n" +
 			"cn start --work-dir /tmp \n" +
@@ -45,31 +45,41 @@ func startNano(cmd *cobra.Command, args []string) {
 	// panic: Error response from daemon: Mounts denied:
 	// The path /usr/share/ceph-nano is not shared from OS X and is not known to Docker.
 	// You can configure shared paths from Docker -> Preferences... -> File Sharing.
-	if status := containerStatus(true, "created"); status {
+	ContainerName := ContainerNamePrefix + args[0]
+	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+
+	if status := containerStatus(ContainerName, true, "created"); status {
 		removeContainer(ContainerName)
 	}
 
-	if status := containerStatus(false, "running"); status {
-		fmt.Println("ceph-nano is already running!")
-	} else if status := containerStatus(true, "exited"); status {
-		fmt.Println("Starting ceph-nano...")
-		startContainer()
+	if status := containerStatus(ContainerName, false, "running"); status {
+		fmt.Println("Cluster " + ContainerNameToShow + " is already running!")
+	} else if status := containerStatus(ContainerName, true, "exited"); status {
+		fmt.Println("Starting cluster " + ContainerNameToShow + "...")
+		startContainer(ContainerName)
 	} else {
 		pullImage()
-		fmt.Println("Running ceph-nano...")
+		fmt.Println("Running cluster " + ContainerNameToShow + "...")
 		runContainer(cmd, args)
 	}
-	echoInfo()
+	echoInfo(ContainerName)
 }
 
 // runContainer creates a new container when nothing exists
 func runContainer(cmd *cobra.Command, args []string) {
+	ContainerName := ContainerNamePrefix + args[0]
+	RgwPort := generateRGWPortToUse()
+	if RgwPort == "notfound" {
+		log.Fatal("Unable to find a port between 8000 and 8100.")
+	}
+	RgwNatPort := RgwPort + "/tcp"
+
 	exposedPorts := nat.PortSet{
-		"8000/tcp": struct{}{},
+		nat.Port(RgwNatPort): {},
 	}
 
 	portBindings := nat.PortMap{
-		"8000/tcp": []nat.PortBinding{
+		nat.Port(RgwNatPort): []nat.PortBinding{
 			{
 				HostIP:   "0.0.0.0",
 				HostPort: RgwPort,
@@ -78,10 +88,10 @@ func runContainer(cmd *cobra.Command, args []string) {
 	}
 
 	envs := []string{
+		"RGW_CIVETWEB_PORT=" + RgwPort, // DON'T TOUCH MY POSITION IN THE SLICE OR YOU WILL BREAK dockerInspect()
 		"DEBUG=verbose",
 		"CEPH_DEMO_UID=" + CephNanoUID,
 		"NETWORK_AUTO_DETECT=4",
-		"RGW_CIVETWEB_PORT=" + RgwPort,
 		"CEPH_DAEMON=demo",
 		"DEMO_DAEMONS=mon,mgr,osd,rgw"}
 
@@ -134,7 +144,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 }
 
 // startContainer starts a container that is stopped
-func startContainer() {
+func startContainer(ContainerName string) {
 	if err := getDocker().ContainerStart(ctx, ContainerName, types.ContainerStartOptions{}); err != nil {
 		log.Fatal(err)
 	}

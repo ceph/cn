@@ -9,12 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliStopNano is the Cobra CLI call
-func CliStopNano() *cobra.Command {
+// CliClusterStop is the Cobra CLI call
+func CliClusterStop() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stop",
 		Short: "Stop object storage server",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run:   stopNano,
 	}
 
@@ -23,15 +23,18 @@ func CliStopNano() *cobra.Command {
 
 // stopNano stops Ceph Nano
 func stopNano(cmd *cobra.Command, args []string) {
+	ContainerName := ContainerNamePrefix + args[0]
+	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
 	timeout := 5 * time.Second
-	if status := containerStatus(true, "exited"); status {
-		fmt.Println("ceph-nano is already stopped.")
+
+	if status := containerStatus(ContainerName, true, "exited"); status {
+		fmt.Println("Cluster " + ContainerNameToShow + " is already stopped.")
 		os.Exit(0)
-	} else if status := containerStatus(false, "running"); !status {
-		fmt.Println("ceph-nano does not exist yet.")
+	} else if status := containerStatus(ContainerName, false, "running"); !status {
+		fmt.Println("Cluster " + ContainerNameToShow + " does not exist yet.")
 		os.Exit(0)
 	} else {
-		fmt.Println("Stopping ceph-nano... ")
+		fmt.Println("Stopping cluster " + ContainerNameToShow + "...")
 		if err := getDocker().ContainerStop(ctx, ContainerName, &timeout); err != nil {
 			log.Fatal(err)
 		}

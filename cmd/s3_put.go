@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -12,9 +13,9 @@ import (
 // CliS3CmdPut is the Cobra CLI call
 func CliS3CmdPut() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "put FILE BUCKET",
+		Use:   "put CLUSTER FILE BUCKET",
 		Short: "Put file into bucket",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(3),
 		Run:   S3CmdPut,
 		DisableFlagsInUseLine: true,
 	}
@@ -24,11 +25,13 @@ func CliS3CmdPut() *cobra.Command {
 
 // S3CmdPut wraps s3cmd command in the container
 func S3CmdPut(cmd *cobra.Command, args []string) {
-	notExistCheck()
-	notRunningCheck()
-	dir := dockerInspect("bind")
-	fileName := args[0]
-	bucketName := args[1]
+	ContainerName := ContainerNamePrefix + args[0]
+
+	notExistCheck(ContainerName)
+	notRunningCheck(ContainerName)
+	dir := dockerInspect(ContainerName, "Binds")
+	fileName := args[1]
+	bucketName := args[2]
 	fileNameBase := path.Base(fileName)
 
 	if _, err := os.Stat(dir + "/" + fileNameBase); os.IsNotExist(err) {
@@ -39,6 +42,6 @@ func S3CmdPut(cmd *cobra.Command, args []string) {
 	}
 
 	command := []string{"s3cmd", "put", TempPath + fileNameBase, "s3://" + bucketName}
-	output := execContainer(ContainerName, command)
-	fmt.Printf("%s", output)
+	output := strings.TrimSuffix(string(execContainer(ContainerName, command)), "\n") + " on cluster " + ContainerName
+	fmt.Println(output)
 }

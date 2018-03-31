@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -9,9 +10,9 @@ import (
 // CliS3CmdLs is the Cobra CLI call
 func CliS3CmdLs() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ls BUCKET",
+		Use:   "ls CLUSTER BUCKET",
 		Short: "List objects or buckets",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		Run:   S3CmdLs,
 	}
 
@@ -20,9 +21,11 @@ func CliS3CmdLs() *cobra.Command {
 
 // S3CmdLs wraps s3cmd command in the container
 func S3CmdLs(cmd *cobra.Command, args []string) {
-	notExistCheck()
-	notRunningCheck()
-	command := []string{"s3cmd", "ls", "s3://" + args[0]}
-	output := execContainer(ContainerName, command)
-	fmt.Printf("%s", output)
+	ContainerName := ContainerNamePrefix + args[0]
+
+	notExistCheck(ContainerName)
+	notRunningCheck(ContainerName)
+	command := []string{"s3cmd", "ls", "s3://" + args[1]}
+	output := strings.TrimSuffix(string(execContainer(ContainerName, command)), "\n") + " on cluster " + ContainerName
+	fmt.Println(output)
 }

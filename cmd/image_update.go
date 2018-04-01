@@ -11,11 +11,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliUpdateNano is the Cobra CLI call
-func CliUpdateNano() *cobra.Command {
+// CliImageUpdate is the Cobra CLI call
+func CliImageUpdate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update",
-		Short: "Update the container image",
+		Short: "Update the current container image",
 		Args:  cobra.NoArgs,
 		Run:   updateNano,
 		Long:  "IMPORTANT: if cn was run with --image option make sure to use the same image if you're expecting to update that image",

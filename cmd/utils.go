@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/jmoiron/jsonq"
 )
 
 // validateEnv verifies the ability to run the program
@@ -173,14 +174,8 @@ func cephNanoHealth() {
 	log.Fatal("Please open an issue at: https://github.com/ceph/cn.")
 }
 
-// curlS3 queries S3 URL
-func curlS3() bool {
-	ips, _ := getInterfaceIPv4s()
-	// Taking the first IP is probably not ideal
-	// IMHO, using the interface with most of the traffic is better
-	var url string
-	url = "http://" + ips[0].String() + ":" + RgwPort
-
+// curlTestURL tests a given URL
+func curlTestURL(url string) bool {
 	response, err := http.Get(url)
 	if err != nil {
 		return false
@@ -192,14 +187,83 @@ func curlS3() bool {
 	return true
 }
 
-// CephNanoS3Health loops for 30 seconds while testing Ceph RGW heatlh
+// curlURL queries a given URL and returns its content
+func curlURL(url string) []byte {
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Println("URL " + url + " is unreachable.")
+		log.Fatal(err)
+	}
+	defer response.Body.Close()
+	content, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return content
+}
+
+// countTagPages queries the number of tags
+func countTags() int {
+	var url string
+	data := map[string]interface{}{}
+	url = "https://registry.hub.docker.com/v2/repositories/ceph/daemon/tags/"
+	output := curlURL(url)
+	dec := json.NewDecoder(strings.NewReader(string(output)))
+	dec.Decode(&data)
+	jq := jsonq.NewQuery(data)
+	tagCount, _ := jq.Int("count")
+	return tagCount
+}
+
+func pageCount() int {
+	tagCount := countTags()
+	pageCount := tagCount / 10
+	return int(pageCount)
+}
+
+// parseMap parses a json element
+// re-adapted code from:
+// https://stackoverflow.com/questions/29366038/looping-iterate-over-the-second-level-nested-json-in-go-lang
+func parseMap(aMap map[string]interface{}, keyType string) {
+	for key, val := range aMap {
+		switch concreteVal := val.(type) {
+		case []interface{}:
+			parseArray(val.([]interface{}), keyType)
+		default:
+			if key == keyType {
+				fmt.Println(concreteVal)
+			}
+		}
+	}
+}
+
+// parseArray parses json array
+// re-adapted code from:
+// https://stackoverflow.com/questions/29366038/looping-iterate-over-the-second-level-nested-json-in-go-lang
+func parseArray(anArray []interface{}, keyType string) {
+	for _, val := range anArray {
+		switch concreteVal := val.(type) {
+		case map[string]interface{}:
+			parseMap(val.(map[string]interface{}), keyType)
+		default:
+			fmt.Println(concreteVal)
+		}
+	}
+}
+
+// CephNanoS3Health loops for 30 seconds while testing Ceph RGW health
 func cephNanoS3Health() {
 	// setting timeout
 	timeout := 30
 	poll := 0
+	ips, _ := getInterfaceIPv4s()
+	// Taking the first IP is probably not ideal
+	// IMHO, using the interface with most of the traffic is better
+	var url string
+	url = "http://" + ips[0].String() + ":" + RgwPort
 
 	for poll < timeout {
-		if curlS3() {
+		if curlTestURL(url) {
 			return
 		}
 		time.Sleep(time.Second * 1)

@@ -112,7 +112,7 @@ func init() {
 		CliLogsNano(),
 		CliRestartNano(),
 		cmdS3,
-		CliUpdateNano(),
+		cmdImage,
 		CliVersionNano(),
 	)
 }

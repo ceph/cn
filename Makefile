@@ -19,6 +19,7 @@ prepare:
 	go get github.com/docker/docker/client
 	go get github.com/inconshreveable/mousetrap
 	go get github.com/spf13/cobra
+	go get github.com/jmoiron/jsonq
 
 darwin:
 	make GOOS=darwin

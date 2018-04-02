@@ -150,9 +150,15 @@ function test_purge {
   reportSuccess
 }
 
-function test_update {
+function test_image_update {
   start_test
-  runCn update
+  runCn image update
+  reportSuccess
+}
+
+function test_image_list {
+  start_test
+  runCn image ls
   reportSuccess
 }
 
@@ -430,7 +436,7 @@ function main() {
       $cli_test
     done
   else
-    for test in version update purge logs restart status stop start version update status logs; do
+    for test in version image_update purge logs restart status stop start version image_update image_list status logs; do
       test_$test
     done
 
@@ -446,7 +452,7 @@ function main() {
 
     # s3 again
 
-    for test in status version update purge; do
+    for test in status version image_update purge; do
       test_$test
     done
   fi

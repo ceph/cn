@@ -27,7 +27,7 @@ func validateEnv() {
 	seLinux()
 }
 
-// seLinux checks if Selinux is installed and set to Enforcing,
+// seLinux checks if SeLinux is installed and set to Enforcing,
 // we relabel our WorkingDirectory to allow the container to access files in this directory
 func seLinux() {
 	if _, err := os.Stat("/sbin/getenforce"); !os.IsNotExist(err) {
@@ -60,7 +60,7 @@ func (n byLastOctetValue) Less(i, j int) bool {
 // octet value.
 //
 // [The logic to sort by last octet is implemented to
-// prefer CIDRs with higher octects, this in-turn skips the
+// prefer CIDRs with higher octets, this in-turn skips the
 // localhost/loopback address to be not preferred as the
 // first ip on the list. Subsequently this list helps us print
 // a user friendly message with appropriate values].
@@ -77,7 +77,7 @@ func getInterfaceIPv4s() ([]net.IP, error) {
 			// Attempt to parse the addr through CIDR.
 			nip, _, err = net.ParseCIDR(addr.String())
 			if err != nil {
-				return nil, fmt.Errorf("Unable to parse addrss %s, error %s", addr, err)
+				return nil, fmt.Errorf("Unable to parse address %s, error %s", addr, err)
 			}
 			// Collect only IPv4 addrs.
 			if nip.To4() != nil {
@@ -127,7 +127,7 @@ func execContainer(ContainerName string, cmd []string) []byte {
 	return nil
 }
 
-// grepForSuccess searchs for the word 'SUCCESS' inside the container logs
+// grepForSuccess searches for the word 'SUCCESS' inside the container logs
 func grepForSuccess() bool {
 	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {

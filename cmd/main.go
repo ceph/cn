@@ -26,7 +26,7 @@ var (
 	// CephNanoUID is the uid of the S3 user
 	CephNanoUID = "nano"
 
-	// RgwPort is the rgw listenning port
+	// RgwPort is the rgw listening port
 	RgwPort = "8000"
 
 	// ContainerName is name of the container
@@ -64,7 +64,7 @@ func getDocker() *client.Client {
 		var apiVersion string
 		_, err = cli.Info(ctx)
 		if err != nil {
-			// Oups, unable to handle server's protocol
+			// Oops, unable to handle server's protocol
 			serverVersion := fmt.Sprint(err)
 			if strings.Contains(serverVersion, "is too new") {
 				ss := strings.SplitAfter(serverVersion, "Maximum supported API version is ")

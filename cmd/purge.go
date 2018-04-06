@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/docker/docker/api/types"
@@ -52,6 +53,8 @@ func purgeNano(cmd *cobra.Command, args []string) {
 }
 
 func removeContainer(ContainerName string) {
+	Data := dockerInspect(ContainerName, "BindsData")
+
 	if DeleteAll {
 		ImageName = dockerInspect(ContainerName, "image")
 	}
@@ -63,6 +66,21 @@ func removeContainer(ContainerName string) {
 	// we don't necessarily want to catch errors here
 	// it's not an issue if the container does not exist
 	getDocker().ContainerRemove(ctx, ContainerName, options)
+
+	if Data != "noDataDir" && Data != "/dev" {
+		testDev, err := GetFileType(Data)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if testDev == "directory" {
+			err := os.RemoveAll(Data)
+			if err != nil {
+				fmt.Println("Something went wrong while removing " + Data + ".\n" +
+					"You need to purge the directory manually, next time run me as 'root' to avoid that.")
+				log.Fatal(err)
+			}
+		}
+	}
 
 	if DeleteAll {
 		options := types.ImageRemoveOptions{

@@ -13,13 +13,16 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"sort"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/jmoiron/jsonq"
+	"golang.org/x/sys/unix"
 )
 
 // validateEnv verifies the ability to run the program
@@ -39,6 +42,7 @@ func seLinux() {
 			if _, err := os.Stat(WorkingDirectory); os.IsNotExist(err) {
 				os.Mkdir(WorkingDirectory, 0755)
 			}
+			// OMG sudo!!!! FIX ME
 			exec.Command("sudo chcon -Rt svirt_sandbox_file_t %s", WorkingDirectory)
 		}
 	}
@@ -347,6 +351,20 @@ func dockerInspect(ContainerName string, pattern string) string {
 		return parts[1]
 	}
 
+	// The part is helpful when passing a dedicated directory to store Ceph's data
+	// We look for bindmounts, if we find more than 1 (the first one is the work-dir)
+	// then this means we passed a dedicated directory, this is used by the purge function
+	// to remove the OSD data content once we purge the cluster
+	if pattern == "BindsData" {
+		parts := inspect.HostConfig.Binds
+		if len(inspect.HostConfig.Binds) >= 2 {
+			parts = strings.Split(parts[1], ":")
+		} else {
+			return "noDataDir"
+		}
+		return parts[1]
+	}
+
 	// this assumes a default that we are looking for the image name
 	parts := inspect.Config.Image
 	return parts
@@ -545,4 +563,128 @@ func generateRGWPortToUse() string {
 		}
 	}
 	return "notfound"
+}
+
+// GetFileType checks wether a specified data is directory, a block device or something else
+// function borrowed from https://github.com/andrewsykim/kubernetes/blob/2deb7af9b248a7ddc00e61fcd08aa9ea8d2d09cc/pkg/util/mount/mount_linux.go#L416
+func GetFileType(pathname string) (string, error) {
+	finfo, err := os.Stat(pathname)
+	if os.IsNotExist(err) {
+		return "notfound", fmt.Errorf("path %q does not exist", pathname)
+	}
+	// err in call to os.Stat
+	if err != nil {
+		return "error", err
+	}
+
+	mode := finfo.Sys().(*syscall.Stat_t).Mode
+	switch mode & syscall.S_IFMT {
+	case syscall.S_IFSOCK:
+		return "socket", nil
+	case syscall.S_IFBLK:
+		return "blockdev", nil
+	case syscall.S_IFCHR:
+		return "chardev", nil
+	case syscall.S_IFDIR:
+		return "directory", nil
+	case syscall.S_IFREG:
+		return "file", nil
+	}
+
+	return "error", fmt.Errorf("only recognize file, directory, socket, block device and character device")
+}
+
+// TestBinaryExist tests if a binary is present on the system
+func TestBinaryExist(binary string) bool {
+	binary, err := exec.LookPath(binary)
+	if err != nil {
+		log.Fatal(binary + " is not installed!")
+	}
+	return true
+}
+
+// GetDiskFormat returns information about a disk such as filesystem and partition table
+func GetDiskFormat(disk string) string {
+	TestBinaryExist("blkid")
+
+	out, err := exec.Command("blkid", "-p", "-s", "TYPE", "-s", "PTTYPE", "-o", "export", disk).Output()
+	if err != nil {
+		// Disk device does not have any label or is a partition
+		// For `blkid`, if the specified token (TYPE/PTTYPE, etc) was
+		// not found, or no (specified) devices could be identified, an
+		// exit code of 2 is returned.
+		// We are not 100% that this is the problem, but the code called before this already made sure
+		// that the device was a block special device, so if blkid fails that's probably because there is
+		// nothing to see. My first assumption is that the device does not have a partition label OR
+		// is a partition
+		log.Fatal("I suspect either the disk" + disk + " has no partition label or is a partition.\n" +
+			"If you gave me a whole device, make sure it has a partition table (e.g: gpt). \n" +
+			"If you gave me a partition, I don't support partitions yet, give me a whole device.\n" +
+			"As an alternative, you can create a filesystem on this partition and give the mountpoint to me.\n" +
+			"\nAlso if the disk was an OSD you need to zap it (e.g: with 'ceph-disk zap').")
+	}
+	return string(out)
+}
+
+// GetDiskPartitions returns the list of partitions on a disk
+func GetDiskPartitions(disk string) []string {
+	TestBinaryExist("parted")
+
+	out, err := exec.Command("parted", "-s", "-m", disk, "print").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	var partitions []string
+	lines := strings.Split(string(out), "\n")
+	// build a slice
+	for _, l := range lines {
+		if len(l) <= 0 {
+			// Ignore empty line.
+			continue
+		}
+		partitions = append(partitions, l)
+	}
+	return partitions
+}
+
+// ExclusiveOpenFailsOnDevice tries to open a device with O_EXCL flag
+// stolen and re-adapted from https://github.com/kubernetes/kubernetes/blob/77d18dbad9d2abea7d7b7b22be02fb422e03f0a9/pkg/util/mount/mount_linux.go#L306
+func ExclusiveOpenFailsOnDevice(pathname string) (bool, error) {
+	fd, errno := unix.Open(pathname, unix.O_RDONLY|unix.O_EXCL, 0)
+	// If the device is in use, open will return an invalid fd.
+	// When this happens, it is expected that Close will fail and throw an error.
+	defer unix.Close(fd)
+	if errno == nil {
+		// device not in use
+		return false, nil
+	} else if errno == unix.EBUSY {
+		// device is in use
+		return true, nil
+	}
+	// error during call to Open
+	return false, errno
+}
+
+// IsEmpty tests if a directory is empty or not
+func IsEmpty(dir string) bool {
+	f, err := os.Open(dir)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1) // Or f.Readdir(1)
+	if err == io.EOF {
+		return true
+	}
+	return false // Either not empty or error, suits both cases
+}
+
+// whoAmI returns the id of the user running cn
+func whoAmI() (string, string) {
+	me, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return me.Username, me.Uid
 }

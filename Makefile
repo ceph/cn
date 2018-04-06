@@ -31,6 +31,7 @@ prepare:
 	go get github.com/spf13/cobra
 	go get github.com/jmoiron/jsonq
 	go get github.com/apcera/termtables
+	go get golang.org/x/sys/unix
 
 darwin:
 	make GOOS=darwin GOARCH:=amd64

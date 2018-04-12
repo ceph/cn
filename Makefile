@@ -9,10 +9,20 @@ GOOS:=linux
 GOARCH:=amd64
 CN_EXTENSION:=
 
-build: clean prepare
+build: check clean prepare
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -i -ldflags="-X main.version=$(VERSION) -X main.tag=$(TAG) -X main.branch=$(BRANCH)"
 	mv cn$(CN_EXTENSION) cn-$(TAG)-$(VERSION)-$(GOOS)-$(GOARCH)$(CN_EXTENSION)
 	ln -sf "cn-$(TAG)-$(VERSION)-$(GOOS)-$(GOARCH)$(CN_EXTENSION)" cn$(CN_EXTENSION)
+
+check:
+ifeq ("$(GOPATH)","")
+	@echo "GOPATH variable must be defined"
+	@exit 1
+endif
+ifneq ("$(shell pwd)","$(GOPATH)/src/github.com/ceph/cn")
+	@echo "Please go in $(GOPATH)/src/github.com/ceph/cn to build"
+	@exit 1
+endif
 
 prepare:
 	go get github.com/docker/docker/api

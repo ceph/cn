@@ -8,35 +8,6 @@ cn is a little program written in Go that helps you interact with the S3 API by 
 This is brought to you by the power of Ceph and Containers. Under the hood, cn runs a Ceph container and exposes a [Rados Gateway](http://docs.ceph.com/docs/master/radosgw/). For convenience, cn also comes with a set of commands to work with the S3 gateway. Before you ask "why not using s3cmd instead?", then you will be happy to read that internally cn uses `s3cmd` and act as a wrapper around the most commonly used commands.
 Also, keep in mind that the CLI is just for convenience, and the primary use case is you developing your application directly on the S3 API.
 
-Available calls are:
-
-```bash
-$  ./cn s3 -h
-Interact with S3 object server
-
-Usage:
-  cn s3 [command]
-
-Available Commands:
-  mb          Make bucket
-  rb          Remove bucket
-  ls          List objects or buckets
-  la          List all object in all buckets
-  put         Put file into bucket
-  get         Get file into bucket
-  del         Delete bucket
-  du          Disk usage by buckets
-  info        Get various information about Buckets or Files
-  cp          Copy object
-  mv          Move object
-  sync        Synchronize a directory tree to S3
-
-Flags:
-  -h, --help   help for s3
-
-Use "cn s3 [command] --help" for more information about a command.
-```
-
 ## Installation
 
 cn relies on Docker so it must be installed on your machine. If you're not running a Linux workstation you can install [Docker for Mac](https://docs.docker.com/docker-for-mac/) or [Windows](https://docs.docker.com/docker-for-windows/).

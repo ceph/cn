@@ -5,8 +5,8 @@ import (
 	"log"
 	"regexp"
 
+	"github.com/apcera/termtables"
 	"github.com/docker/docker/api/types"
-	"github.com/ryanuber/columnize"
 	"github.com/spf13/cobra"
 )
 
@@ -36,10 +36,8 @@ func showNanoClusters() {
 		log.Fatal(err)
 	}
 
-	var containersList []string
-	containersList = []string{
-		"NAME | STATUS | IMAGE | IMAGE RELEASE | IMAGE CREATED",
-	}
+	table := termtables.CreateTable()
+	table.AddHeaders("NAME", "STATUS", "IMAGE", "IMAGE RELEASE", "IMAGE CREATION TIME")
 
 	// run the loop on both indexes, it's fine they have the same length
 	for _, container := range containers {
@@ -52,10 +50,9 @@ func showNanoClusters() {
 				containerImgRelease := inspectImage(container.ImageID[7:], "release")
 				ContainerNameToShow := container.Names[i][len(ContainerNamePrefix):]
 				// We trim again so we can remove the '/' since container name returned is /ceph-nano
-				containersList = append(containersList, ContainerNameToShow[1:]+" | "+container.State+" | "+containerImgTag+" | "+containerImgRelease+" |"+containerImgCreated)
+				table.AddRow(ContainerNameToShow[1:], container.State, containerImgTag, containerImgRelease, containerImgCreated)
 			}
 		}
 	}
-	result := columnize.SimpleFormat(containersList)
-	fmt.Println(result)
+	fmt.Println(table.Render())
 }

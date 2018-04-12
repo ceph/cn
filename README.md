@@ -121,11 +121,12 @@ upload: '/tmp/passwd' -> 's3://my-buc/passwd'  [1 of 1]
 
 ```bash
 $ ./cn cluster ls
-NAME  STATUS   IMAGE                                                                                IMAGE RELEASE      IMAGE CREATED
-d     running  ceph/daemon:latest                                                                   master-77e3d8d     2018-04-05T15:01:40.323603472Z
-c     running  ceph/daemon:v3.0.1-stable-3.0-luminous-centos-7-x86_64                               v3.0.1-stable-3.0  2018-03-15T16:44:10.483600887Z
-b     running  ceph/daemon@sha256:369867e450ccdea9bcea7f54e97ed8b2cb1a0437fbef658d2d01fce2b8a2c648  master-5f44af9     2018-03-30T21:08:31.117367166Z
-a     running  ceph/daemon@sha256:369867e450ccdea9bcea7f54e97ed8b2cb1a0437fbef658d2d01fce2b8a2c648  master-5f44af9     2018-03-30T21:08:31.117367166Z
++------+---------+-------------------------------------------------------------------------------------+----------------+--------------------------------+
+| NAME | STATUS  | IMAGE                                                                               | IMAGE RELEASE  | IMAGE CREATION TIME            |
++------+---------+-------------------------------------------------------------------------------------+----------------+--------------------------------+
+| d    | running | ceph/daemon:latest                                                                  | master-77e3d8d | 2018-04-05T15:01:40.323603472Z |
+| b    | running | ceph/daemon@sha256:369867e450ccdea9bcea7f54e97ed8b2cb1a0437fbef658d2d01fce2b8a2c648 | master-5f44af9 | 2018-03-30T21:08:31.117367166Z |
++------+---------+-------------------------------------------------------------------------------------+----------------+--------------------------------+
 ```
 
 ## List Ceph container images available

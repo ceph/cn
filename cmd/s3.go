@@ -16,16 +16,16 @@ var (
 
 func init() {
 	cmdS3.AddCommand(
-		CliS3CmdMb(),
-		CliS3CmdRb(),
-		CliS3CmdLs(),
-		CliS3CmdLa(),
-		CliS3CmdPut(),
-		CliS3CmdGet(),
-		CliS3CmdDel(),
-		CliS3CmdDu(),
-		CliS3CmdInfo(),
-		CliS3CmdCp(),
-		CliS3CmdMv(),
-		CliS3CmdSync())
+		cliS3CmdMb(),
+		cliS3CmdRb(),
+		cliS3CmdLs(),
+		cliS3CmdLa(),
+		cliS3CmdPut(),
+		cliS3CmdGet(),
+		cliS3CmdDel(),
+		cliS3CmdDu(),
+		cliS3CmdInfo(),
+		cliS3CmdCp(),
+		cliS3CmdMv(),
+		cliS3CmdSync())
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliClusterStatus is the Cobra CLI call
-func CliClusterStatus() *cobra.Command {
+// cliClusterStatus is the Cobra CLI call
+func cliClusterStatus() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
 		Short: "Stat object storage server",
@@ -21,16 +21,16 @@ func CliClusterStatus() *cobra.Command {
 
 // statusNano shows Ceph Nano status
 func statusNano(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
+	containerName := containerNamePrefix + args[0]
 
-	notExistCheck(ContainerName)
-	notRunningCheck(ContainerName)
-	echoInfo(ContainerName)
+	notExistCheck(containerName)
+	notRunningCheck(containerName)
+	echoInfo(containerName)
 }
 
 // containerStatus checks container status
 // the parameter corresponds to the type listOptions and its entry all
-func containerStatus(ContainerName string, allList bool, containerState string) bool {
+func containerStatus(containerName string, allList bool, containerState string) bool {
 	listOptions := types.ContainerListOptions{
 		All:   allList,
 		Quiet: true,
@@ -43,7 +43,7 @@ func containerStatus(ContainerName string, allList bool, containerState string) 
 	// run the loop on both indexes, it's fine they have the same length
 	for _, container := range containers {
 		for i := range container.Names {
-			if container.Names[i] == "/"+ContainerName && container.State == containerState {
+			if container.Names[i] == "/"+containerName && container.State == containerState {
 				return true
 			}
 		}

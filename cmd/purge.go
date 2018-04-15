@@ -20,8 +20,8 @@ var (
 	DeleteAll bool
 )
 
-// CliClusterPurge is the Cobra CLI call
-func CliClusterPurge() *cobra.Command {
+// cliClusterPurge is the Cobra CLI call
+func cliClusterPurge() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "purge",
 		Short: "Purge object storage server. DANGEROUS!",
@@ -39,24 +39,24 @@ func CliClusterPurge() *cobra.Command {
 
 // purgeNano purges Ceph Nano.
 func purgeNano(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
-	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+	containerName := containerNamePrefix + args[0]
+	containerNameToShow := containerName[len(containerNamePrefix):]
 
 	if !IamSure {
 		fmt.Printf("Purge option is too dangerous please set the right flag. \n \n")
 		cmd.Help()
 		os.Exit(1)
 	}
-	notExistCheck(ContainerName)
-	log.Println("Purging cluster " + ContainerNameToShow + "...")
-	removeContainer(ContainerName)
+	notExistCheck(containerName)
+	log.Println("Purging cluster " + containerNameToShow + "...")
+	removeContainer(containerName)
 }
 
-func removeContainer(ContainerName string) {
-	Data := dockerInspect(ContainerName, "BindsData")
+func removeContainer(containerName string) {
+	dataOsd := dockerInspect(containerName, "BindsData")
 
 	if DeleteAll {
-		ImageName = dockerInspect(ContainerName, "image")
+		imageName = dockerInspect(containerName, "image")
 	}
 	options := types.ContainerRemoveOptions{
 		RemoveLinks:   false,
@@ -65,17 +65,17 @@ func removeContainer(ContainerName string) {
 	}
 	// we don't necessarily want to catch errors here
 	// it's not an issue if the container does not exist
-	getDocker().ContainerRemove(ctx, ContainerName, options)
+	getDocker().ContainerRemove(ctx, containerName, options)
 
-	if Data != "noDataDir" && Data != "/dev" {
-		testDev, err := GetFileType(Data)
+	if dataOsd != "noDataDir" && dataOsd != "/dev" {
+		testDev, err := getFileType(dataOsd)
 		if err != nil {
 			log.Fatal(err)
 		}
 		if testDev == "directory" {
-			err := os.RemoveAll(Data)
+			err := os.RemoveAll(dataOsd)
 			if err != nil {
-				log.Println("Something went wrong while removing " + Data + ".\n" +
+				log.Println("Something went wrong while removing " + dataOsd + ".\n" +
 					"You need to purge the directory manually, next time run me as 'root' to avoid that.")
 				log.Fatal(err)
 			}
@@ -87,7 +87,7 @@ func removeContainer(ContainerName string) {
 			Force:         true,
 			PruneChildren: true,
 		}
-		log.Println("Removing container image" + ImageName + "...")
-		getDocker().ImageRemove(ctx, ImageName, options)
+		log.Println("Removing container image" + imageName + "...")
+		getDocker().ImageRemove(ctx, imageName, options)
 	}
 }

@@ -27,10 +27,10 @@ func CliImageUpdate() *cobra.Command {
 
 // updateNano updates the container image
 func updateNano(cmd *cobra.Command, args []string) {
-	ImageName := args[0]
+	imageName := args[0]
 
 	if !pullImage() {
-		events, err := getDocker().ImagePull(ctx, ImageName, types.ImagePullOptions{})
+		events, err := getDocker().ImagePull(ctx, imageName, types.ImagePullOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -58,12 +58,12 @@ func updateNano(cmd *cobra.Command, args []string) {
 		}
 
 		if event != nil {
-			if strings.Contains(event.Status, fmt.Sprintf("Downloaded newer image for %s", ImageName)) {
-				log.Println("New image " + ImageName + " downloaded.")
+			if strings.Contains(event.Status, fmt.Sprintf("Downloaded newer image for %s", imageName)) {
+				log.Println("New image " + imageName + " downloaded.")
 			}
 
-			if strings.Contains(event.Status, fmt.Sprintf("Image is up to date for %s", ImageName)) {
-				log.Println("Image " + ImageName + " is up to date.")
+			if strings.Contains(event.Status, fmt.Sprintf("Image is up to date for %s", imageName)) {
+				log.Println("Image " + imageName + " is up to date.")
 			}
 		}
 	}

@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliS3CmdDu is the Cobra CLI call
-func CliS3CmdDu() *cobra.Command {
+// cliS3CmdDu is the Cobra CLI call
+func cliS3CmdDu() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "du CLUSTER BUCKET/PREFIX",
 		Short: "Disk usage by buckets",
@@ -22,11 +22,11 @@ func CliS3CmdDu() *cobra.Command {
 
 // S3CmdDu wraps s3cmd command in the container
 func S3CmdDu(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
+	containerName := containerNamePrefix + args[0]
 
-	notExistCheck(ContainerName)
-	notRunningCheck(ContainerName)
+	notExistCheck(containerName)
+	notRunningCheck(containerName)
 	command := []string{"s3cmd", "du", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(ContainerName, command)), "\n") + " on cluster " + ContainerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
 	fmt.Println(output)
 }

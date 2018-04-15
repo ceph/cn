@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliClusterLogs is the Cobra CLI call
-func CliClusterLogs() *cobra.Command {
+// cliClusterLogs is the Cobra CLI call
+func cliClusterLogs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logs",
 		Short: "Print object storage server logs",
@@ -20,13 +20,13 @@ func CliClusterLogs() *cobra.Command {
 
 // logsNano prints rgw logs
 func logsNano(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
-	showS3Logs(ContainerName)
+	containerName := containerNamePrefix + args[0]
+	showS3Logs(containerName)
 }
 
-func showS3Logs(ContainerName string) {
-	notExistCheck(ContainerName)
-	c := []string{"cat", "/var/log/ceph/client.rgw." + ContainerName + "-faa32aebf00b.log"}
-	output := execContainer(ContainerName, c)
+func showS3Logs(containerName string) {
+	notExistCheck(containerName)
+	c := []string{"cat", "/var/log/ceph/client.rgw." + containerName + "-faa32aebf00b.log"}
+	output := execContainer(containerName, c)
 	fmt.Printf("%s", output)
 }

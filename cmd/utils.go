@@ -25,9 +25,9 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// GetSeLinuxStatus gets SeLinux status
-func GetSeLinuxStatus() string {
-	TestBinaryExist("getenforce")
+// getSeLinuxStatus gets SeLinux status
+func getSeLinuxStatus() string {
+	testBinaryExist("getenforce")
 
 	out, err := exec.Command("getenforce").Output()
 	if err != nil {
@@ -36,12 +36,12 @@ func GetSeLinuxStatus() string {
 	return string(out)
 }
 
-// ApplySeLinuxLabel checks if SeLinux is installed and set to Enforcing,
-// we relabel our WorkingDirectory to allow the container to access files in this directory
-func ApplySeLinuxLabel(dir string) {
-	TestBinaryExist("getenforce")
+// applySeLinuxLabel checks if SeLinux is installed and set to Enforcing,
+// we relabel our workingDirectory to allow the container to access files in this directory
+func applySeLinuxLabel(dir string) {
+	testBinaryExist("getenforce")
 
-	selinuxStatus := GetSeLinuxStatus()
+	selinuxStatus := getSeLinuxStatus()
 	lines := strings.Split(selinuxStatus, "\n")
 	for _, l := range lines {
 		if len(l) <= 0 {
@@ -56,7 +56,7 @@ func ApplySeLinuxLabel(dir string) {
 			if _, err := os.Stat(dir); os.IsNotExist(err) {
 				os.Mkdir(dir, 0755)
 			}
-			TestBinaryExist("chcon")
+			testBinaryExist("chcon")
 			cmd := "chcon " + " -Rt" + " svirt_sandbox_file_t " + dir
 			_, err := exec.Command("chcon", "-Rt", "svirt_sandbox_file_t", dir).Output()
 			if err != nil {
@@ -114,14 +114,14 @@ func getInterfaceIPv4s() ([]net.IP, error) {
 }
 
 // execContainer execs a given command inside the container
-func execContainer(ContainerName string, cmd []string) []byte {
+func execContainer(containerName string, cmd []string) []byte {
 	optionsCreate := types.ExecConfig{
 		AttachStdout: true,
 		AttachStderr: true,
 		Cmd:          cmd,
 	}
 
-	response, err := getDocker().ContainerExecCreate(ctx, ContainerName, optionsCreate)
+	response, err := getDocker().ContainerExecCreate(ctx, containerName, optionsCreate)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -151,8 +151,8 @@ func execContainer(ContainerName string, cmd []string) []byte {
 }
 
 // grepForSuccess searches for the word 'SUCCESS' inside the container logs
-func grepForSuccess(ContainerName string) bool {
-	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
+func grepForSuccess(containerName string) bool {
+	out, err := getDocker().ContainerLogs(ctx, containerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -168,14 +168,14 @@ func grepForSuccess(ContainerName string) bool {
 }
 
 // cephNanoHealth loops on grepForSuccess for 30 seconds, fails after.
-func cephNanoHealth(ContainerName string) {
+func cephNanoHealth(containerName string) {
 	// setting timeout values
 	timeout := 60
 	poll := 0
 
 	// wait for 60sec to validate that the container started properly
 	for poll < timeout {
-		if grepForSuccess(ContainerName) {
+		if grepForSuccess(containerName) {
 			return
 		}
 		time.Sleep(time.Second * 1)
@@ -183,10 +183,10 @@ func cephNanoHealth(ContainerName string) {
 	}
 
 	// if we reach here, something is broken in the container
-	log.Println("The container " + ContainerName + " never reached a clean state. Showing the container logs now:")
+	log.Println("The container " + containerName + " never reached a clean state. Showing the container logs now:")
 	// ideally we would return the second value of GrepForSuccess when it's false
 	// this would mean having 2 return values for GrepForSuccess
-	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
+	out, err := getDocker().ContainerLogs(ctx, containerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -225,7 +225,7 @@ func curlURL(url string) []byte {
 	return content
 }
 
-// countTagPages queries the number of tags
+// countTags queries the number of tags
 func countTags() int {
 	var url string
 	data := map[string]interface{}{}
@@ -275,14 +275,14 @@ func parseArray(anArray []interface{}, keyType string) {
 }
 
 // CephNanoS3Health loops for 30 seconds while testing Ceph RGW health
-func cephNanoS3Health(ContainerName string, RgwPort string) {
+func cephNanoS3Health(containerName string, rgwPort string) {
 	// setting timeout
 	timeout := 30
 	poll := 0
 	ips, _ := getInterfaceIPv4s()
 	// Taking the first IP is probably not ideal
 	// IMHO, using the interface with most of the traffic is better
-	url := "http://" + ips[0].String() + ":" + RgwPort
+	url := "http://" + ips[0].String() + ":" + rgwPort
 
 	for poll < timeout {
 		if curlTestURL(url) {
@@ -291,49 +291,49 @@ func cephNanoS3Health(ContainerName string, RgwPort string) {
 		time.Sleep(time.Second * 1)
 		poll++
 	}
-	log.Println("S3 gateway for cluster " + ContainerName + " is not responding. Showing S3 logs:")
-	showS3Logs(ContainerName)
+	log.Println("S3 gateway for cluster " + containerName + " is not responding. Showing S3 logs:")
+	showS3Logs(containerName)
 	log.Fatal("Please open an issue at: https://github.com/ceph/cn.")
 }
 
 // echoInfo prints useful information about Ceph Nano
-func echoInfo(ContainerName string) {
+func echoInfo(containerName string) {
 	// Get listening port
-	RgwPort := dockerInspect(ContainerName, "PortBindings")
+	rgwPort := dockerInspect(containerName, "PortBindings")
 
 	// Always wait the container to be ready
-	cephNanoHealth(ContainerName)
-	cephNanoS3Health(ContainerName, RgwPort)
+	cephNanoHealth(containerName)
+	cephNanoS3Health(containerName, rgwPort)
 
 	// Fetch Amazon Keys
-	CephNanoAccessKey, CephNanoSecretKey := getAwsKey(ContainerName)
+	cephNanoAccessKey, cephNanoSecretKey := getAwsKey(containerName)
 
 	// Get Ceph health
 	cmd := []string{"ceph", "health"}
-	c := execContainer(ContainerName, cmd)
+	c := execContainer(containerName, cmd)
 
 	// Get IPs, later using the first IP of the list is not ideal
 	// However, Docker binds RGW port on 0.0.0.0 so any address will work
 	ips, _ := getInterfaceIPv4s()
 
 	// Get the working directory
-	dir := dockerInspect(ContainerName, "Binds")
+	dir := dockerInspect(containerName, "Binds")
 
-	InfoLine :=
+	infoLine :=
 		"\n" + strings.TrimSpace(string(c)) + " is the Ceph status \n" +
-			"S3 object server address is: http://" + ips[0].String() + ":" + RgwPort + "\n" +
+			"S3 object server address is: http://" + ips[0].String() + ":" + rgwPort + "\n" +
 			"S3 user is: nano \n" +
-			"S3 access key is: " + CephNanoAccessKey + "\n" +
-			"S3 secret key is: " + CephNanoSecretKey + "\n" +
+			"S3 access key is: " + cephNanoAccessKey + "\n" +
+			"S3 secret key is: " + cephNanoSecretKey + "\n" +
 			"Your working directory is: " + dir + "\n"
-	fmt.Println(InfoLine)
+	fmt.Println(infoLine)
 }
 
 // getAwsKey gets AWS keys from inside the container
-func getAwsKey(ContainerName string) (string, string) {
+func getAwsKey(containerName string) (string, string) {
 	cmd := []string{"cat", "/nano_user_details"}
 
-	output := execContainer(ContainerName, cmd)
+	output := execContainer(containerName, cmd)
 
 	// declare structures for json
 	type s3Details []struct {
@@ -348,14 +348,14 @@ func getAwsKey(ContainerName string) (string, string) {
 
 	json.Unmarshal(output, &parsedMap)
 
-	CephNanoAccessKey := parsedMap.Keys[0].AccessKey
-	CephNanoSecretKey := parsedMap.Keys[0].SecretKey
-	return CephNanoAccessKey, CephNanoSecretKey
+	cephNanoAccessKey := parsedMap.Keys[0].AccessKey
+	cephNanoSecretKey := parsedMap.Keys[0].SecretKey
+	return cephNanoAccessKey, cephNanoSecretKey
 }
 
 // dockerInspect inspects the container Binds
-func dockerInspect(ContainerName string, pattern string) string {
-	inspect, err := getDocker().ContainerInspect(ctx, ContainerName)
+func dockerInspect(containerName string, pattern string) string {
+	inspect, err := getDocker().ContainerInspect(ctx, containerName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -415,12 +415,12 @@ func inspectImage(ImageID string, dataType string) string {
 
 // pullImage downloads the container image
 func pullImage() bool {
-	_, _, err := getDocker().ImageInspectWithRaw(ctx, ImageName)
+	_, _, err := getDocker().ImageInspectWithRaw(ctx, imageName)
 	if err != nil {
 		fmt.Print("The container image is not present, pulling it. \n" +
 			"This operation can take a few minutes.")
 
-		out, err := getDocker().ImagePull(ctx, ImageName, types.ImagePullOptions{})
+		out, err := getDocker().ImagePull(ctx, imageName, types.ImagePullOptions{})
 		if err != nil {
 			// the error message will appear on a new line after the info above
 			log.Println()
@@ -446,20 +446,20 @@ func pullImage() bool {
 	return false
 }
 
-func notExistCheck(ContainerName string) {
-	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+func notExistCheck(containerName string) {
+	containerNameToShow := containerName[len(containerNamePrefix):]
 
-	if (!containerStatus(ContainerName, false, "running")) && (!containerStatus(ContainerName, false, "exited")) {
-		log.Println("Cluster " + ContainerNameToShow + " does not exist yet.")
+	if (!containerStatus(containerName, false, "running")) && (!containerStatus(containerName, false, "exited")) {
+		log.Println("Cluster " + containerNameToShow + " does not exist yet.")
 		os.Exit(0)
 	}
 }
 
-func notRunningCheck(ContainerName string) {
-	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+func notRunningCheck(containerName string) {
+	containerNameToShow := containerName[len(containerNamePrefix):]
 
-	if status := containerStatus(ContainerName, true, "exited"); status {
-		log.Println("Cluster " + ContainerNameToShow + " is not running.")
+	if status := containerStatus(containerName, true, "exited"); status {
+		log.Println("Cluster " + containerNameToShow + " is not running.")
 		os.Exit(0)
 	}
 }
@@ -584,9 +584,9 @@ func generateRGWPortToUse() string {
 	return "notfound"
 }
 
-// GetFileType checks wether a specified data is directory, a block device or something else
+// getFileType checks wether a specified data is directory, a block device or something else
 // function borrowed from https://github.com/andrewsykim/kubernetes/blob/2deb7af9b248a7ddc00e61fcd08aa9ea8d2d09cc/pkg/util/mount/mount_linux.go#L416
-func GetFileType(pathname string) (string, error) {
+func getFileType(pathname string) (string, error) {
 	finfo, err := os.Stat(pathname)
 	if os.IsNotExist(err) {
 		return "notfound", fmt.Errorf("path %q does not exist", pathname)
@@ -613,8 +613,8 @@ func GetFileType(pathname string) (string, error) {
 	return "error", fmt.Errorf("only recognize file, directory, socket, block device and character device")
 }
 
-// TestBinaryExist tests if a binary is present on the system
-func TestBinaryExist(binary string) bool {
+// testBinaryExist tests if a binary is present on the system
+func testBinaryExist(binary string) bool {
 	binary, err := exec.LookPath(binary)
 	if err != nil {
 		log.Fatal(binary + " is not installed!")
@@ -622,9 +622,9 @@ func TestBinaryExist(binary string) bool {
 	return true
 }
 
-// GetDiskFormat returns information about a disk such as filesystem and partition table
-func GetDiskFormat(disk string) string {
-	TestBinaryExist("blkid")
+// getDiskFormat returns information about a disk such as filesystem and partition table
+func getDiskFormat(disk string) string {
+	testBinaryExist("blkid")
 
 	out, err := exec.Command("blkid", "-p", "-s", "TYPE", "-s", "PTTYPE", "-o", "export", disk).Output()
 	if err != nil {
@@ -645,9 +645,9 @@ func GetDiskFormat(disk string) string {
 	return string(out)
 }
 
-// GetDiskPartitions returns the list of partitions on a disk
-func GetDiskPartitions(disk string) []string {
-	TestBinaryExist("parted")
+// getDiskPartitions returns the list of partitions on a disk
+func getDiskPartitions(disk string) []string {
+	testBinaryExist("parted")
 
 	out, err := exec.Command("parted", "-s", "-m", disk, "print").Output()
 	if err != nil {
@@ -666,9 +666,9 @@ func GetDiskPartitions(disk string) []string {
 	return partitions
 }
 
-// ExclusiveOpenFailsOnDevice tries to open a device with O_EXCL flag
+// exclusiveOpenFailsOnDevice tries to open a device with O_EXCL flag
 // stolen and re-adapted from https://github.com/kubernetes/kubernetes/blob/77d18dbad9d2abea7d7b7b22be02fb422e03f0a9/pkg/util/mount/mount_linux.go#L306
-func ExclusiveOpenFailsOnDevice(pathname string) (bool, error) {
+func exclusiveOpenFailsOnDevice(pathname string) (bool, error) {
 	fd, errno := unix.Open(pathname, unix.O_RDONLY|unix.O_EXCL, 0)
 	// If the device is in use, open will return an invalid fd.
 	// When this happens, it is expected that Close will fail and throw an error.
@@ -684,8 +684,8 @@ func ExclusiveOpenFailsOnDevice(pathname string) (bool, error) {
 	return false, errno
 }
 
-// IsEmpty tests if a directory is empty or not
-func IsEmpty(dir string) bool {
+// isEmpty tests if a directory is empty or not
+func isEmpty(dir string) bool {
 	f, err := os.Open(dir)
 	if err != nil {
 		return false

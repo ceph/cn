@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliS3CmdSync is the Cobra CLI call
-func CliS3CmdSync() *cobra.Command {
+// cliS3CmdSync is the Cobra CLI call
+func cliS3CmdSync() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sync CLUSTER LOCAL_DIR BUCKET",
 		Short: "Synchronize a directory tree to S3",
@@ -23,14 +23,14 @@ func CliS3CmdSync() *cobra.Command {
 
 // S3CmdSync wraps s3cmd command in the container
 func S3CmdSync(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
+	containerName := containerNamePrefix + args[0]
 
-	notExistCheck(ContainerName)
-	notRunningCheck(ContainerName)
+	notExistCheck(containerName)
+	notRunningCheck(containerName)
 	localDir := args[1]
 	bucketName := args[2]
-	dir := dockerInspect(ContainerName, "Binds")
-	destDir := TempPath
+	dir := dockerInspect(containerName, "Binds")
+	destDir := tempPath
 
 	if localDir != dir {
 		destDir = dir + "/" + localDir
@@ -44,6 +44,6 @@ func S3CmdSync(cmd *cobra.Command, args []string) {
 		"Do not expect any output until the upload is finished. \n \n", localDir, bucketName)
 
 	command := []string{"s3cmd", "sync", destDir, "s3://" + bucketName}
-	output := strings.TrimSuffix(string(execContainer(ContainerName, command)), "\n") + " on cluster " + ContainerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
 	fmt.Println(output)
 }

@@ -25,25 +25,44 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// validateEnv verifies the ability to run the program
-func validateEnv() {
-	seLinux()
+// GetSeLinuxStatus gets SeLinux status
+func GetSeLinuxStatus() string {
+	TestBinaryExist("getenforce")
+
+	out, err := exec.Command("getenforce").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(out)
 }
 
-// seLinux checks if SeLinux is installed and set to Enforcing,
+// ApplySeLinuxLabel checks if SeLinux is installed and set to Enforcing,
 // we relabel our WorkingDirectory to allow the container to access files in this directory
-func seLinux() {
-	if _, err := os.Stat("/sbin/getenforce"); !os.IsNotExist(err) {
-		out, err := exec.Command("getenforce").Output()
-		if err != nil {
-			log.Fatal(err)
+func ApplySeLinuxLabel(dir string) {
+	TestBinaryExist("getenforce")
+
+	selinuxStatus := GetSeLinuxStatus()
+	lines := strings.Split(selinuxStatus, "\n")
+	for _, l := range lines {
+		if len(l) <= 0 {
+			// Ignore empty line.
+			continue
 		}
-		if string(out) == "Enforcing" {
-			if _, err := os.Stat(WorkingDirectory); os.IsNotExist(err) {
-				os.Mkdir(WorkingDirectory, 0755)
+		if l == "Enforcing" {
+			meUserName, meID := whoAmI()
+			if meID != "0" {
+				log.Fatal("Hey " + meUserName + "! Run me as 'root' so I can apply the right SeLinux label on " + dir)
 			}
-			// OMG sudo!!!! FIX ME
-			exec.Command("sudo chcon -Rt svirt_sandbox_file_t %s", WorkingDirectory)
+			if _, err := os.Stat(dir); os.IsNotExist(err) {
+				os.Mkdir(dir, 0755)
+			}
+			TestBinaryExist("chcon")
+			cmd := "chcon " + " -Rt" + " svirt_sandbox_file_t " + dir
+			_, err := exec.Command("chcon", "-Rt", "svirt_sandbox_file_t", dir).Output()
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Println("Executing: " + cmd)
 		}
 	}
 }

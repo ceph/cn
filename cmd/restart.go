@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -25,7 +24,7 @@ func restartNano(cmd *cobra.Command, args []string) {
 	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
 
 	notExistCheck(ContainerName)
-	fmt.Println("Restarting cluster " + ContainerNameToShow + "...")
+	log.Println("Restarting cluster " + ContainerNameToShow + "...")
 	if err := getDocker().ContainerRestart(ctx, ContainerName, nil); err != nil {
 		log.Fatal(err)
 	}

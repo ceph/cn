@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -62,9 +61,9 @@ func startNano(cmd *cobra.Command, args []string) {
 	}
 
 	if status := containerStatus(ContainerName, false, "running"); status {
-		fmt.Println("Cluster " + ContainerNameToShow + " is already running!")
+		log.Println("Cluster " + ContainerNameToShow + " is already running!")
 	} else if status := containerStatus(ContainerName, true, "exited"); status {
-		fmt.Println("Starting cluster " + ContainerNameToShow + "...")
+		log.Println("Starting cluster " + ContainerNameToShow + "...")
 		startContainer(ContainerName)
 	} else {
 		pullImage()
@@ -220,7 +219,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		Privileged:   PrivilegedContainer,
 	}
 
-	fmt.Println("Running cluster " + ContainerNameToShow + "...")
+	log.Println("Running cluster " + ContainerNameToShow + "...")
 
 	resp, err := getDocker().ContainerCreate(ctx, config, hostConfig, nil, ContainerName)
 	if err != nil {
@@ -233,7 +232,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 	//[signal SIGSEGV: segmentation violation code=0x1 addr=0x20 pc=0x137a2b4]
 	if err != nil {
 		if strings.Contains(err.Error(), "Mounts denied") {
-			fmt.Println("ERROR: It looks like you need to use the --work-dir option. \n" +
+			log.Println("ERROR: It looks like you need to use the --work-dir option. \n" +
 				"This typically happens when Docker is not running natively (e.g: Docker for Mac/Windows). \n" +
 				"The path /usr/share/ceph-nano is not shared from OS X / Windows and is not known to Docker. \n" +
 				"You can configure shared paths from Docker -> Preferences... -> File Sharing.) \n" +

@@ -78,7 +78,7 @@ func getDocker() *client.Client {
 			// The client version shall be degraded as it's greater than the server's one
 			if len(apiVersion) > 0 {
 				os.Setenv("DOCKER_API_VERSION", apiVersion)
-				fmt.Println("Warning: Degrading Docker client API version to " + apiVersion + " to match server's version")
+				log.Println("Warning: degrading Docker client API version to " + apiVersion + " to match server's version.")
 				// As the DOCKER_API_VERSION variable is updated, we have to restart the communication to get it
 				return getDocker()
 			}

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -28,13 +27,13 @@ func stopNano(cmd *cobra.Command, args []string) {
 	timeout := 5 * time.Second
 
 	if status := containerStatus(ContainerName, true, "exited"); status {
-		fmt.Println("Cluster " + ContainerNameToShow + " is already stopped.")
+		log.Println("Cluster " + ContainerNameToShow + " is already stopped.")
 		os.Exit(0)
 	} else if status := containerStatus(ContainerName, false, "running"); !status {
-		fmt.Println("Cluster " + ContainerNameToShow + " does not exist yet.")
+		log.Println("Cluster " + ContainerNameToShow + " does not exist yet.")
 		os.Exit(0)
 	} else {
-		fmt.Println("Stopping cluster " + ContainerNameToShow + "...")
+		log.Println("Stopping cluster " + ContainerNameToShow + "...")
 		if err := getDocker().ContainerStop(ctx, ContainerName, &timeout); err != nil {
 			log.Fatal(err)
 		}

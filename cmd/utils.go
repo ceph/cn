@@ -183,7 +183,7 @@ func cephNanoHealth(ContainerName string) {
 	}
 
 	// if we reach here, something is broken in the container
-	fmt.Println("The container " + ContainerName + " never reached a clean state. Showing the container logs now:")
+	log.Println("The container " + ContainerName + " never reached a clean state. Showing the container logs now:")
 	// ideally we would return the second value of GrepForSuccess when it's false
 	// this would mean having 2 return values for GrepForSuccess
 	out, err := getDocker().ContainerLogs(ctx, ContainerName, types.ContainerLogsOptions{ShowStdout: true})
@@ -214,7 +214,7 @@ func curlTestURL(url string) bool {
 func curlURL(url string) []byte {
 	response, err := http.Get(url)
 	if err != nil {
-		fmt.Println("URL " + url + " is unreachable.")
+		log.Println("URL " + url + " is unreachable.")
 		log.Fatal(err)
 	}
 	defer response.Body.Close()
@@ -291,7 +291,7 @@ func cephNanoS3Health(ContainerName string, RgwPort string) {
 		time.Sleep(time.Second * 1)
 		poll++
 	}
-	fmt.Println("S3 gateway for cluster " + ContainerName + " is not responding. Showing S3 logs:")
+	log.Println("S3 gateway for cluster " + ContainerName + " is not responding. Showing S3 logs:")
 	showS3Logs(ContainerName)
 	log.Fatal("Please open an issue at: https://github.com/ceph/cn.")
 }
@@ -450,7 +450,7 @@ func notExistCheck(ContainerName string) {
 	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
 
 	if (!containerStatus(ContainerName, false, "running")) && (!containerStatus(ContainerName, false, "exited")) {
-		fmt.Println("Cluster " + ContainerNameToShow + " does not exist yet.")
+		log.Println("Cluster " + ContainerNameToShow + " does not exist yet.")
 		os.Exit(0)
 	}
 }
@@ -459,7 +459,7 @@ func notRunningCheck(ContainerName string) {
 	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
 
 	if status := containerStatus(ContainerName, true, "exited"); status {
-		fmt.Println("Cluster " + ContainerNameToShow + " is not running.")
+		log.Println("Cluster " + ContainerNameToShow + " is not running.")
 		os.Exit(0)
 	}
 }

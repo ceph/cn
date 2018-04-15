@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliClusterStop is the Cobra CLI call
-func CliClusterStop() *cobra.Command {
+// cliClusterStop is the Cobra CLI call
+func cliClusterStop() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stop",
 		Short: "Stop object storage server",
@@ -22,19 +22,19 @@ func CliClusterStop() *cobra.Command {
 
 // stopNano stops Ceph Nano
 func stopNano(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
-	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+	containerName := containerNamePrefix + args[0]
+	containerNameToShow := containerName[len(containerNamePrefix):]
 	timeout := 5 * time.Second
 
-	if status := containerStatus(ContainerName, true, "exited"); status {
-		log.Println("Cluster " + ContainerNameToShow + " is already stopped.")
+	if status := containerStatus(containerName, true, "exited"); status {
+		log.Println("Cluster " + containerNameToShow + " is already stopped.")
 		os.Exit(0)
-	} else if status := containerStatus(ContainerName, false, "running"); !status {
-		log.Println("Cluster " + ContainerNameToShow + " does not exist yet.")
+	} else if status := containerStatus(containerName, false, "running"); !status {
+		log.Println("Cluster " + containerNameToShow + " does not exist yet.")
 		os.Exit(0)
 	} else {
-		log.Println("Stopping cluster " + ContainerNameToShow + "...")
-		if err := getDocker().ContainerStop(ctx, ContainerName, &timeout); err != nil {
+		log.Println("Stopping cluster " + containerNameToShow + "...")
+		if err := getDocker().ContainerStop(ctx, containerName, &timeout); err != nil {
 			log.Fatal(err)
 		}
 	}

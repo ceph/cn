@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	// PrivilegedContainer whether or not the container should run Privileged
-	PrivilegedContainer bool
+	// privilegedContainer whether or not the container should run Privileged
+	privilegedContainer bool
 
 	// dataOsd points to either the directory or drive to use to store Ceph's data
 	dataOsd string
@@ -24,8 +24,8 @@ var (
 	workingDirectory string
 )
 
-// CliClusterStart is the Cobra CLI call
-func CliClusterStart() *cobra.Command {
+// cliClusterStart is the Cobra CLI call
+func cliClusterStart() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
 		Short: "Start object storage server",
@@ -39,10 +39,10 @@ func CliClusterStart() *cobra.Command {
 			"cn cluster start mycluster --privileged \n",
 	}
 	cmd.Flags().SortFlags = false
-	cmd.Flags().StringVarP(&WorkingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
-	cmd.Flags().StringVarP(&ImageName, "image", "i", "ceph/daemon", "USE AT YOUR OWN RISK. Ceph container image to use, format is 'username/image:tag'.")
-	cmd.Flags().StringVarP(&Data, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device. Block device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
-	cmd.Flags().BoolVar(&PrivilegedContainer, "privileged", false, "Starts the container in privileged mode")
+	cmd.Flags().StringVarP(&workingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
+	cmd.Flags().StringVarP(&imageName, "image", "i", "ceph/daemon", "USE AT YOUR OWN RISK. Ceph container image to use, format is 'username/image:tag'.")
+	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device. Block device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
+	cmd.Flags().BoolVar(&privilegedContainer, "privileged", false, "Starts the container in privileged mode")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for start")
 
 	return cmd
@@ -62,56 +62,56 @@ func startNano(cmd *cobra.Command, args []string) {
 		workingDirectory = workingDirectory + "-" + containerNameToShow
 	}
 
-	if status := containerStatus(ContainerName, true, "created"); status {
-		removeContainer(ContainerName)
+	if status := containerStatus(containerName, true, "created"); status {
+		removeContainer(containerName)
 	}
 
-	if status := containerStatus(ContainerName, false, "running"); status {
-		log.Println("Cluster " + ContainerNameToShow + " is already running!")
-	} else if status := containerStatus(ContainerName, true, "exited"); status {
-		log.Println("Starting cluster " + ContainerNameToShow + "...")
-		startContainer(ContainerName)
+	if status := containerStatus(containerName, false, "running"); status {
+		log.Println("Cluster " + containerNameToShow + " is already running!")
+	} else if status := containerStatus(containerName, true, "exited"); status {
+		log.Println("Starting cluster " + containerNameToShow + "...")
+		startContainer(containerName)
 	} else {
 		pullImage()
 		runContainer(cmd, args)
 	}
-	echoInfo(ContainerName)
+	echoInfo(containerName)
 }
 
 // runContainer creates a new container when nothing exists
 func runContainer(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
-	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
-	RgwPort := generateRGWPortToUse()
-	if RgwPort == "notfound" {
+	containerName := containerNamePrefix + args[0]
+	containerNameToShow := containerName[len(containerNamePrefix):]
+	rgwPort := generateRGWPortToUse()
+	if rgwPort == "notfound" {
 		log.Fatal("Unable to find a port between 8000 and 8100.")
 	}
-	RgwNatPort := RgwPort + "/tcp"
+	rgwNatPort := rgwPort + "/tcp"
 
 	exposedPorts := nat.PortSet{
-		nat.Port(RgwNatPort): {},
+		nat.Port(rgwNatPort): {},
 	}
 
 	portBindings := nat.PortMap{
-		nat.Port(RgwNatPort): []nat.PortBinding{
+		nat.Port(rgwNatPort): []nat.PortBinding{
 			{
 				HostIP:   "0.0.0.0",
-				HostPort: RgwPort,
+				HostPort: rgwPort,
 			},
 		},
 	}
 
 	envs := []string{
-		"RGW_CIVETWEB_PORT=" + RgwPort, // DON'T TOUCH MY POSITION IN THE SLICE OR YOU WILL BREAK dockerInspect()
+		"RGW_CIVETWEB_PORT=" + rgwPort, // DON'T TOUCH MY POSITION IN THE SLICE OR YOU WILL BREAK dockerInspect()
 		"DEBUG=verbose",
-		"CEPH_DEMO_UID=" + CephNanoUID,
+		"CEPH_DEMO_UID=" + cephNanoUID,
 		"NETWORK_AUTO_DETECT=4",
 		"CEPH_DAEMON=demo",
 		"DEMO_DAEMONS=mon,mgr,osd,rgw",
 	}
 
 	volumeBindings := []string{
-		WorkingDirectory + ":" + TempPath,
+		workingDirectory + ":" + tempPath,
 	}
 
 	ressources := container.Resources{
@@ -124,8 +124,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"/var/lib/ceph": struct{}{},
 	}
 
-	if len(Data) != 0 {
-		testDev, err := GetFileType(Data)
+	if len(dataOsd) != 0 {
+		testDev, err := getFileType(dataOsd)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -133,15 +133,15 @@ func runContainer(cmd *cobra.Command, args []string) {
 			log.Fatalf("We only accept a directory or a block device, however the specified file type is a %s", testDev)
 		}
 		if testDev == "directory" {
-			testEmptyDir := IsEmpty(Data)
+			testEmptyDir := isEmpty(dataOsd)
 			if !testEmptyDir {
-				log.Fatal(Data + " is not empty, doing nothing.")
+				log.Fatal(dataOsd + " is not empty, doing nothing.")
 			}
 			if runtime.GOOS == "linux" {
-				ApplySeLinuxLabel(Data)
+				applySeLinuxLabel(dataOsd)
 			}
-			envs = append(envs, "OSD_PATH="+Data)
-			volumeBindings = append(volumeBindings, Data+":"+Data)
+			envs = append(envs, "OSD_PATH="+dataOsd)
+			volumeBindings = append(volumeBindings, dataOsd+":"+dataOsd)
 		}
 		if testDev == "blockdev" {
 			meUserName, meID := whoAmI()
@@ -159,13 +159,13 @@ func runContainer(cmd *cobra.Command, args []string) {
 			// 3. test if they are partitions in that partition table (you can have a partition table with 0 partitions)
 
 			// First test: is the device opened by a process?!«
-			testDevOpen, _ := ExclusiveOpenFailsOnDevice(Data)
+			testDevOpen, _ := exclusiveOpenFailsOnDevice(dataOsd)
 			if testDevOpen {
-				log.Fatal(Data + " is accessed by another process, doing nothing.")
+				log.Fatal(dataOsd + " is accessed by another process, doing nothing.")
 			}
 
 			// Second test: search for filesystem and partition table
-			diskFormat := GetDiskFormat(Data)
+			diskFormat := getDiskFormat(dataOsd)
 			lines := strings.Split(diskFormat, "\n")
 			var fstype, pttype string
 			for _, l := range lines {
@@ -181,7 +181,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 				// to https://www.kernel.org/pub/linux/utils/util-linux/v2.21/libblkid-docs/.
 				if cs[0] == "TYPE" {
 					fstype = cs[1]
-					log.Fatal(Data + " has a filesystem: " + fstype + ", doing nothing.")
+					log.Fatal(dataOsd + " has a filesystem: " + fstype + ", doing nothing.")
 				} else if cs[0] == "PTTYPE" {
 					// Third test: number of partitions
 					pttype = cs[1]
@@ -194,16 +194,16 @@ func runContainer(cmd *cobra.Command, args []string) {
 					// So we remove the first 2 lines of the output
 					// The third one is always the partition number
 					partedUselessLinesCount := 2
-					num := GetDiskPartitions(Data)
+					num := getDiskPartitions(dataOsd)
 					partCount := len(num) - partedUselessLinesCount
 					if partCount != 0 {
-						log.Fatal(Data + " has a partition table type " + pttype + " and " + strconv.Itoa(partCount) + " partition(s) doing nothing.")
+						log.Fatal(dataOsd + " has a partition table type " + pttype + " and " + strconv.Itoa(partCount) + " partition(s) doing nothing.")
 					}
 				}
 			}
 			// If we arrive here, it should be safe to use the device.
-			envs = append(envs, "OSD_DEVICE="+Data)
-			PrivilegedContainer = true
+			envs = append(envs, "OSD_DEVICE="+dataOsd)
+			privilegedContainer = true
 			volumeBindings = append(volumeBindings, "/dev:/dev")
 			// place holder once 'demo' will use ceph-volume
 			// volumeBindings = append(volumeBindings, "/run/lvm/lvmetad.socket:/run/lvm/lvmetad.socket")
@@ -211,8 +211,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 	}
 
 	config := &container.Config{
-		Image:        ImageName,
-		Hostname:     ContainerName + "-faa32aebf00b",
+		Image:        imageName,
+		Hostname:     containerName + "-faa32aebf00b",
 		ExposedPorts: exposedPorts,
 		Env:          envs,
 		Volumes:      volumes,
@@ -222,12 +222,12 @@ func runContainer(cmd *cobra.Command, args []string) {
 		PortBindings: portBindings,
 		Binds:        volumeBindings,
 		Resources:    ressources,
-		Privileged:   PrivilegedContainer,
+		Privileged:   privilegedContainer,
 	}
 
-	log.Println("Running cluster " + ContainerNameToShow + "...")
+	log.Println("Running cluster " + containerNameToShow + "...")
 
-	resp, err := getDocker().ContainerCreate(ctx, config, hostConfig, nil, ContainerName)
+	resp, err := getDocker().ContainerCreate(ctx, config, hostConfig, nil, containerName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -254,8 +254,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 }
 
 // startContainer starts a container that is stopped
-func startContainer(ContainerName string) {
-	if err := getDocker().ContainerStart(ctx, ContainerName, types.ContainerStartOptions{}); err != nil {
+func startContainer(containerName string) {
+	if err := getDocker().ContainerStart(ctx, containerName, types.ContainerStartOptions{}); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliS3CmdRb is the Cobra CLI call
-func CliS3CmdRb() *cobra.Command {
+// cliS3CmdRb is the Cobra CLI call
+func cliS3CmdRb() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "rb CLUSTER BUCKET",
 		Short: "Remove bucket",
@@ -22,11 +22,11 @@ func CliS3CmdRb() *cobra.Command {
 
 // S3CmdRb wraps s3cmd command in the container
 func S3CmdRb(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
+	containerName := containerNamePrefix + args[0]
 
-	notExistCheck(ContainerName)
-	notRunningCheck(ContainerName)
+	notExistCheck(containerName)
+	notRunningCheck(containerName)
 	command := []string{"s3cmd", "rb", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(ContainerName, command)), "\n") + " on cluster " + ContainerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
 	fmt.Println(output)
 }

@@ -12,8 +12,8 @@ var (
 	S3CmdRec bool
 )
 
-// CliS3CmdDel is the Cobra CLI call
-func CliS3CmdDel() *cobra.Command {
+// cliS3CmdDel is the Cobra CLI call
+func cliS3CmdDel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "del CLUSTER BUCKET/OBJECT",
 		Short: "Delete file from bucket",
@@ -29,10 +29,10 @@ func CliS3CmdDel() *cobra.Command {
 
 // S3CmdDel wraps s3cmd command in the container
 func S3CmdDel(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
+	containerName := containerNamePrefix + args[0]
 
-	notExistCheck(ContainerName)
-	notRunningCheck(ContainerName)
+	notExistCheck(containerName)
+	notRunningCheck(containerName)
 
 	/*
 		S3CmdOpt = "--verbose"
@@ -45,6 +45,6 @@ func S3CmdDel(cmd *cobra.Command, args []string) {
 			command := []string{"s3cmd", "del", S3CmdOpt, "s3://" + args[0]}
 	*/
 	command := []string{"s3cmd", "del", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(ContainerName, command)), "\n") + " on cluster " + ContainerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
 	fmt.Println(output)
 }

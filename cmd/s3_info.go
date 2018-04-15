@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliS3CmdInfo is the Cobra CLI call
-func CliS3CmdInfo() *cobra.Command {
+// cliS3CmdInfo is the Cobra CLI call
+func cliS3CmdInfo() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "info CLUSTER BUCKET/OBJECT",
 		Short: "Get various information about Buckets or Files",
@@ -21,11 +21,11 @@ func CliS3CmdInfo() *cobra.Command {
 
 // S3CmdInfo wraps s3cmd command in the container
 func S3CmdInfo(cmd *cobra.Command, args []string) {
-	ContainerName := ContainerNamePrefix + args[0]
+	containerName := containerNamePrefix + args[0]
 
-	notExistCheck(ContainerName)
-	notRunningCheck(ContainerName)
+	notExistCheck(containerName)
+	notRunningCheck(containerName)
 	command := []string{"s3cmd", "info", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(ContainerName, command)), "\n") + " on cluster " + ContainerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
 	fmt.Println(output)
 }

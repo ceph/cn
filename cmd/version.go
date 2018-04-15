@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliVersionNano is the Cobra CLI call
-func CliVersionNano() *cobra.Command {
+// cliVersionNano is the Cobra CLI call
+func cliVersionNano() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",
 		Short: "Print the version number of Ceph Nano",

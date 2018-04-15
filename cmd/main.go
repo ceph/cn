@@ -12,8 +12,11 @@ import (
 )
 
 const (
-	cliName        = "cn"
-	cliDescription = "Ceph Nano - One step S3 in container with Ceph."
+	cliName             = "cn"
+	cliDescription      = "Ceph Nano - One step S3 in container with Ceph."
+	cephNanoUID         = "nano"       // cephNanoUID is the uid of the S3 user
+	containerNamePrefix = "ceph-nano-" // containerNamePrefix is name of the container
+	tempPath            = "/tmp/"      // tempPath is the temporary path inside the container
 )
 
 var (
@@ -92,7 +95,7 @@ func init() {
 		cmdCluster,
 		cmdS3,
 		cmdImage,
-		CliVersionNano(),
+		cliVersionNano(),
 	)
 }
 

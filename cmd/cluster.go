@@ -14,12 +14,12 @@ var (
 
 func init() {
 	cmdCluster.AddCommand(
-		CliClusterList(),
-		CliClusterStart(),
-		CliClusterStatus(),
-		CliClusterStop(),
-		CliClusterRestart(),
-		CliClusterLogs(),
-		CliClusterPurge(),
+		cliClusterList(),
+		cliClusterStart(),
+		cliClusterStatus(),
+		cliClusterStop(),
+		cliClusterRestart(),
+		cliClusterLogs(),
+		cliClusterPurge(),
 	)
 }

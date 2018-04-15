@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CliClusterList is the Cobra CLI call
-func CliClusterList() *cobra.Command {
+// cliClusterList is the Cobra CLI call
+func cliClusterList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "ls",
 		Short: "Print the list of Ceph cluster(s)",
@@ -42,15 +42,15 @@ func showNanoClusters() {
 	// run the loop on both indexes, it's fine they have the same length
 	for _, container := range containers {
 		for i := range container.Names {
-			match, _ := regexp.MatchString(ContainerNamePrefix, container.Names[i])
+			match, _ := regexp.MatchString(containerNamePrefix, container.Names[i])
 			if match {
 				// remove 7 first char since container.ImageID is in the form of sha256:<ID>
 				containerImgTag := inspectImage(container.ImageID[7:], "tag")
 				containerImgCreated := inspectImage(container.ImageID[7:], "created")
 				containerImgRelease := inspectImage(container.ImageID[7:], "release")
-				ContainerNameToShow := container.Names[i][len(ContainerNamePrefix):]
+				containerNameToShow := container.Names[i][len(containerNamePrefix):]
 				// We trim again so we can remove the '/' since container name returned is /ceph-nano
-				table.AddRow(ContainerNameToShow[1:], container.State, containerImgTag, containerImgRelease, containerImgCreated)
+				table.AddRow(containerNameToShow[1:], container.State, containerImgTag, containerImgRelease, containerImgCreated)
 			}
 		}
 	}

@@ -402,7 +402,7 @@ func inspectImage(ImageID string, dataType string) string {
 		if len(i.RepoTags) == 0 {
 			return strings.Join(i.RepoDigests, "")
 		}
-		return strings.Join(i.RepoTags, "")
+		return i.RepoTags[0]
 	}
 	if dataType == "created" {
 		return i.Created

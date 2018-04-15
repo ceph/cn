@@ -29,9 +29,12 @@ func CliClusterStart() *cobra.Command {
 		Short: "Start object storage server",
 		Args:  cobra.ExactArgs(1),
 		Run:   startNano,
-		Example: "cn start \n" +
-			"cn start --work-dir /tmp \n" +
-			"cn start --image ceph/daemon:tag-stable-3.0-luminous-ubuntu-16.04",
+		Example: "cn cluster start mycluster \n" +
+			"cn cluster start mycluster --work-dir /tmp \n" +
+			"cn cluster start mycluster --image ceph/daemon:latest-luminous \n" +
+			"cn cluster start mycluster -b /dev/sdb \n" +
+			"cn cluster start mycluster -b /srv/nano \n" +
+			"cn cluster start mycluster --privileged \n",
 	}
 	cmd.Flags().SortFlags = false
 	cmd.Flags().StringVarP(&WorkingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")

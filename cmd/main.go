@@ -20,20 +20,8 @@ var (
 	// Version is the Ceph Nano version
 	cnVersion = "undefined"
 
-	// WorkingDirectory is the working directory where objects can be put inside S3
-	WorkingDirectory = "/usr/share/ceph-nano"
-
-	// CephNanoUID is the uid of the S3 user
-	CephNanoUID = "nano"
-
-	// ContainerNamePrefix is name of the container
-	ContainerNamePrefix = "ceph-nano-"
-
-	// ImageName is the name of the container image
-	ImageName = "ceph/daemon"
-
-	// TempPath is the temporary path inside the container
-	TempPath = "/tmp/"
+	// imageName is the name of the container image
+	imageName = "ceph/daemon"
 
 	rootCmd = &cobra.Command{
 		Use:        cliName,

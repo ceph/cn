@@ -59,11 +59,11 @@ func updateNano(cmd *cobra.Command, args []string) {
 
 		if event != nil {
 			if strings.Contains(event.Status, fmt.Sprintf("Downloaded newer image for %s", ImageName)) {
-				fmt.Println("New image " + ImageName + " downloaded.")
+				log.Println("New image " + ImageName + " downloaded.")
 			}
 
 			if strings.Contains(event.Status, fmt.Sprintf("Image is up to date for %s", ImageName)) {
-				fmt.Println("Image " + ImageName + " is up to date.")
+				log.Println("Image " + ImageName + " is up to date.")
 			}
 		}
 	}

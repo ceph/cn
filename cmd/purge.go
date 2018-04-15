@@ -48,7 +48,7 @@ func purgeNano(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 	notExistCheck(ContainerName)
-	fmt.Println("Purging cluster " + ContainerNameToShow + "...")
+	log.Println("Purging cluster " + ContainerNameToShow + "...")
 	removeContainer(ContainerName)
 }
 
@@ -75,7 +75,7 @@ func removeContainer(ContainerName string) {
 		if testDev == "directory" {
 			err := os.RemoveAll(Data)
 			if err != nil {
-				fmt.Println("Something went wrong while removing " + Data + ".\n" +
+				log.Println("Something went wrong while removing " + Data + ".\n" +
 					"You need to purge the directory manually, next time run me as 'root' to avoid that.")
 				log.Fatal(err)
 			}
@@ -87,7 +87,7 @@ func removeContainer(ContainerName string) {
 			Force:         true,
 			PruneChildren: true,
 		}
-		fmt.Println("Removing container image" + ImageName + "...")
+		log.Println("Removing container image" + ImageName + "...")
 		getDocker().ImageRemove(ctx, ImageName, options)
 	}
 }

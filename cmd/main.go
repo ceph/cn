@@ -92,7 +92,6 @@ func getDocker() *client.Client {
 // Main is the main function calling the whole program
 func Main(version string) {
 	cnVersion = version
-	validateEnv()
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

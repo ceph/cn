@@ -129,6 +129,9 @@ func runContainer(cmd *cobra.Command, args []string) {
 			if !testEmptyDir {
 				log.Fatal(Data + " is not empty, doing nothing.")
 			}
+			if runtime.GOOS == "linux" {
+				ApplySeLinuxLabel(Data)
+			}
 			envs = append(envs, "OSD_PATH="+Data)
 			volumeBindings = append(volumeBindings, Data+":"+Data)
 		}

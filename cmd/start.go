@@ -17,8 +17,11 @@ var (
 	// PrivilegedContainer whether or not the container should run Privileged
 	PrivilegedContainer bool
 
-	// Data points to either the directory or drive to use to store Ceph's data
-	Data string
+	// dataOsd points to either the directory or drive to use to store Ceph's data
+	dataOsd string
+
+	// workingDirectory is the working directory where objects can be put inside S3
+	workingDirectory string
 )
 
 // CliClusterStart is the Cobra CLI call
@@ -53,8 +56,11 @@ func startNano(cmd *cobra.Command, args []string) {
 	// panic: Error response from daemon: Mounts denied:
 	// The path /usr/share/ceph-nano is not shared from OS X and is not known to Docker.
 	// You can configure shared paths from Docker -> Preferences... -> File Sharing.
-	ContainerName := ContainerNamePrefix + args[0]
-	ContainerNameToShow := ContainerName[len(ContainerNamePrefix):]
+	containerName := containerNamePrefix + args[0]
+	containerNameToShow := containerName[len(containerNamePrefix):]
+	if len(workingDirectory) == 0 {
+		workingDirectory = workingDirectory + "-" + containerNameToShow
+	}
 
 	if status := containerStatus(ContainerName, true, "created"); status {
 		removeContainer(ContainerName)
@@ -231,6 +237,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 	//panic: runtime error: invalid memory address or nil pointer dereference
 	//[signal SIGSEGV: segmentation violation code=0x1 addr=0x20 pc=0x137a2b4]
 	if err != nil {
+		log.Fatal(err)
 		if strings.Contains(err.Error(), "Mounts denied") {
 			log.Println("ERROR: It looks like you need to use the --work-dir option. \n" +
 				"This typically happens when Docker is not running natively (e.g: Docker for Mac/Windows). \n" +

@@ -39,14 +39,30 @@ Test it out
 $ ./cn
 Ceph Nano - One step S3 in container with Ceph.
 
+                  *(((((((((((((
+                (((((((((((((((((((
+              ((((((((*     ,(((((((*
+             ((((((             ((((((
+            *((((,               ,((((/
+            ((((,     ((((((/     *((((
+            ((((     (((((((((     ((((
+            /(((     (((((((((     ((((
+             (((.     (((((((     /(((/
+              (((                *((((
+              .(((              (((((
+         ,(((((((*             /(((
+          .(((((  ((( (/  //   (((
+                 /(((.  /(((((  /(((((
+                        .((((/ (/
+
 Usage:
   cn [command]
 
 Available Commands:
   cluster     Interact with a particular Ceph cluster
-  s3          Interact with S3 object server
-  image       Interact with cn container image
-  version     Print the version number of Ceph Nano
+  s3          Interact with a particular S3 object server
+  image       Interact with cn's container image(s)
+  version     Print cn's version number
   help        Help about any command
 
 Flags:

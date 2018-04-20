@@ -10,7 +10,7 @@ import (
 func cliClusterLogs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logs",
-		Short: "Print object storage server logs",
+		Short: "Print an object storage server logs",
 		Args:  cobra.ExactArgs(1),
 		Run:   logsNano,
 	}

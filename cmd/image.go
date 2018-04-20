@@ -7,7 +7,7 @@ import (
 var (
 	cmdImage = &cobra.Command{
 		Use:   "image [command] [arg]",
-		Short: "Interact with cn container image",
+		Short: "Interact with cn's container image(s)",
 		Args:  cobra.NoArgs,
 	}
 )

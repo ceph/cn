@@ -291,6 +291,7 @@ func cephNanoS3Health(containerName string, rgwPort string) {
 		time.Sleep(time.Second * 1)
 		poll++
 	}
+	log.Println("Timeout while trying to reach: " + url)
 	log.Println("S3 gateway for cluster " + containerName + " is not responding. Showing S3 logs:")
 	showS3Logs(containerName)
 	log.Fatal("Please open an issue at: https://github.com/ceph/cn.")

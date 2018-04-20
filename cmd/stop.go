@@ -12,7 +12,7 @@ import (
 func cliClusterStop() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stop",
-		Short: "Stop object storage server",
+		Short: "Stop an object storage server",
 		Args:  cobra.ExactArgs(1),
 		Run:   stopNano,
 	}

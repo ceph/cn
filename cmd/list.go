@@ -14,7 +14,7 @@ import (
 func cliClusterList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "ls",
-		Short: "Print the list of Ceph cluster(s)",
+		Short: "Print the list of object storage server(s)",
 		Args:  cobra.NoArgs,
 		Run:   listNano,
 	}

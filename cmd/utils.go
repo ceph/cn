@@ -450,7 +450,8 @@ func pullImage() bool {
 func notExistCheck(containerName string) {
 	containerNameToShow := containerName[len(containerNamePrefix):]
 
-	if (!containerStatus(containerName, false, "running")) && (!containerStatus(containerName, false, "exited")) {
+	// If the container status is not "running" AND not "exited" AND not "created"
+	if (!containerStatus(containerName, false, "running")) && (!containerStatus(containerName, true, "exited")) && (!containerStatus(containerName, true, "created")) {
 		log.Println("Cluster " + containerNameToShow + " does not exist yet.")
 		os.Exit(0)
 	}
@@ -459,7 +460,8 @@ func notExistCheck(containerName string) {
 func notRunningCheck(containerName string) {
 	containerNameToShow := containerName[len(containerNamePrefix):]
 
-	if status := containerStatus(containerName, true, "exited"); status {
+	// If the container status is "exited" OR "created"
+	if (containerStatus(containerName, true, "exited")) || (containerStatus(containerName, true, "created")) {
 		log.Println("Cluster " + containerNameToShow + " is not running.")
 		os.Exit(0)
 	}

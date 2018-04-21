@@ -20,6 +20,7 @@ ifeq ("$(GOPATH)","")
 	@exit 1
 endif
 ifneq ("$(shell pwd)","$(GOPATH)/src/github.com/ceph/cn")
+	@echo "You are in $(shell pwd) !"
 	@echo "Please go in $(GOPATH)/src/github.com/ceph/cn to build"
 	@exit 1
 endif

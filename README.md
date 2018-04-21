@@ -10,7 +10,7 @@ Also, keep in mind that the CLI is just for convenience, and the primary use cas
 
 ## Installation
 
-cn relies on Docker so it must be installed on your machine. If you're not running a Linux workstation you can install [Docker for Mac](https://docs.docker.com/docker-for-mac/) or [Windows](https://docs.docker.com/docker-for-windows/).
+cn relies on Docker so it must be installed on your machine. If you're not running a Linux workstation you can install [Docker for Mac](https://docs.docker.com/docker-for-mac/).
 
 Once Docker is installed you're ready to start.
 Open your terminal and download the cn binary.
@@ -25,12 +25,6 @@ Linux:
 
 ```bash
 curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-linux-amd64 -o cn && chmod +x cn
-```
-
-Windows:
-
-```bash
-curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-windows-amd64.exe -o cn && chmod +x cn
 ```
 
 Test it out

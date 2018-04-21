@@ -37,16 +37,13 @@ prepare:
 darwin:
 	make GOOS=darwin GOARCH:=amd64
 
-windows:
-	make GOOS=windows CN_EXTENSION=".exe" GOARCH:=amd64
-
 linux-%:
 	make GOOS=linux GOARCH:=$*
 
 tests:
 	tests/functional-tests.sh
 
-release: darwin windows linux-amd64 linux-arm64
+release: darwin linux-amd64 linux-arm64
 
 clean:
 	rm -f cn &>/dev/null || true

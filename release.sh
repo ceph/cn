@@ -88,6 +88,10 @@ done
 isVariableExists GITHUB_TOKEN
 isVariableExists TAG
 
+if [[ ${TAG:0:1} != "v" ]]; then
+    fatal "The tag ($TAG) should start with a 'v' like in v1.4.0"
+fi
+
 isGitTagExists $PTAG
 if [ $? -ne 0 ]; then
   IMPLICIT_PTAG=$(git for-each-ref refs/tags --sort=-taggerdate --format='%(refname)' --count=1 | cut -d '/' -f 3)

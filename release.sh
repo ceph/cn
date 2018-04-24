@@ -1,11 +1,18 @@
 #!/bin/bash
 GITHUB_USER=ceph
 repo=cn
+CREATE_TAG=
 
 fatal() {
   echo "$@"
   if [ -e "$CHANGELOG" ]; then
     rm -f $CHANGELOG
+  fi
+
+  #If the tag was created by us, let's delete it
+  if [ -n "$CREATE_TAG" ]; then
+    git checkout $GIT_BRANCH
+    git tag | grep -qw "$TAG" && git tag -d "$TAG"
   fi
   exit 1
 }
@@ -89,7 +96,7 @@ isVariableExists GITHUB_TOKEN
 isVariableExists TAG
 
 if [[ ${TAG:0:1} != "v" ]]; then
-    fatal "The tag ($TAG) should start with a 'v' like in v1.4.0"
+  fatal "The tag ($TAG) should start with a 'v' like in v1.4.0"
 fi
 
 isGitTagExists $PTAG
@@ -124,9 +131,9 @@ if [ $? -ne 0 ]; then
     # Testing lower case version of the answer
     case ${answer,,} in
       yes)
+        CREATE_TAG="yes"
         git tag $TAG || fatal "Can't tag with tag $TAG"
         git push >/dev/null || fatal "Can't push branch $GIT_BRANCH"
-        git push origin $TAG >/dev/null || fatal "Can't push TAG $TAG"
         break
         ;;
       no)
@@ -165,5 +172,10 @@ for binary in cn*$TAG*; do
   echo "- $binary"
   github-release upload --user $GITHUB_USER --repo $repo --tag ${TAG} --name $binary --file $binary || fatal "Cannot upload cn"
 done
+
+# Everything went well, let's push the tag to the github repo
+if [ -n "$CREATE_TAG" ]; then
+  git push origin $TAG >/dev/null || fatal "Can't push TAG $TAG"
+fi
 
 echo "Release can be browsed at https://github.com/$GITHUB_USER/$repo/releases/tag/$TAG"

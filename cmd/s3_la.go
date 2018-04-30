@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -26,13 +25,14 @@ func S3CmdLa(cmd *cobra.Command, args []string) {
 
 	notExistCheck(containerName)
 	notRunningCheck(containerName)
+
 	command := []string{"s3cmd", "la"}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := string(execContainer(containerName, command))
+
 	if len(output) == 1 {
 		command := []string{"s3cmd", "ls"}
-		output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
-		fmt.Println(output)
-	} else {
-		fmt.Println(output)
+		output := execContainer(containerName, command)
+		fmt.Printf("%s", output)
 	}
+	fmt.Printf("%s", output)
 }

@@ -418,7 +418,7 @@ func inspectImage(ImageID string, dataType string) string {
 func pullImage() bool {
 	_, _, err := getDocker().ImageInspectWithRaw(ctx, imageName)
 	if err != nil {
-		fmt.Print("The container image is not present, pulling it. \n" +
+		fmt.Println("The container image is not present, pulling it. \n" +
 			"This operation can take a few minutes.")
 
 		out, err := getDocker().ImagePull(ctx, imageName, types.ImagePullOptions{})

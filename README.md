@@ -76,10 +76,11 @@ The container image is not present, pulling it.
 This operation can take a few minutes......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
 
 HEALTH_OK is the Ceph status
-S3 object server address is: http://192.168.0.10:8000
-S3 access key is: E7MCNPWED4BIV21J1BZG
-S3 secret key is: JG5wmxw2bGOxXLc7v6NQ2yg50atPCu3Nxe4XXvEf
 Your working directory is: /tmp
+S3 access key is: 4EO5O2IP4LSGSBC8CUG3
+S3 secret key is: Ap8ue6ait0MqgnCIKT7UrCRJGLUoyBhtS2McbNxE
+S3 object server address is: http://10.36.116.164:8001
+Ceph Nano browser address is: http://10.36.116.164:5001
 ```
 
 ## Your first S3 bucket

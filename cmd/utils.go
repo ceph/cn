@@ -16,6 +16,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -300,7 +301,8 @@ func cephNanoS3Health(containerName string, rgwPort string) {
 // echoInfo prints useful information about Ceph Nano
 func echoInfo(containerName string) {
 	// Get listening port
-	rgwPort := dockerInspect(containerName, "PortBindings")
+	rgwPort := dockerInspect(containerName, "PortBindingsRgw")
+	cnBrowserPort := dockerInspect(containerName, "PortBindingsBrowser")
 
 	// Always wait the container to be ready
 	cephNanoHealth(containerName)
@@ -322,10 +324,14 @@ func echoInfo(containerName string) {
 
 	infoLine :=
 		"\n" + strings.TrimSpace(string(c)) + " is the Ceph status \n" +
-			"S3 object server address is: http://" + ips[0].String() + ":" + rgwPort + "\n" +
+			"Your working directory is: " + dir + "\n" +
 			"S3 access key is: " + cephNanoAccessKey + "\n" +
 			"S3 secret key is: " + cephNanoSecretKey + "\n" +
-			"Your working directory is: " + dir + "\n"
+			"S3 object server address is: http://" + ips[0].String() + ":" + rgwPort + "\n"
+
+	if cnBrowserPort != "NoUIYet" {
+		infoLine = infoLine + "Ceph Nano browser address is: http://" + ips[0].String() + ":" + cnBrowserPort + "\n"
+	}
 	fmt.Println(infoLine)
 }
 
@@ -365,9 +371,19 @@ func dockerInspect(containerName string, pattern string) string {
 		return parts[0]
 	}
 
-	if pattern == "PortBindings" {
+	if pattern == "PortBindingsRgw" {
 		parts := strings.Split(inspect.Config.Env[0], "=")
 		return parts[1]
+	}
+
+	if pattern == "PortBindingsBrowser" {
+		parts := strings.Split(inspect.Config.Env[1], "=")
+		// test if parts[1] could be a number, this handle the case where you are running cn
+		// with an old container image with no UI inside
+		if _, err := strconv.Atoi(parts[1]); err == nil {
+			return parts[1]
+		}
+		return "NoUIYet"
 	}
 
 	// The part is helpful when passing a dedicated directory to store Ceph's data
@@ -577,6 +593,19 @@ func checkPortInUsed(portNum string) bool {
 func generateRGWPortToUse() string {
 	maxPort := 8100
 	for i := 8000; i <= maxPort; i++ {
+		portNumStr := fmt.Sprint(i)
+		status := checkPortInUsed(portNumStr)
+		if status {
+			return portNumStr
+		}
+	}
+	return "notfound"
+}
+
+// generateBrowserPortToUse generates the binding port for cn UI
+func generateBrowserPortToUse() string {
+	maxPort := 5100
+	for i := 5000; i <= maxPort; i++ {
 		portNumStr := fmt.Sprint(i)
 		status := checkPortInUsed(portNumStr)
 		if status {

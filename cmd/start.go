@@ -84,12 +84,18 @@ func runContainer(cmd *cobra.Command, args []string) {
 	containerNameToShow := containerName[len(containerNamePrefix):]
 	rgwPort := generateRGWPortToUse()
 	if rgwPort == "notfound" {
-		log.Fatal("Unable to find a port between 8000 and 8100.")
+		log.Fatal("Unable to find a port between 8000 and 8100 for the S3 endpoint.")
+	}
+	cnBrowserPort := generateBrowserPortToUse()
+	if cnBrowserPort == "notfound" {
+		log.Fatal("Unable to find a port between 5000 and 5100 for the UI endpoint.")
 	}
 	rgwNatPort := rgwPort + "/tcp"
+	cnBrowserNatPort := cnBrowserPort + "/tcp"
 
 	exposedPorts := nat.PortSet{
-		nat.Port(rgwNatPort): {},
+		nat.Port(rgwNatPort):       {},
+		nat.Port(cnBrowserNatPort): {},
 	}
 
 	portBindings := nat.PortMap{
@@ -99,10 +105,20 @@ func runContainer(cmd *cobra.Command, args []string) {
 				HostPort: rgwPort,
 			},
 		},
+		nat.Port(cnBrowserNatPort): []nat.PortBinding{
+			{
+				HostIP:   "0.0.0.0",
+				HostPort: cnBrowserPort,
+			},
+		},
 	}
+
+	ips, _ := getInterfaceIPv4s()
 
 	envs := []string{
 		"RGW_CIVETWEB_PORT=" + rgwPort, // DON'T TOUCH MY POSITION IN THE SLICE OR YOU WILL BREAK dockerInspect()
+		"SREE_PORT=" + cnBrowserPort,   // DON'T TOUCH MY POSITION IN THE SLICE OR YOU WILL BREAK dockerInspect()
+		"EXPOSED_IP=" + ips[0].String(),
 		"DEBUG=verbose",
 		"CEPH_DEMO_UID=" + cephNanoUID,
 		"NETWORK_AUTO_DETECT=4",

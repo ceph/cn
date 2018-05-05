@@ -323,7 +323,6 @@ func echoInfo(containerName string) {
 	infoLine :=
 		"\n" + strings.TrimSpace(string(c)) + " is the Ceph status \n" +
 			"S3 object server address is: http://" + ips[0].String() + ":" + rgwPort + "\n" +
-			"S3 user is: nano \n" +
 			"S3 access key is: " + cephNanoAccessKey + "\n" +
 			"S3 secret key is: " + cephNanoSecretKey + "\n" +
 			"Your working directory is: " + dir + "\n"

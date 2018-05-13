@@ -1,0 +1,71 @@
+# This is development template that is used by our CI
+# It gets bootstrapped in a minikube environment so nothing like a production system
+# It has no persistence so if the pod moves elsewhere all the content will be lost and no proper load balancer
+
+---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: ceph-nano-services
+    labels:
+      app: ceph
+      daemon: nano
+  spec:
+    ports:
+    - name: cn-s3
+      port: 80
+      protocol: TCP
+      targetPort: 8000
+    type: LoadBalancer
+    selector:
+      app: ceph
+      daemon: demo
+---
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    labels:
+      app: ceph
+      daemon: nano
+    name: ceph-nano
+  spec:
+    replicas: 1
+    serviceName: ceph-nano
+    selector:
+      matchLabels:
+        app: ceph
+    template:
+      metadata:
+        name: ceph-nano
+        labels:
+          app: ceph
+          daemon: nano
+      spec:
+        containers:
+        - image: ceph/daemon
+          imagePullPolicy: Always
+          name: ceph-nano
+          ports:
+          - containerPort: 8000
+            name: cn-s3
+            protocol: TCP
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512M
+            requests:
+              cpu: "1"
+              memory: 512M
+          env:
+          - name: NETWORK_AUTO_DETECT
+            value: "4"
+          - name: RGW_CIVETWEB_PORT
+            value: "8000"
+          - name: SREE_PORT
+            value: "5001"
+          - name: CEPH_DEMO_UID
+            value: "nano"
+          - name: CEPH_DAEMON
+            value: "demo"
+          - name: DEBUG
+            value: "verbose"

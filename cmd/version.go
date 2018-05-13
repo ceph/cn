@@ -10,7 +10,7 @@ import (
 func cliVersionNano() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",
-		Short: "Print cn's version number",
+		Short: "Print the version of cn",
 		Args:  cobra.NoArgs,
 		Run:   versionNano,
 	}

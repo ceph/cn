@@ -18,13 +18,13 @@ Open your terminal and download the cn binary.
 macOS:
 
 ```bash
-curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-darwin-amd64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v1.4.0/cn-v1.4.0-334876b-darwin-amd64 -o cn && chmod +x cn
 ```
 
 Linux:
 
 ```bash
-curl -L https://github.com/ceph/cn/releases/download/v1.1.1/cn-v1.1.1-903c23f-linux-amd64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v1.4.0/cn-v1.4.0-334876b-linux-amd64 -o cn && chmod +x cn
 ```
 
 Test it out
@@ -56,7 +56,7 @@ Available Commands:
   cluster     Interact with a particular Ceph cluster
   s3          Interact with a particular S3 object server
   image       Interact with cn's container image(s)
-  version     Print cn's version number
+  version     Print the version of cn
   help        Help about any command
 
 Flags:
@@ -77,7 +77,6 @@ This operation can take a few minutes...........................................
 
 HEALTH_OK is the Ceph status
 S3 object server address is: http://192.168.0.10:8000
-S3 user is: nano
 S3 access key is: E7MCNPWED4BIV21J1BZG
 S3 secret key is: JG5wmxw2bGOxXLc7v6NQ2yg50atPCu3Nxe4XXvEf
 Your working directory is: /tmp

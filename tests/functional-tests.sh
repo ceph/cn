@@ -231,7 +231,7 @@ function test_s3_put_50x_4K {
   test_s3_put_custom 50 4096
   final_count=$(countS3Objects $bucket)
   delta=$(($final_count - $initial_count))
-  captionForFailure="delta is $delta"
+  captionForFailure="test_s3_put_50x_4K: delta is $delta"
   [ "$delta" -eq 50 ];
   reportSuccess
 }
@@ -274,7 +274,7 @@ function test_s3_del_50x {
   local final_count
   final_count=$(countS3Objects $bucket)
   local delta=$(($initial_count - $final_count))
-  captionForFailure="delta is $delta"
+  captionForFailure="test_s3_del_50x: delta is $delta"
   [ "$delta" -eq 50 ];
   reportSuccess
 }
@@ -328,7 +328,7 @@ function test_s3_mv_custom {
   local final_count
   final_count=$(countS3Objects $bucket)
   local delta=$(($final_count - $initial_count))
-  captionForFailure="delta is $delta"
+  captionForFailure="test_s3_mv_custom: delta is $delta"
   # It's weird but mv actually copy the file....
   [ "$delta" -eq $count ];
   reportSuccess
@@ -366,8 +366,8 @@ function test_s3_cp_custom {
   done
   final_count=$(countS3Objects $bucket)
   delta=$(($final_count - $initial_count))
-  captionForFailure="delta is $delta"
   [ "$delta" -eq 50 ];
+  captionForFailure="test_s3_cp_custom: delta is $delta"
   reportSuccess
 }
 

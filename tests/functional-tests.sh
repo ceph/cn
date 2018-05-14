@@ -114,7 +114,6 @@ function test_start {
   for i in $(seq 0 10); do
     runCn cluster start -d $tmp_dir one-cluster-$i
   done
-  reportSuccess
   runCn cluster ls
   reportSuccess
 }

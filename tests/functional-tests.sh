@@ -13,6 +13,9 @@ nested_tests=0 # How many test_* are nested
 file_extension=""
 tests_ran=0
 IMAGE_NAME=ceph/daemon
+CLUSTER_NAME_BASE=one-cluster
+current_cluster_name=""
+MAX_CLUSTERS=10
 
 function start_test {
   # If a test starts another test, don't consider a new start
@@ -96,7 +99,7 @@ function runCn() {
 function countS3Objects {
   local bucket=$1
   local captionForFailure="Counting $bucket objects"
-  runCnVerbose="True" runCn s3 ls one-cluster-0 $bucket | grep -a "s3://" | wc -l
+  runCnVerbose="True" runCn s3 ls "$current_cluster_name" $bucket | grep -a "s3://" | wc -l
 }
 
 function isS3ObjectExists {
@@ -106,13 +109,14 @@ function isS3ObjectExists {
   bucket=$(echo ${item%/*})
   file=$(echo ${item#*/})
   local captionForFailure="Checking if ($item) $bucket/$file exists"
-  runCnVerbose="True" runCn s3 ls one-cluster-0 $bucket | awk '{print $4}' | sed -e "s|s3://$bucket/||g" | grep -qw "$file"
+  runCnVerbose="True" runCn s3 ls "$current_cluster_name" $bucket | awk '{print $4}' | sed -e "s|s3://$bucket/||g" | grep -qw "$file"
 }
 
 function test_start {
   start_test
-  for i in $(seq 0 10); do
-    runCn cluster start -d $tmp_dir one-cluster-$i
+  for i in $(seq 0 $MAX_CLUSTERS); do
+    current_cluster_name="$CLUSTER_NAME_BASE-$i"
+    runCn cluster start -d $tmp_dir "$current_cluster_name"
   done
   runCn cluster ls
   reportSuccess
@@ -126,34 +130,36 @@ function test_help {
 
 function test_stop {
   start_test
-  runCn cluster stop one-cluster-0
+  runCn cluster stop "$current_cluster_name"
   reportSuccess
 }
 
 function test_status {
   start_test
-  runCn cluster status one-cluster-0
+  runCn cluster status "$current_cluster_name"
   reportSuccess
 }
 
 function test_restart {
   start_test
-  for i in $(seq 0 10); do
-    runCn cluster restart one-cluster-$i
+  for i in $(seq 0 $MAX_CLUSTERS); do
+    current_cluster_name="$CLUSTER_NAME_BASE-$i"
+    runCn cluster restart "$current_cluster_name"
   done
   reportSuccess
 }
 
 function test_logs {
   start_test
-  runCn cluster logs one-cluster-0
+  runCn cluster logs "$current_cluster_name"
   reportSuccess
 }
 
 function test_purge {
   start_test
-  for i in $(seq 0 10); do
-    runCn cluster purge --yes-i-am-sure one-cluster-$i
+  for i in $(seq 0 $MAX_CLUSTERS); do
+    current_cluster_name="$CLUSTER_NAME_BASE-$i"
+    runCn cluster purge --yes-i-am-sure "$current_cluster_name"
   done
   reportSuccess
 }
@@ -178,20 +184,20 @@ function test_version {
 
 function test_s3_mb {
   start_test
-  runCn s3 mb one-cluster-0 $bucket
+  runCn s3 mb "$current_cluster_name" $bucket
   reportSuccess
 }
 
 function test_s3_rb {
   start_test
-  runCn s3 rb one-cluster-0 $bucket
+  runCn s3 rb "$current_cluster_name" $bucket
   reportSuccess
 }
 
 function s3_put {
   local file=$1
   local bucket=$2
-  runCn s3 put one-cluster-0 ${file} $bucket
+  runCn s3 put "$current_cluster_name" ${file} $bucket
   isS3ObjectExists ${bucket}/${file}
 }
 
@@ -233,7 +239,7 @@ function test_s3_put_50x_4K {
 
 function test_s3_get {
   start_test
-  runCn s3 get one-cluster-0 $bucket/${file} get_file
+  runCn s3 get "$current_cluster_name" $bucket/${file} get_file
   deleteFile get_file
   reportSuccess
 }
@@ -246,7 +252,7 @@ function test_s3_del {
     bucket=$(echo ${1%/*})
     file=$(echo ${1#*/})
   fi
-  runCn s3 del one-cluster-0 $bucket/$file${file_extension}
+  runCn s3 del "$current_cluster_name" $bucket/$file${file_extension}
   ! isS3ObjectExists ${bucket}/${file}${file_extension}
   reportSuccess
 }
@@ -275,25 +281,25 @@ function test_s3_del_50x {
 
 function test_s3_ls {
   start_test
-  runCn s3 ls one-cluster-0 $bucket
+  runCn s3 ls "$current_cluster_name" $bucket
   reportSuccess
 }
 
 function test_s3_la {
   start_test
-  runCn s3 la one-cluster-0
+  runCn s3 la "$current_cluster_name"
   reportSuccess
 }
 
 function test_s3_info {
   start_test
-  runCn s3 info one-cluster-0 $bucket/${file}
+  runCn s3 info "$current_cluster_name" $bucket/${file}
   reportSuccess
 }
 
 function test_s3_du {
   start_test
-  runCn s3 du one-cluster-0 $bucket/${file}
+  runCn s3 du "$current_cluster_name" $bucket/${file}
   reportSuccess
 }
 
@@ -301,7 +307,7 @@ function test_s3_mv {
   start_test
   source=${1-$bucket/$file}
   dest=${2-$bucket/${file}.new}
-  runCn s3 mv one-cluster-0 $source $dest
+  runCn s3 mv "$current_cluster_name" $source $dest
   isS3ObjectExists $dest
   reportSuccess
 }
@@ -345,7 +351,7 @@ function test_s3_cp {
   start_test
   source=${1-$file}
   dest=${2-$source}.copy
-  runCn s3 cp one-cluster-0 $bucket/${source} $bucket/$dest
+  runCn s3 cp "$current_cluster_name" $bucket/${source} $bucket/$dest
   isS3ObjectExists ${bucket}/${dest}
   reportSuccess
 }
@@ -373,7 +379,7 @@ function test_s3_cp_50x {
 
 function test_s3_sync {
   start_test
-  runCn s3 sync one-cluster-0 $tmp_dir $bucket
+  runCn s3 sync "$current_cluster_name" $tmp_dir $bucket
   reportSuccess
 }
 

@@ -366,8 +366,8 @@ function test_s3_cp_custom {
   done
   final_count=$(countS3Objects $bucket)
   delta=$(($final_count - $initial_count))
-  [ "$delta" -eq 50 ];
   captionForFailure="test_s3_cp_custom: delta is $delta"
+  [ "$delta" -eq "$count" ];
   reportSuccess
 }
 

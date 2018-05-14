@@ -329,8 +329,7 @@ function test_s3_mv_custom {
   final_count=$(countS3Objects $bucket)
   local delta=$(($final_count - $initial_count))
   captionForFailure="test_s3_mv_custom: delta is $delta"
-  # It's weird but mv actually copy the file....
-  [ "$delta" -eq $count ];
+  [ "$delta" -eq 0 ];
   reportSuccess
 }
 
@@ -457,7 +456,6 @@ function main() {
       test_s3_$test
     done
 
-    file_extension=".copy" test_s3_del_50x
     test_s3_sync
     test_s3_rb
 

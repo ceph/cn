@@ -18,7 +18,3 @@ script:
   - make
   - sudo ./cn version
   - sudo make tests
-
-after_script:
-  - ./cn stop
-  - ./cn purge --yes-i-am-sure

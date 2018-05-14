@@ -29,10 +29,19 @@ function start_test {
 }
 
 function fatal() {
+  # Let's remove the installed trap
+  # Failing here is not an issue
+  trap - 0
+  set +e
+
   if [ -e $err_file ]; then
     cat $err_file
     deleteFile $err_file
   fi
+
+  # Let's try to delete all possible created clusters
+  purge
+
   exit 1
 }
 
@@ -155,12 +164,16 @@ function test_logs {
   reportSuccess
 }
 
-function test_purge {
-  start_test
+function purge() {
   for i in $(seq 0 $MAX_CLUSTERS); do
     current_cluster_name="$CLUSTER_NAME_BASE-$i"
     runCn cluster purge --yes-i-am-sure "$current_cluster_name"
   done
+}
+
+function test_purge {
+  start_test
+  purge
   reportSuccess
 }
 

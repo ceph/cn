@@ -113,6 +113,7 @@ func init() {
 		cmdS3,
 		cmdImage,
 		cliVersionNano(),
+		cliKubeNano(),
 	)
 }
 

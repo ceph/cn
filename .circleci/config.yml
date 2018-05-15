@@ -29,7 +29,20 @@ jobs:
             sudo kubectl cluster-info
       - run:
           command: |
-            sudo kubectl run circleci-example --image=nginx
+            sudo kubectl create -f tests/kube-cn.yml
       - run:
           command: |
-            sudo kubectl get deployment
+            until sudo kubectl get pods --field-selector=status.phase=Running -l app=ceph | grep -q Running; do sudo kubectl get pods && sudo kubectl describe pods && sleep 1; done
+
+      - run:
+          command: |
+            sudo kubectl get pods --field-selector=status.phase=Running -l app=ceph
+      - run:
+          command: |
+            until sudo kubectl logs ceph-nano-0 |grep -q SUCCESS; do sleep 1; done
+      - run:
+          command: |
+            sudo kubectl expose pod ceph-nano-0 --type=NodePort
+      - run:
+          command: |
+            for i in $(sudo minikube service ceph-nano-0 --url); do curl $i ; done

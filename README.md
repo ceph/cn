@@ -18,13 +18,13 @@ Open your terminal and download the cn binary.
 macOS:
 
 ```bash
-curl -L https://github.com/ceph/cn/releases/download/v1.4.0/cn-v1.4.0-334876b-darwin-amd64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v1.5.0/cn-v1.5.0-8fa7a91-darwin-amd64 -o cn && chmod +x cn
 ```
 
 Linux:
 
 ```bash
-curl -L https://github.com/ceph/cn/releases/download/v1.4.0/cn-v1.4.0-334876b-linux-amd64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v1.5.0/cn-v1.5.0-8fa7a91-linux-amd64 -o cn && chmod +x cn
 ```
 
 Test it out
@@ -57,6 +57,7 @@ Available Commands:
   s3          Interact with a particular S3 object server
   image       Interact with cn's container image(s)
   version     Print the version of cn
+  kube        Outputs cn kubernetes template (cn kube > kube-cn.yml)
   help        Help about any command
 
 Flags:

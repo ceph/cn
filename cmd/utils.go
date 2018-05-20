@@ -738,3 +738,33 @@ func whoAmI() (string, string) {
 	}
 	return me.Username, me.Uid
 }
+
+// toBytes converts storage units into bytes to ease comparison between different units
+func toBytes(value string) int {
+	value = strings.ToLower(value)
+
+	storageUnits := map[string]int{
+		"kib": 1000,
+		"kb":  1024,
+		"mb":  1024 * 1024,
+		"mib": 1000 * 1000,
+		"gb":  1024 * 1024 * 1024,
+		"gib": 1000 * 1000 * 1000,
+		"tb":  1024 * 1024 * 1024 * 1024,
+		"tib": 1000 * 1000 * 1000 * 1000,
+		"pb":  1024 * 1024 * 1024 * 1024 * 1024,
+		"pib": 1000 * 1000 * 1000 * 1000 * 1000,
+	}
+
+	for k, v := range storageUnits {
+		if strings.Contains(value, k) {
+			fmt.Println("Key:", k, "Value:", v, "Given", value)
+			valueWithoutUnit := strings.Replace(value, k, "", 1)
+			valueWithoutUnitToInt, _ := strconv.ParseInt(valueWithoutUnit, 0, 64)
+
+			return int(valueWithoutUnitToInt * int64(v))
+		}
+	}
+
+	return 0
+}

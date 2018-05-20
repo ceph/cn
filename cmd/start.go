@@ -22,6 +22,9 @@ var (
 
 	// workingDirectory is the working directory where objects can be put inside S3
 	workingDirectory string
+
+	// sizeBluestoreBlock is the size of BLUESTORE_BLOCK_SIZE
+	sizeBluestoreBlock string
 )
 
 // cliClusterStart is the Cobra CLI call
@@ -35,13 +38,14 @@ func cliClusterStart() *cobra.Command {
 			"cn cluster start mycluster --work-dir /tmp \n" +
 			"cn cluster start mycluster --image ceph/daemon:latest-luminous \n" +
 			"cn cluster start mycluster -b /dev/sdb \n" +
-			"cn cluster start mycluster -b /srv/nano \n" +
+			"cn cluster start mycluster -b /srv/nano -s 20GB \n" +
 			"cn cluster start mycluster --privileged \n",
 	}
 	cmd.Flags().SortFlags = false
 	cmd.Flags().StringVarP(&workingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
 	cmd.Flags().StringVarP(&imageName, "image", "i", "ceph/daemon", "USE AT YOUR OWN RISK. Ceph container image to use, format is 'username/image:tag'.")
 	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device. Block device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
+	cmd.Flags().StringVarP(&sizeBluestoreBlock, "size", "s", "", "Configure Ceph Nano underlying storage size when using a specific directory")
 	cmd.Flags().BoolVar(&privilegedContainer, "privileged", false, "Starts the container in privileged mode")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for start")
 
@@ -158,6 +162,15 @@ func runContainer(cmd *cobra.Command, args []string) {
 			}
 			envs = append(envs, "OSD_PATH="+dataOsd)
 			volumeBindings = append(volumeBindings, dataOsd+":"+dataOsd)
+
+			// Did someone specify a particular size for cn data store in this directory?
+			if len(sizeBluestoreBlock) != 0 {
+				sizeBluestoreBlockToBytes := toBytes(sizeBluestoreBlock)
+				if sizeBluestoreBlockToBytes == 0 {
+					log.Fatal("Wrong unit passed: ", sizeBluestoreBlock, ". Please refer to https://en.wikipedia.org/wiki/Byte.")
+				}
+				envs = append(envs, "BLUESTORE_BLOCK_SIZE="+string(sizeBluestoreBlockToBytes))
+			}
 		}
 		if testDev == "blockdev" {
 			meUserName, meID := whoAmI()

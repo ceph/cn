@@ -33,6 +33,7 @@ prepare:
 	go get github.com/jmoiron/jsonq
 	go get github.com/apcera/termtables
 	go get golang.org/x/sys/unix
+	go get github.com/elgs/gojq
 
 darwin:
 	make GOOS=darwin GOARCH:=amd64

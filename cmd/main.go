@@ -31,9 +31,10 @@ const (
                  /(((.  /(((((  /(((((
                         .((((/ (/
 `
-	cephNanoUID         = "nano"       // cephNanoUID is the uid of the S3 user
-	containerNamePrefix = "ceph-nano-" // containerNamePrefix is name of the container
-	tempPath            = "/tmp/"      // tempPath is the temporary path inside the container
+	cephNanoUID         = "nano"                                          // cephNanoUID is the uid of the S3 user
+	containerNamePrefix = "ceph-nano-"                                    // containerNamePrefix is name of the container
+	tempPath            = "/tmp/"                                         // tempPath is the temporary path inside the container
+	githubCNReleasesURL = "https://api.github.com/repos/ceph/cn/releases" // githubCNReleasesURL is the GitHub URL of cn releases
 )
 
 var (
@@ -114,6 +115,7 @@ func init() {
 		cmdImage,
 		cliVersionNano(),
 		cliKubeNano(),
+		cliUpdateCheckNano(),
 	)
 }
 

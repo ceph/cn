@@ -53,12 +53,13 @@ Usage:
   cn [command]
 
 Available Commands:
-  cluster     Interact with a particular Ceph cluster
-  s3          Interact with a particular S3 object server
-  image       Interact with cn's container image(s)
-  version     Print the version of cn
-  kube        Outputs cn kubernetes template (cn kube > kube-cn.yml)
-  help        Help about any command
+  cluster      Interact with a particular Ceph cluster
+  s3           Interact with a particular S3 object server
+  image        Interact with cn's container image(s)
+  version      Print the version of cn
+  kube         Outputs cn kubernetes template (cn kube > kube-cn.yml)
+  update-check Print cn current and latest version number
+  help         Help about any command
 
 Flags:
   -h, --help   help for cn

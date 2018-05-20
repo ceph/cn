@@ -195,6 +195,12 @@ function test_version {
   reportSuccess
 }
 
+function test_update_check {
+  start_test
+  runCn update-check
+  reportSuccess
+}
+
 function test_s3_mb {
   start_test
   runCn s3 mb "$current_cluster_name" $bucket
@@ -461,7 +467,7 @@ function main() {
       $cli_test
     done
   else
-    for test in version image_update logs restart status stop start version image_update image_list status logs; do
+    for test in version update_check image_update logs restart status stop start version image_update image_list status logs; do
       test_$test
     done
 

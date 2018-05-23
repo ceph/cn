@@ -10,8 +10,7 @@ GOARCH:=amd64
 CN_EXTENSION:=
 
 build: check clean prepare
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -i -ldflags="-X main.version=$(VERSION) -X main.tag=$(TAG) -X main.branch=$(BRANCH)"
-	mv cn$(CN_EXTENSION) cn-$(TAG)-$(VERSION)-$(GOOS)-$(GOARCH)$(CN_EXTENSION)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -i -ldflags="-X main.version=$(VERSION) -X main.tag=$(TAG) -X main.branch=$(BRANCH)" -o cn-$(TAG)-$(VERSION)-$(GOOS)-$(GOARCH)$(CN_EXTENSION) main.go
 	ln -sf "cn-$(TAG)-$(VERSION)-$(GOOS)-$(GOARCH)$(CN_EXTENSION)" cn$(CN_EXTENSION)
 
 check:
@@ -47,8 +46,7 @@ tests:
 release: darwin linux-amd64 linux-arm64
 
 clean:
-	rm -f cn &>/dev/null || true
-	rm -f cn.exe &>/dev/null || true
+	rm -f cn$(CN_EXTENSION) cn &>/dev/null || true
 
 clean-all: clean
 	rm -f cn-* &>/dev/null || true

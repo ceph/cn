@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/elgs/gojq"
 	"github.com/jmoiron/jsonq"
 	"golang.org/x/sys/unix"
 )
@@ -351,22 +352,22 @@ func getAwsKey(containerName string) (string, string) {
 
 	output := after(string(execContainer(containerName, cmd)), "{")
 
-	// declare structures for json
-	type s3Details []struct {
-		AccessKey string `json:"Access_key"`
-		SecretKey string `json:"Secret_key"`
+	parser, err := gojq.NewStringQuery(output)
+	if err != nil {
+		log.Fatal(err)
 	}
-	type jason struct {
-		Keys s3Details
+
+	cephNanoAccessKey, err := parser.Query("keys.[0].access_key")
+	if err != nil {
+		log.Fatal(err)
 	}
-	// assign variable to our json struct
-	var parsedMap jason
 
-	json.Unmarshal(output, &parsedMap)
+	cephNanoSecretKey, err := parser.Query("keys.[0].secret_key")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	cephNanoAccessKey := parsedMap.Keys[0].AccessKey
-	cephNanoSecretKey := parsedMap.Keys[0].SecretKey
-	return cephNanoAccessKey, cephNanoSecretKey
+	return cephNanoAccessKey.(string), cephNanoSecretKey.(string)
 }
 
 // dockerInspect inspects the container Binds

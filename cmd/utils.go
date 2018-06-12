@@ -114,8 +114,17 @@ func getInterfaceIPv4s() ([]net.IP, error) {
 	return nips, nil
 }
 
+func stripCtlAndExtFromUTF8(str string) string {
+	return strings.Map(func(r rune) rune {
+		if r >= 32 && r < 127 {
+			return r
+		}
+		return -1
+	}, str)
+}
+
 // execContainer execs a given command inside the container
-func execContainer(containerName string, cmd []string) []byte {
+func execContainer(containerName string, cmd []string) string {
 	optionsCreate := types.ExecConfig{
 		AttachStdout: true,
 		AttachStderr: true,
@@ -137,18 +146,10 @@ func execContainer(containerName string, cmd []string) []byte {
 	}
 
 	defer connection.Close()
-	output, err := ioutil.ReadAll(connection.Reader)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	// Remove 8 first characters to get a readable content
-	// Sometimes the command returns nothing, without the following if the program fails without
-	// runtime error: slice bounds out of range
-	if len(output) > 0 {
-		return output[8:]
-	}
-	return nil
+	output, err := ioutil.ReadAll(connection.Reader)
+
+	return stripCtlAndExtFromUTF8(string(output))
 }
 
 // grepForSuccess searches for the word 'SUCCESS' inside the container logs
@@ -323,7 +324,7 @@ func echoInfo(containerName string) {
 	dir := dockerInspect(containerName, "Binds")
 
 	infoLine :=
-		"\n" + strings.TrimSpace(string(c)) + " is the Ceph status \n" +
+		"\n" + strings.TrimSpace(c) + " is the Ceph status \n" +
 			"Your working directory is: " + dir + "\n" +
 			"S3 access key is: " + cephNanoAccessKey + "\n" +
 			"S3 secret key is: " + cephNanoSecretKey + "\n" +
@@ -335,11 +336,20 @@ func echoInfo(containerName string) {
 	fmt.Println(infoLine)
 }
 
+func after(value string, a string) string {
+	// Get substring after a string.
+	pos := strings.Index(value, a)
+	if pos == -1 {
+		return ""
+	}
+	return value[pos:]
+}
+
 // getAwsKey gets AWS keys from inside the container
 func getAwsKey(containerName string) (string, string) {
 	cmd := []string{"cat", "/nano_user_details"}
 
-	output := execContainer(containerName, cmd)
+	output := after(string(execContainer(containerName, cmd)), "{")
 
 	// declare structures for json
 	type s3Details []struct {

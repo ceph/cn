@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"log"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -46,7 +47,7 @@ func listImageTags(cmd *cobra.Command, args []string) {
 		// Parsing/Unmarshalling JSON encoding/json
 		err := json.Unmarshal([]byte(output), &m)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		parseMap(m, "name")
 	}

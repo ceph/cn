@@ -1,8 +1,15 @@
 #!/bin/bash
+
+#############
+# VARIABLES #
+#############
 GITHUB_USER=ceph
 repo=cn
 CREATE_TAG=
 
+#############
+# FUNCTIONS #
+#############
 fatal() {
   echo "$@"
   if [ -e "$CHANGELOG" ]; then
@@ -57,10 +64,9 @@ EOF
   exit 2
 }
 
-###################
-###### MAIN #######
-###################
-
+########
+# MAIN #
+########
 isBinaryExists go
 isBinaryExists git
 

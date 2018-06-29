@@ -21,6 +21,7 @@ func cliS3CmdDel() *cobra.Command {
 		Run:   S3CmdDel,
 		DisableFlagsInUseLine: true,
 	}
+	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 	//cmd.Flags().BoolVarP(&S3CmdRec, "recursive", "r", false, "Recursive removal.")
 	//cmd.Flags().BoolVarP(&S3CmdForce, "force", "f", false, "Force removal.")
 
@@ -46,6 +47,10 @@ func S3CmdDel(cmd *cobra.Command, args []string) {
 			command := []string{"s3cmd", "del", S3CmdOpt, "s3://" + args[0]}
 	*/
 	command := []string{"s3cmd", "del", "s3://" + args[1]}
+	if debugS3 {
+		command = append(command, "--debug")
+	}
+
 	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerNameToShow
 	fmt.Println(output)
 }

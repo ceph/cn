@@ -12,6 +12,9 @@ var (
 	}
 	// S3CmdForce means force operation
 	S3CmdForce bool
+
+	// debugS3 means use the '--debug' flag in the s3cmd command
+	debugS3 bool
 )
 
 func init() {

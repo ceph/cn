@@ -14,6 +14,7 @@ func cliS3CmdLs() *cobra.Command {
 		Args:  cobra.RangeArgs(1, 2),
 		Run:   S3CmdLs,
 	}
+	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 
 	return cmd
 }
@@ -33,5 +34,10 @@ func S3CmdLs(cmd *cobra.Command, args []string) {
 	} else {
 		command = []string{"s3cmd", "ls", "s3://" + args[1]}
 	}
+
+	if debugS3 {
+		command = append(command, "--debug")
+	}
+
 	fmt.Println(execContainer(containerName, command))
 }

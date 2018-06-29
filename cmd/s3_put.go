@@ -19,6 +19,7 @@ func cliS3CmdPut() *cobra.Command {
 		Run:   S3CmdPut,
 		DisableFlagsInUseLine: true,
 	}
+	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 
 	return cmd
 }
@@ -43,6 +44,10 @@ func S3CmdPut(cmd *cobra.Command, args []string) {
 	}
 
 	command := []string{"s3cmd", "put", tempPath + fileNameBase, "s3://" + bucketName}
+	if debugS3 {
+		command = append(command, "--debug")
+	}
+
 	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerNameToShow
 	fmt.Println(output)
 }

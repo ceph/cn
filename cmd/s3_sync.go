@@ -17,6 +17,7 @@ func cliS3CmdSync() *cobra.Command {
 		Run:   S3CmdSync,
 		DisableFlagsInUseLine: true,
 	}
+	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 
 	return cmd
 }
@@ -44,6 +45,10 @@ func S3CmdSync(cmd *cobra.Command, args []string) {
 		"Do not expect any output until the upload is finished. \n \n", localDir, bucketName)
 
 	command := []string{"s3cmd", "sync", destDir, "s3://" + bucketName}
+	if debugS3 {
+		command = append(command, "--debug")
+	}
+
 	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + args[0]
 	fmt.Println(output)
 }

@@ -2,19 +2,21 @@ language: go
 go:
   - 1.9.x
 
+services:
+  - docker
 branches:
   only:
     - master
-
-services:
-  - docker
+    - /^v.*$/
 
 before_install:
   - docker --version
 
-script:
-  - make prepare
-  - mv $GOPATH/src/github.com/docker/docker/vendor/github.com/docker/go-connections/nat $GOPATH/src/github.com/docker/docker/vendor/github.com/docker/go-connections/nonat
-  - make
-  - sudo ./cn version
-  - sudo make tests DEBUG=1
+jobs:
+  include:
+    - stage: compile and run cn functional tests
+      script: ./contrib/travis.sh compile-run-cn
+      if: tag IS blank
+    - stage: build a new release if running on a tag
+      script: ./contrib/travis.sh tag-release
+      if: tag IS present

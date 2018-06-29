@@ -23,10 +23,11 @@ func cliS3CmdDu() *cobra.Command {
 // S3CmdDu wraps s3cmd command in the container
 func S3CmdDu(cmd *cobra.Command, args []string) {
 	containerName := containerNamePrefix + args[0]
+	containerNameToShow := containerName[len(containerNamePrefix):]
 
 	notExistCheck(containerName)
 	notRunningCheck(containerName)
 	command := []string{"s3cmd", "du", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerNameToShow
 	fmt.Println(output)
 }

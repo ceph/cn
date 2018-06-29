@@ -22,10 +22,11 @@ func cliS3CmdInfo() *cobra.Command {
 // S3CmdInfo wraps s3cmd command in the container
 func S3CmdInfo(cmd *cobra.Command, args []string) {
 	containerName := containerNamePrefix + args[0]
+	containerNameToShow := containerName[len(containerNamePrefix):]
 
 	notExistCheck(containerName)
 	notRunningCheck(containerName)
 	command := []string{"s3cmd", "info", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerNameToShow
 	fmt.Println(output)
 }

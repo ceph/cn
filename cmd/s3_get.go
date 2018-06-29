@@ -35,6 +35,7 @@ func cliS3CmdGet() *cobra.Command {
 	cmd.Flags().BoolVarP(&S3CmdSkip, "skip", "s", true, "Skip over files that exist at the destination")
 	cmd.Flags().BoolVarP(&S3CmdForce, "force", "f", false, "Force overwrite files that exist at the destination")
 	cmd.Flags().BoolVarP(&S3CmdContinue, "continue", "c", false, "Continue getting a partially downloaded file")
+	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 
 	return cmd
 }
@@ -66,6 +67,10 @@ func S3CmdGet(cmd *cobra.Command, args []string) {
 	}
 	// if args
 	command := []string{"s3cmd", "get", S3CmdOpt, "s3://" + BucketObjectName, tempPath}
+	if debugS3 {
+		command = append(command, "--debug")
+	}
+
 	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerNameToShow
 
 	dir := dockerInspect(containerName, "Binds")

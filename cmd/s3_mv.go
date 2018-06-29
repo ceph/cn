@@ -16,6 +16,7 @@ func cliS3CmdMv() *cobra.Command {
 		Run:   S3CmdMv,
 		DisableFlagsInUseLine: true,
 	}
+	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 
 	return cmd
 }
@@ -28,6 +29,10 @@ func S3CmdMv(cmd *cobra.Command, args []string) {
 	notExistCheck(containerName)
 	notRunningCheck(containerName)
 	command := []string{"s3cmd", "mv", "s3://" + args[1], "s3://" + args[2]}
+	if debugS3 {
+		command = append(command, "--debug")
+	}
+
 	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerNameToShow
 	fmt.Println(output)
 }

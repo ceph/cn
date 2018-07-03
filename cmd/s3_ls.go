@@ -32,6 +32,5 @@ func S3CmdLs(cmd *cobra.Command, args []string) {
 	} else {
 		command = []string{"s3cmd", "ls", "s3://" + args[1]}
 	}
-	output := execContainer(containerName, command)
-	fmt.Printf("%s", output)
+	fmt.Println(execContainer(containerName, command))
 }

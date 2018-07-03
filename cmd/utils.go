@@ -117,7 +117,7 @@ func getInterfaceIPv4s() ([]net.IP, error) {
 
 func stripCtlAndExtFromUTF8(str string) string {
 	return strings.Map(func(r rune) rune {
-		if r >= 32 && r < 127 {
+		if r >= 32 && r < 127 || r == 10 {
 			return r
 		}
 		return -1

@@ -38,6 +38,13 @@ isGitTagExists() {
   git tag -l | grep -qw "$1"
 }
 
+getGoEnv() {
+  eval $(go env | grep ^GOHOST)
+  [ -n "$GOHOSTARCH" ] || fatal "Cannot determine GOHOSTARCH"
+  [ -n "$GOHOSTOS" ] || fatal "Cannot determine GOHOSTOS"
+  export LOCAL_ARCH="$GOHOSTOS-$GOHOSTARCH"
+}
+
 usage() {
   cat << EOF
   $0 - create a github release and upload files
@@ -56,6 +63,9 @@ EOF
 
 isBinaryExists go
 isBinaryExists git
+
+getGoEnv
+echo "Building on $LOCAL_ARCH"
 
 isGitRepositoryClean || fatal "git repository is not clean, cannot make the release !"
 
@@ -147,7 +157,13 @@ else
 fi
 
 echo "Building binaries for git tag $TAG"
+make clean-all
 make -s release TAG=$TAG || fatal "Cannot build ceph-nano !"
+
+rm cn || fatal "Cannot remove cn"
+ln -sf cn-*-$LOCAL_ARCH cn || fatal "Cannot link cn for $LOCAL_ARCH"
+
+sudo make tests || fatal "Tests are not passing ! Cannot release that !"
 
 # If we did checkout the TAG, we need to return to the previous branch
 GIT_CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)

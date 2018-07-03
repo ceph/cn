@@ -97,7 +97,7 @@ function runCn() {
   ./cn "$@" &>"$err_file"
   runCnStatus=$?
 
-  if [ -n "$runCnVerbose" ]; then
+  if [ -n "$runCnVerbose" ] || [ -n "$DEBUG" ]; then
     cat $err_file
   fi
 

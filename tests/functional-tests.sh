@@ -15,7 +15,7 @@ tests_ran=0
 IMAGE_NAME=ceph/daemon
 CLUSTER_NAME_BASE=one-cluster
 current_cluster_name=""
-MAX_CLUSTERS=10
+MAX_CLUSTERS=5
 
 function start_test {
   # If a test starts another test, don't consider a new start

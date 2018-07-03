@@ -17,4 +17,4 @@ script:
   - mv $GOPATH/src/github.com/docker/docker/vendor/github.com/docker/go-connections/nat $GOPATH/src/github.com/docker/docker/vendor/github.com/docker/go-connections/nonat
   - make
   - sudo ./cn version
-  - sudo make tests
+  - sudo make tests DEBUG=1

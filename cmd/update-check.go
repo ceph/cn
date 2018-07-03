@@ -31,6 +31,13 @@ func updateCheckNano(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	message, err := parser.Query("message")
+	// if a message exists in the answer, let's print it and return
+	if err == nil {
+		fmt.Println(message)
+		return
+	}
+
 	latestTag, err := parser.Query("[0].tag_name")
 	if err != nil {
 		log.Fatal(err)

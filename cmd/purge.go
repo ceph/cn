@@ -87,7 +87,7 @@ func removeContainer(containerName string) {
 			Force:         true,
 			PruneChildren: true,
 		}
-		log.Println("Removing container image" + imageName + "...")
+		log.Println("Removing container image " + imageName + "...")
 		getDocker().ImageRemove(ctx, imageName, options)
 	}
 }

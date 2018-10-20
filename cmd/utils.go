@@ -780,3 +780,44 @@ func toBytes(value string) int {
 
 	return 0
 }
+
+func listDockerRegistryImageTags() {
+	var numPage int
+	var url string
+
+	// Creating the maps for JSON
+	m := map[string]interface{}{}
+
+	numPage = 1
+	if ListAllTags {
+		numPage = pageCount()
+	}
+
+	for i := 1; i <= numPage; i++ {
+		// convert numPage into a string for concatenation, (see the end)
+		url = "https://registry.hub.docker.com/v2/repositories/ceph/daemon/tags/?page_size=100&page=" + strconv.Itoa(i)
+		output := curlURL(url)
+
+		// Parsing/Unmarshalling JSON encoding/json
+		err := json.Unmarshal([]byte(output), &m)
+		if err != nil {
+			log.Fatal(err)
+		}
+		parseMap(m, "name")
+	}
+}
+
+func listRedHatRegistryImageTags() {
+	url := "https://registry.access.redhat.com/v2/rhceph/rhceph-3-rhel7/tags/list"
+	output := curlURL(url)
+
+	// Creating the maps for JSON
+	m := map[string]interface{}{}
+
+	// Parsing/Unmarshalling JSON encoding/json
+	err := json.Unmarshal([]byte(output), &m)
+	if err != nil {
+		log.Fatal(err)
+	}
+	parseMap(m, "tags")
+}

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -28,5 +29,8 @@ func showS3Logs(containerName string) {
 	notExistCheck(containerName)
 	c := []string{"cat", "/var/log/ceph/client.rgw." + containerName + "-faa32aebf00b.log"}
 	output := execContainer(containerName, c)
+	if strings.Contains("No such file or directory", output) {
+		return
+	}
 	fmt.Printf("%s", output)
 }

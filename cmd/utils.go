@@ -277,10 +277,10 @@ func parseArray(anArray []interface{}, keyType string) {
 	}
 }
 
-// CephNanoS3Health loops for 30 seconds while testing Ceph RGW health
+// CephNanoS3Health loops for 20 seconds while testing Ceph RGW health
 func cephNanoS3Health(containerName string, rgwPort string) {
 	// setting timeout
-	timeout := 30
+	timeout := 20
 	poll := 0
 	ips, _ := getInterfaceIPv4s()
 	// Taking the first IP is probably not ideal

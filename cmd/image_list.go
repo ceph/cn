@@ -13,11 +13,11 @@ var (
 func CliImageList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "ls",
-		Short: "List ceph/daemon tags (default print the first 10 tags)",
+		Short: "List container image tags (default print the first 100 tags)",
 		Args:  cobra.NoArgs,
 		Run:   listImageTags,
 	}
-	cmd.Flags().BoolVarP(&ListAllTags, "all", "a", false, "List all the tags for ceph/daemon (can be verbose)")
+	cmd.Flags().BoolVarP(&ListAllTags, "all", "a", false, "List all the tags of the container image (can be verbose)")
 
 	return cmd
 }

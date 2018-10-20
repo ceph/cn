@@ -39,8 +39,8 @@ func cliClusterPurge() *cobra.Command {
 
 // purgeNano purges Ceph Nano.
 func purgeNano(cmd *cobra.Command, args []string) {
-	containerName := containerNamePrefix + args[0]
-	containerNameToShow := containerName[len(containerNamePrefix):]
+	containerNameToShow := args[0]
+	containerName := containerNamePrefix + containerNameToShow
 
 	if !IamSure {
 		fmt.Printf("Purge option is too dangerous please set the right flag. \n \n")

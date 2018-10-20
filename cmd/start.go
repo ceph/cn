@@ -61,7 +61,7 @@ func startNano(cmd *cobra.Command, args []string) {
 	// The path /usr/share/ceph-nano is not shared from OS X and is not known to Docker.
 	// You can configure shared paths from Docker -> Preferences... -> File Sharing.
 	containerName := containerNamePrefix + args[0]
-	containerNameToShow := containerName[len(containerNamePrefix):]
+	containerNameToShow := args[0]
 	if len(workingDirectory) == 0 {
 		workingDirectory = workingDirectory + "-" + containerNameToShow
 	}
@@ -85,7 +85,7 @@ func startNano(cmd *cobra.Command, args []string) {
 // runContainer creates a new container when nothing exists
 func runContainer(cmd *cobra.Command, args []string) {
 	containerName := containerNamePrefix + args[0]
-	containerNameToShow := containerName[len(containerNamePrefix):]
+	containerNameToShow := args[0]
 	rgwPort := generateRGWPortToUse()
 	if rgwPort == "notfound" {
 		log.Fatal("Unable to find a port between 8000 and 8100 for the S3 endpoint.")

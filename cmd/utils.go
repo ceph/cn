@@ -189,7 +189,7 @@ func cephNanoHealth(containerName string) {
 	log.Println("The container " + containerName + " never reached a clean state. Showing the container logs now:")
 	// ideally we would return the second value of GrepForSuccess when it's false
 	// this would mean having 2 return values for GrepForSuccess
-	out, err := getDocker().ContainerLogs(ctx, containerName, types.ContainerLogsOptions{ShowStdout: true})
+	out, err := getDocker().ContainerLogs(ctx, containerName, types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true})
 	if err != nil {
 		log.Fatal(err)
 	}

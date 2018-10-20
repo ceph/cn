@@ -28,8 +28,9 @@ var (
 	version = "undefined"
 	tag     = "undefined"
 	branch  = "undefined"
+	image   = "undefined"
 )
 
 func main() {
-	cmd.Main(tag + " (" + branch + "/" + version + ")")
+	cmd.Main(tag+" ("+branch+"/"+version+")", image)
 }

@@ -99,7 +99,7 @@ func getDocker() *client.Client {
 }
 
 // Main is the main function calling the whole program
-func Main(version string) {
+func Main(version string, image string) {
 	cnVersion = version
 
 	if err := rootCmd.Execute(); err != nil {

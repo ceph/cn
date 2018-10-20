@@ -3,6 +3,12 @@ GITHUB_USER=ceph
 repo=cn
 CREATE_TAG=
 
+: "${IMAGE:="registry.access.redhat.com/rhceph/rhceph-3-rhel7"}"
+: "${IMAGE:="ceph/daemon"}"
+
+: "${REGISTRY:="https://registry.access.redhat.com/v2/rhceph/rhceph-3-rhel7/tags/list"}"
+: "${REGISTRY:="https://registry.hub.docker.com/v2/repositories/ceph/daemon/tags/?page="}"
+
 fatal() {
   echo "$@"
   if [ -e "$CHANGELOG" ]; then

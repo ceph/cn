@@ -170,7 +170,7 @@ func grepForSuccess(containerName string) bool {
 	return false
 }
 
-// cephNanoHealth loops on grepForSuccess for 30 seconds, fails after.
+// cephNanoHealth loops on grepForSuccess for 60 seconds, fails after.
 func cephNanoHealth(containerName string) {
 	// setting timeout values
 	timeout := 60

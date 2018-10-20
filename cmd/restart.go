@@ -20,8 +20,8 @@ func cliClusterRestart() *cobra.Command {
 
 // restartNano restarts Ceph Nano
 func restartNano(cmd *cobra.Command, args []string) {
-	containerName := containerNamePrefix + args[0]
-	containerNameToShow := containerName[len(containerNamePrefix):]
+	containerNameToShow := args[0]
+	containerName := containerNamePrefix + containerNameToShow
 
 	notExistCheck(containerName)
 	log.Println("Restarting cluster " + containerNameToShow + "...")

@@ -22,8 +22,8 @@ func cliClusterStop() *cobra.Command {
 
 // stopNano stops Ceph Nano
 func stopNano(cmd *cobra.Command, args []string) {
-	containerName := containerNamePrefix + args[0]
-	containerNameToShow := containerName[len(containerNamePrefix):]
+	containerNameToShow := args[0]
+	containerName := containerNamePrefix + containerNameToShow
 	timeout := 5 * time.Second
 
 	if status := containerStatus(containerName, true, "exited"); status {

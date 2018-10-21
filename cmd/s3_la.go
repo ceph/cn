@@ -21,7 +21,8 @@ func cliS3CmdLa() *cobra.Command {
 
 // S3CmdLa wraps s3cmd command in the container
 func S3CmdLa(cmd *cobra.Command, args []string) {
-	containerName := containerNamePrefix + args[0]
+	containerNameToShow := args[0]
+	containerName := containerNamePrefix + containerNameToShow
 
 	notExistCheck(containerName)
 	notRunningCheck(containerName)

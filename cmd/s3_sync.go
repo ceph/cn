@@ -23,7 +23,8 @@ func cliS3CmdSync() *cobra.Command {
 
 // S3CmdSync wraps s3cmd command in the container
 func S3CmdSync(cmd *cobra.Command, args []string) {
-	containerName := containerNamePrefix + args[0]
+	containerNameToShow := args[0]
+	containerName := containerNamePrefix + containerNameToShow
 
 	notExistCheck(containerName)
 	notRunningCheck(containerName)
@@ -44,6 +45,6 @@ func S3CmdSync(cmd *cobra.Command, args []string) {
 		"Do not expect any output until the upload is finished. \n \n", localDir, bucketName)
 
 	command := []string{"s3cmd", "sync", destDir, "s3://" + bucketName}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerNameToShow
 	fmt.Println(output)
 }

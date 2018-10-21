@@ -22,11 +22,12 @@ func cliS3CmdRb() *cobra.Command {
 
 // S3CmdRb wraps s3cmd command in the container
 func S3CmdRb(cmd *cobra.Command, args []string) {
-	containerName := containerNamePrefix + args[0]
+	containerNameToShow := args[0]
+	containerName := containerNamePrefix + containerNameToShow
 
 	notExistCheck(containerName)
 	notRunningCheck(containerName)
 	command := []string{"s3cmd", "rb", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerNameToShow
 	fmt.Println(output)
 }

@@ -28,6 +28,6 @@ func S3CmdCp(cmd *cobra.Command, args []string) {
 	notRunningCheck(containerName)
 
 	command := []string{"s3cmd", "cp", "s3://" + args[1], "s3://" + args[2]}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + args[0]
 	fmt.Println(output)
 }

@@ -42,6 +42,6 @@ func S3CmdPut(cmd *cobra.Command, args []string) {
 	}
 
 	command := []string{"s3cmd", "put", tempPath + fileNameBase, "s3://" + bucketName}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + args[0]
 	fmt.Println(output)
 }

@@ -27,6 +27,6 @@ func S3CmdRb(cmd *cobra.Command, args []string) {
 	notExistCheck(containerName)
 	notRunningCheck(containerName)
 	command := []string{"s3cmd", "rb", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + args[0]
 	fmt.Println(output)
 }

@@ -45,6 +45,6 @@ func S3CmdDel(cmd *cobra.Command, args []string) {
 			command := []string{"s3cmd", "del", S3CmdOpt, "s3://" + args[0]}
 	*/
 	command := []string{"s3cmd", "del", "s3://" + args[1]}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + args[0]
 	fmt.Println(output)
 }

@@ -44,6 +44,6 @@ func S3CmdSync(cmd *cobra.Command, args []string) {
 		"Do not expect any output until the upload is finished. \n \n", localDir, bucketName)
 
 	command := []string{"s3cmd", "sync", destDir, "s3://" + bucketName}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + args[0]
 	fmt.Println(output)
 }

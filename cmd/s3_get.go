@@ -65,7 +65,7 @@ func S3CmdGet(cmd *cobra.Command, args []string) {
 	}
 	// if args
 	command := []string{"s3cmd", "get", S3CmdOpt, "s3://" + BucketObjectName, tempPath}
-	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + containerName
+	output := strings.TrimSuffix(string(execContainer(containerName, command)), "\n") + " on cluster " + args[0]
 
 	dir := dockerInspect(containerName, "Binds")
 	if fileName != BucketObjectName {

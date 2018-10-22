@@ -128,6 +128,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"NETWORK_AUTO_DETECT=4",
 		"CEPH_DAEMON=demo",
 		"DEMO_DAEMONS=mon,mgr,osd,rgw",
+		"SREE_VERSION=v0.1",
 	}
 
 	volumeBindings := []string{

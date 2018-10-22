@@ -1,5 +1,5 @@
 /*
- * Ceph Nano (C) 2017 Red Hat, Inc.
+ * Ceph Nano (C) 2018 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

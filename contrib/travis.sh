@@ -3,18 +3,29 @@ set -ex
 
 
 #############
+# VARIABLES #
+#############
+PENULTIMATE_TAG=$(git describe --abbrev=0 --tags "$(git rev-list --tags --skip=1 --max-count=1)") # this is n-1 tag
+LAST_COMMIT_SHORT_SHA1=$(git log --pretty=format:'%h' -n 1)
+
+
+#############
 # FUNCTIONS #
 #############
 function edit_readme {
-    sed -i "s/v[0-9].[0-9].[0-9]/v$TRAVIS_TAG/g" ../README.md
+    #  we replace the n-1 tag with the last one
+    sed -i "s/$PENULTIMATE_TAG/$TRAVIS_TAG/g" README.md
+
+    # we replace the curl line with the new sha1
+    sed -i "s|\\(^curl.*\\)-[0-9a-f]\\{5,40\\}-\\(.*-a[mr][dm]64.*\\)|\\1-$LAST_COMMIT_SHORT_SHA1-\\2|g" README.md
 }
 
-function commit_change_readme_release {
+function commit_changed_readme {
     git config --global user.email "seb@redhat.com"
     git config --global user.name "Sébastien Han"
     git add README.md
     git commit -s -m "Bump README with the new release tag: $TRAVIS_TAG"
-    git push --quiet https://$GITHUB_TOKEN@github.com/ceph/cn master
+    git push https://"$GITHUB_TOKEN"@github.com/ceph/cn master
 }
 
 function compile_cn {
@@ -28,6 +39,7 @@ function test_cn {
     sudo make tests DEBUG=1
 }
 
+
 ########
 # MAIN #
 ########
@@ -39,9 +51,9 @@ fi
 if [[ "$1" == "tag-release" ]]; then
     if [ -n "$TRAVIS_TAG" ]; then
         echo "I'm running on tag $TRAVIS_TAG, let's build a new release!"
-        # ./release.sh -g "$GITHUB_TOKEN" -t "$TRAVIS_TAG"
-        # edit_readme
-        # commit_change_readme_release
+        ./contrib/release.sh -g "$GITHUB_TOKEN" -t "$TRAVIS_TAG" -p "$PENULTIMATE_TAG"
+        edit_readme
+        commit_changed_readme
     else
         echo "Not running on a tag, nothing to do!"
     fi

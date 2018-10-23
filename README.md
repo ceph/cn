@@ -18,19 +18,19 @@ Open your terminal and download the cn binary.
 macOS:
 
 ```bash
-curl -L https://github.com/ceph/cn/releases/download/v1.8.0/cn-v1.8.0-bb92a8e-darwin-amd64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v1.9.0/cn-v1.9.0-0883cac-darwin-amd64 -o cn && chmod +x cn
 ```
 
 Linux amd64:
 
 ```bash
-curl -L https://github.com/ceph/cn/releases/download/v1.8.0/cn-v1.8.0-bb92a8e-linux-amd64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v1.9.0/cn-v1.9.0-0883cac-linux-amd64 -o cn && chmod +x cn
 ```
 
 Linux arm64:
 
 ```bash
-curl -L https://github.com/ceph/cn/releases/download/v1.8.0/cn-v1.8.0-bb92a8e-linux-arm64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v1.9.0/cn-v1.9.0-0883cac-linux-arm64 -o cn && chmod +x cn
 ```
 
 Test it out

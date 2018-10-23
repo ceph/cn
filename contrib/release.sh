@@ -60,6 +60,7 @@ usage() {
   -g <token>    : github token (can be defined with GITHUB_TOKEN variable)
   -t <tag>      : tag to be released (can be defined with TAG variable)
   -p <tag>      : previous tag to make the CHANGELOG (can be defined with PTAG variable)
+  -b <branch>   : force the branch name to be included in the build
 EOF
   exit 2
 }
@@ -84,11 +85,14 @@ if ! command -v github-release &>/dev/null; then
   isBinaryExists github-release
 fi
 
-optspec=":hg:p:t:"
+optspec=":hg:p:t:b:"
 while getopts "$optspec" optchar; do
   case "${optchar}" in
     h)
       usage
+      ;;
+    b)
+      export TARGET_BRANCH=${OPTARG}
       ;;
     g)
       export GITHUB_TOKEN=${OPTARG}

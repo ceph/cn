@@ -52,7 +52,7 @@ fi
 if [[ "$1" == "tag-release" ]]; then
     if [ -n "$TRAVIS_TAG" ]; then
         echo "I'm running on tag $TRAVIS_TAG, let's build a new release!"
-        ./contrib/release.sh -g "$GITHUB_TOKEN" -t "$TRAVIS_TAG" -p "$PENULTIMATE_TAG"
+        ./contrib/release.sh -g "$GITHUB_TOKEN" -t "$TRAVIS_TAG" -p "$PENULTIMATE_TAG" -b "master"
         git checkout master
         edit_readme
         commit_changed_readme

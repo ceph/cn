@@ -2,7 +2,7 @@
 
 VERSION = $(shell git describe --always --long --dirty)
 TAG = devel
-BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
+TARGET_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 
 # Variables to choose cross-compile target
 GOOS:=linux
@@ -10,7 +10,7 @@ GOARCH:=amd64
 CN_EXTENSION:=
 
 build: check clean prepare
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -i -ldflags="-X main.version=$(VERSION) -X main.tag=$(TAG) -X main.branch=$(BRANCH)" -o cn-$(TAG)-$(VERSION)-$(GOOS)-$(GOARCH)$(CN_EXTENSION) main.go
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -i -ldflags="-X main.version=$(VERSION) -X main.tag=$(TAG) -X main.branch=$(TARGET_BRANCH)" -o cn-$(TAG)-$(VERSION)-$(GOOS)-$(GOARCH)$(CN_EXTENSION) main.go
 	ln -sf "cn-$(TAG)-$(VERSION)-$(GOOS)-$(GOARCH)$(CN_EXTENSION)" cn$(CN_EXTENSION)
 
 check:

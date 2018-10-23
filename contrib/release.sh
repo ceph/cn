@@ -78,7 +78,7 @@ isGitRepositoryClean || fatal "git repository is not clean, cannot make the rele
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 GIT_LAST_COMMIT=$(git log --format="%H" -n 1)
 
-if command -v github-release &>/dev/null; then
+if ! command -v github-release &>/dev/null; then
   echo "Installing github-release"
   go get github.com/aktau/github-release
   isBinaryExists github-release

@@ -2,6 +2,9 @@ language: go
 go:
   - 1.9.x
 
+git:
+  depth: false
+
 services:
   - docker
 branches:
@@ -11,6 +14,7 @@ branches:
 
 before_install:
   - docker --version
+  - git fetch --unshallow
 
 jobs:
   include:

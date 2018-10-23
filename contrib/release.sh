@@ -114,7 +114,7 @@ if [[ ${TAG:0:1} != "v" ]]; then
   fatal "The tag ($TAG) should start with a 'v' like in v1.4.0"
 fi
 
-if isGitTagExists "$PTAG"; then
+if ! isGitTagExists "$PTAG"; then
   IMPLICIT_PTAG=$(git for-each-ref refs/tags --sort=-taggerdate --format='%(refname)' --count=1 | cut -d '/' -f 3)
   if [ -z "$IMPLICIT_PTAG" ]; then
     fatal "Cannot detect any previous release"
@@ -136,7 +136,7 @@ if isGitTagExists "$PTAG"; then
 fi
 isVariableExists PTAG
 
-if isGitTagExists "$TAG"; then
+if ! isGitTagExists "$TAG"; then
   echo "git tag $TAG doesn't exist !"
   while true; do
     echo -n "do you want to tag commit $GIT_BRANCH/$GIT_LAST_COMMIT with tag $TAG ? (yes / no) "

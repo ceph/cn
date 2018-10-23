@@ -21,8 +21,8 @@ function edit_readme {
 }
 
 function commit_changed_readme {
-    git config --global user.email "seb@redhat.com"
-    git config --global user.name "Sébastien Han"
+    git config --global user.email "buils@travis-ci.com"
+    git config --global user.name "Travis CI"
     git add README.md
     git commit -s -m "Bump README with the new release tag: $TRAVIS_TAG"
     git push https://"$GITHUB_TOKEN"@github.com/ceph/cn master

@@ -30,8 +30,7 @@ function commit_changed_readme {
 
 function compile_cn {
     make prepare
-    mv "$GOPATH"/src/github.com/docker/docker/vendor/github.com/docker/go-connections/nat "$GOPATH"/src/github.com/docker/docker/vendor/github.com/docker/go-connections/nonat
-    make
+    rm -rf "$GOPATH"/src/github.com/docker/docker/vendor/github.com/docker/go-connections/nat
     sudo ./cn version
 }
 

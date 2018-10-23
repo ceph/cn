@@ -25,6 +25,7 @@ function commit_changed_readme {
     git config --global user.name "Travis CI"
     git add README.md
     git commit -s -m "Bump README with the new release tag: $TRAVIS_TAG"
+    git pull origin master --rebase
     git push https://"$GITHUB_TOKEN"@github.com/ceph/cn master
 }
 

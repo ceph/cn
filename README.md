@@ -120,18 +120,20 @@ $ ./cn cluster ls
 
 ## List Ceph container images available
 
-`cn` can list the available Ceph container image tag available:
+`cn` can list the available Ceph container images, the default output shows the 100 first images:
 
 ```bash
 $ ./cn image ls
-latest
-master-a104cb7-jewel-ubuntu-16.04-x86_64
-master-a104cb7-kraken-ubuntu-16.04-x86_64
-master-a104cb7-jewel-ubuntu-14.04-x86_64
-master-a104cb7-kraken-centos-7-x86_64
-master-a104cb7-luminous-centos-7-x86_64
-master-a104cb7-luminous-ubuntu-16.04-x86_64
-master-a104cb7-jewel-centos-7-x86_64
-master-5f44af9-kraken-ubuntu-16.04-x86_64
-master-5f44af9-kraken-centos-7-x86_64
+ceph/daemon:master-a104cb7-jewel-ubuntu-16.04-x86_64
+ceph/daemon:master-a104cb7-kraken-ubuntu-16.04-x86_64
+ceph/daemon:master-a104cb7-jewel-ubuntu-14.04-x86_64
+ceph/daemon:master-a104cb7-kraken-centos-7-x86_64
+ceph/daemon:master-a104cb7-luminous-centos-7-x86_64
+ceph/daemon:master-a104cb7-luminous-ubuntu-16.04-x86_64
+ceph/daemon:master-a104cb7-jewel-centos-7-x86_64
+ceph/daemon:master-5f44af9-kraken-ubuntu-16.04-x86_64
+ceph/daemon:master-5f44af9-kraken-centos-7-x86_64
+...
+...
+...
 ```

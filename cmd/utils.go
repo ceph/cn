@@ -250,13 +250,14 @@ func pageCount() int {
 // parseMap parses a json element
 // re-adapted code from:
 // https://stackoverflow.com/questions/29366038/looping-iterate-over-the-second-level-nested-json-in-go-lang
-func parseMap(aMap map[string]interface{}, keyType string) {
+func parseMap(aMap map[string]interface{}, keyType string, image string) {
 	for key, val := range aMap {
 		switch concreteVal := val.(type) {
 		case []interface{}:
-			parseArray(val.([]interface{}), keyType)
+			parseArray(val.([]interface{}), keyType, image)
 		default:
 			if key == keyType {
+				fmt.Print(image)
 				fmt.Println(concreteVal)
 			}
 		}
@@ -266,12 +267,13 @@ func parseMap(aMap map[string]interface{}, keyType string) {
 // parseArray parses json array
 // re-adapted code from:
 // https://stackoverflow.com/questions/29366038/looping-iterate-over-the-second-level-nested-json-in-go-lang
-func parseArray(anArray []interface{}, keyType string) {
+func parseArray(anArray []interface{}, keyType string, image string) {
 	for _, val := range anArray {
 		switch concreteVal := val.(type) {
 		case map[string]interface{}:
-			parseMap(val.(map[string]interface{}), keyType)
+			parseMap(val.(map[string]interface{}), keyType, image)
 		default:
+			fmt.Print(image)
 			fmt.Println(concreteVal)
 		}
 	}
@@ -803,7 +805,7 @@ func listDockerRegistryImageTags() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		parseMap(m, "name")
+		parseMap(m, "name", "ceph/daemon:")
 	}
 }
 
@@ -819,5 +821,5 @@ func listRedHatRegistryImageTags() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	parseMap(m, "tags")
+	parseMap(m, "tags", "rhceph-3-rhel7:")
 }

@@ -17,25 +17,25 @@ Open your terminal and download the cn binary.
 
 macOS:
 
-```bash
+```
 curl -L https://github.com/ceph/cn/releases/download/v1.9.0/cn-v1.9.0-0883cac-darwin-amd64 -o cn && chmod +x cn
 ```
 
 Linux amd64:
 
-```bash
+```
 curl -L https://github.com/ceph/cn/releases/download/v1.9.0/cn-v1.9.0-0883cac-linux-amd64 -o cn && chmod +x cn
 ```
 
 Linux arm64:
 
-```bash
+```
 curl -L https://github.com/ceph/cn/releases/download/v1.9.0/cn-v1.9.0-0883cac-linux-arm64 -o cn && chmod +x cn
 ```
 
 Test it out
 
-```bash
+```
 $ ./cn
 Ceph Nano - One step S3 in container with Ceph.
 
@@ -77,7 +77,7 @@ Use "cn [command] --help" for more information about a command.
 
 Start the program with a working directory `/tmp`, the initial start might take a few minutes since we need to download the container image:
 
-```bash
+```
 $ ./cn cluster start -d /tmp my-first-cluster
 Running ceph-nano...
 The container image is not present, pulling it.
@@ -95,7 +95,7 @@ Ceph Nano browser address is: http://10.36.116.164:5001
 
 Create a bucket with `cn`:
 
-```bash
+```
 $ ./cn s3 mb my-first-cluster my-buc
 Bucket 's3://my-buc/' created
 
@@ -108,7 +108,7 @@ upload: '/tmp/passwd' -> 's3://my-buc/passwd'  [1 of 1]
 
 `cn` can manage any number of clusters on your local machine:
 
-```bash
+```
 $ ./cn cluster ls
 +------+---------+-------------------------------------------------------------------------------------+----------------+--------------------------------+
 | NAME | STATUS  | IMAGE                                                                               | IMAGE RELEASE  | IMAGE CREATION TIME            |
@@ -122,7 +122,7 @@ $ ./cn cluster ls
 
 `cn` can list the available Ceph container images, the default output shows the 100 first images:
 
-```bash
+```
 $ ./cn image ls
 ceph/daemon:master-a104cb7-jewel-ubuntu-16.04-x86_64
 ceph/daemon:master-a104cb7-kraken-ubuntu-16.04-x86_64

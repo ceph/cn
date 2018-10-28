@@ -65,7 +65,6 @@ Available Commands:
   version      Print the version of cn
   kube         Outputs cn kubernetes template (cn kube > kube-cn.yml)
   update-check Print cn current and latest version number
-  help         Help about any command
 
 Flags:
   -h, --help   help for cn

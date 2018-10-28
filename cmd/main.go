@@ -116,6 +116,10 @@ func init() {
 		cliKubeNano(),
 		cliUpdateCheckNano(),
 	)
+	rootCmd.SetHelpCommand(&cobra.Command{
+		Use:    "no-help",
+		Hidden: true,
+	})
 }
 
 func init() {

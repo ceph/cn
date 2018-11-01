@@ -33,6 +33,7 @@ prepare:
 	go get github.com/apcera/termtables
 	go get golang.org/x/sys/unix
 	go get github.com/elgs/gojq
+	go get golang.org/x/crypto/ssh/terminal
 
 darwin:
 	make GOOS=darwin GOARCH:=amd64

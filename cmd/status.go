@@ -14,6 +14,7 @@ func cliClusterStatus() *cobra.Command {
 		Short: "Stat an object storage server",
 		Args:  cobra.ExactArgs(1),
 		Run:   statusNano,
+		DisableFlagsInUseLine: true,
 	}
 
 	return cmd

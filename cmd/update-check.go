@@ -16,6 +16,7 @@ func cliUpdateCheckNano() *cobra.Command {
 		Short: "Print cn current and latest version number",
 		Args:  cobra.NoArgs,
 		Run:   updateCheckNano,
+		DisableFlagsInUseLine: true,
 	}
 
 	return cmd

@@ -13,6 +13,7 @@ func cliVersionNano() *cobra.Command {
 		Short: "Print the version of cn",
 		Args:  cobra.NoArgs,
 		Run:   versionNano,
+		DisableFlagsInUseLine: true,
 	}
 
 	return cmd

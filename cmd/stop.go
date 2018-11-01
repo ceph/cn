@@ -15,6 +15,7 @@ func cliClusterStop() *cobra.Command {
 		Short: "Stop an object storage server",
 		Args:  cobra.ExactArgs(1),
 		Run:   stopNano,
+		DisableFlagsInUseLine: true,
 	}
 
 	return cmd

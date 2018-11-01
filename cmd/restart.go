@@ -13,6 +13,7 @@ func cliClusterRestart() *cobra.Command {
 		Short: "Restart an object storage server",
 		Args:  cobra.ExactArgs(1),
 		Run:   restartNano,
+		DisableFlagsInUseLine: true,
 	}
 
 	return cmd

@@ -21,5 +21,6 @@ func init() {
 		cliClusterRestart(),
 		cliClusterLogs(),
 		cliClusterPurge(),
+		cliEnterNano(),
 	)
 }

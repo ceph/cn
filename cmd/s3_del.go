@@ -19,7 +19,6 @@ func cliS3CmdDel() *cobra.Command {
 		Short: "Delete file from bucket",
 		Args:  cobra.ExactArgs(2),
 		Run:   S3CmdDel,
-		DisableFlagsInUseLine: true,
 	}
 	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 	//cmd.Flags().BoolVarP(&S3CmdRec, "recursive", "r", false, "Recursive removal.")

@@ -27,7 +27,6 @@ func cliClusterPurge() *cobra.Command {
 		Short: "Purge an object storage server. DANGEROUS!",
 		Args:  cobra.ExactArgs(1),
 		Run:   purgeNano,
-		DisableFlagsInUseLine: false,
 	}
 	cmd.Flags().SortFlags = false
 	cmd.Flags().BoolVar(&IamSure, "yes-i-am-sure", false, "YES I know what I'm doing and I want to purge")

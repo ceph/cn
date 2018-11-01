@@ -14,7 +14,6 @@ func cliS3CmdMv() *cobra.Command {
 		Short: "Move object",
 		Args:  cobra.ExactArgs(3),
 		Run:   S3CmdMv,
-		DisableFlagsInUseLine: true,
 	}
 	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 

@@ -14,7 +14,6 @@ func cliS3CmdRb() *cobra.Command {
 		Short: "Remove bucket",
 		Args:  cobra.ExactArgs(2),
 		Run:   S3CmdRb,
-		DisableFlagsInUseLine: true,
 	}
 	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 

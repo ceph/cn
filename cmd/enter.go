@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// cliEnterNano is the Cobra CLI call
 func cliEnterNano() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "enter [cluster]",
@@ -16,6 +17,7 @@ func cliEnterNano() *cobra.Command {
 	return cmd
 }
 
+// enterNano enters inside a container
 func enterNano(cmd *cobra.Command, args []string) {
 	containerNameToShow := args[0]
 	containerName := containerNamePrefix + containerNameToShow

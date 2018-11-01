@@ -14,7 +14,6 @@ func cliS3CmdDu() *cobra.Command {
 		Short: "Disk usage by buckets",
 		Args:  cobra.ExactArgs(2),
 		Run:   S3CmdDu,
-		DisableFlagsInUseLine: true,
 	}
 	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 

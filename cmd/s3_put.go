@@ -17,7 +17,6 @@ func cliS3CmdPut() *cobra.Command {
 		Short: "Put file into bucket",
 		Args:  cobra.ExactArgs(3),
 		Run:   S3CmdPut,
-		DisableFlagsInUseLine: true,
 	}
 	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 

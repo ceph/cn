@@ -28,7 +28,6 @@ func cliS3CmdGet() *cobra.Command {
 		Short: "Get file out of a bucket",
 		Args:  cobra.RangeArgs(2, 3),
 		Run:   S3CmdGet,
-		DisableFlagsInUseLine: false,
 	}
 
 	cmd.Flags().SortFlags = false

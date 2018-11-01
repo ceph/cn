@@ -14,7 +14,6 @@ func cliS3CmdMb() *cobra.Command {
 		Short: "Make bucket",
 		Args:  cobra.ExactArgs(2),
 		Run:   S3CmdMb,
-		DisableFlagsInUseLine: true,
 	}
 	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 

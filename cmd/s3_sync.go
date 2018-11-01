@@ -15,7 +15,6 @@ func cliS3CmdSync() *cobra.Command {
 		Short: "Synchronize a directory tree to S3",
 		Args:  cobra.ExactArgs(3),
 		Run:   S3CmdSync,
-		DisableFlagsInUseLine: true,
 	}
 	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 

@@ -13,7 +13,6 @@ func cliS3CmdLa() *cobra.Command {
 		Short: "List all object in all buckets",
 		Args:  cobra.ExactArgs(1),
 		Run:   S3CmdLa,
-		DisableFlagsInUseLine: true,
 	}
 	cmd.Flags().BoolVarP(&debugS3, "debug", "d", false, "Run S3 commands in debug mode")
 

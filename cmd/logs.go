@@ -14,6 +14,7 @@ func cliClusterLogs() *cobra.Command {
 		Short: "Print an object storage server logs",
 		Args:  cobra.ExactArgs(1),
 		Run:   logsNano,
+		DisableFlagsInUseLine: true,
 	}
 
 	return cmd

@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"os/user"
 	"path/filepath"
 	"sort"
@@ -24,6 +25,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/elgs/gojq"
 	"github.com/jmoiron/jsonq"
+	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/sys/unix"
 )
 
@@ -151,6 +153,73 @@ func execContainer(containerName string, cmd []string) string {
 	output, err := ioutil.ReadAll(connection.Reader)
 
 	return stripCtlAndExtFromUTF8(string(output))
+}
+
+// enterContainer enters inside a given container
+func enterContainer(containerName string) error {
+	optionsCreate := types.ExecConfig{
+		AttachStdout: true,
+		AttachStderr: true,
+		AttachStdin:  true,
+		Tty:          true,
+		Cmd:          []string{"bash"},
+	}
+
+	response, err := getDocker().ContainerExecCreate(ctx, containerName, optionsCreate)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// get the exec ID
+	execID := response.ID
+
+	optionsAttach := types.ExecStartCheck{
+		Tty: true,
+	}
+
+	// Attach to the exec environment
+	hijackResp, err := getDocker().ContainerExecAttach(ctx, execID, optionsAttach)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer hijackResp.Close()
+	defer hijackResp.CloseWrite()
+
+	// The following code comes straight from
+	// https://github.com/lukegb/enterthematrix/blob/61a438c70db763c9f0115b10f523f2b321cd9978/enterthematrix.go
+	winchChan := make(chan os.Signal)
+	signal.Notify(winchChan, syscall.SIGWINCH)
+	go func() {
+		for range winchChan {
+			width, height, err := terminal.GetSize(syscall.Stdin)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				continue
+			}
+			if err := getDocker().ContainerExecResize(ctx, execID, types.ResizeOptions{
+				Height: uint(height),
+				Width:  uint(width),
+			}); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to resize container TTY: %v\n", err)
+			}
+		}
+	}()
+	defer close(winchChan)
+	time.Sleep(100 * time.Millisecond)
+	winchChan <- syscall.SIGWINCH
+
+	// switch to raw
+	terminalState, err := terminal.MakeRaw(syscall.Stdin)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer terminal.Restore(syscall.Stdin, terminalState)
+
+	go io.Copy(hijackResp.Conn, os.Stdin)
+	io.Copy(os.Stdout, hijackResp.Conn)
+
+	return nil
 }
 
 // grepForSuccess searches for the word 'SUCCESS' inside the container logs

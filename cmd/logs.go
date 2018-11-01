@@ -10,7 +10,7 @@ import (
 // cliClusterLogs is the Cobra CLI call
 func cliClusterLogs() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "logs",
+		Use:   "logs [cluster]",
 		Short: "Print an object storage server logs",
 		Args:  cobra.ExactArgs(1),
 		Run:   logsNano,

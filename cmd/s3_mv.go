@@ -10,7 +10,7 @@ import (
 // cliS3CmdMv is the Cobra CLI call
 func cliS3CmdMv() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mv CLUSTER BUCKET1/OBJECT1 BUCKET2/OBJECT2",
+		Use:   "mv [CLUSTER] [BUCKET1/OBJECT1] [BUCKET2/OBJECT2]",
 		Short: "Move object",
 		Args:  cobra.ExactArgs(3),
 		Run:   S3CmdMv,

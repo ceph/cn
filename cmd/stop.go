@@ -11,7 +11,7 @@ import (
 // cliClusterStop is the Cobra CLI call
 func cliClusterStop() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "stop",
+		Use:   "stop [cluster]",
 		Short: "Stop an object storage server",
 		Args:  cobra.ExactArgs(1),
 		Run:   stopNano,

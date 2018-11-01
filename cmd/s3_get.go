@@ -24,7 +24,7 @@ var (
 // cliS3CmdGet is the Cobra CLI call
 func cliS3CmdGet() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get CLUSTER BUCKET/OBJECT [LOCAL_FILE]",
+		Use:   "get [CLUSTER] [BUCKET/OBJECT] [LOCAL_FILE]",
 		Short: "Get file out of a bucket",
 		Args:  cobra.RangeArgs(2, 3),
 		Run:   S3CmdGet,

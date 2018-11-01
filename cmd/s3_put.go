@@ -13,7 +13,7 @@ import (
 // cliS3CmdPut is the Cobra CLI call
 func cliS3CmdPut() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "put CLUSTER FILE BUCKET",
+		Use:   "put [CLUSTER] [FILE] [BUCKET]",
 		Short: "Put file into bucket",
 		Args:  cobra.ExactArgs(3),
 		Run:   S3CmdPut,

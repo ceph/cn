@@ -9,7 +9,7 @@ import (
 // cliS3CmdLs is the Cobra CLI call
 func cliS3CmdLs() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ls CLUSTER [BUCKET]",
+		Use:   "ls [CLUSTER] [BUCKET]",
 		Short: "List objects or buckets",
 		Args:  cobra.RangeArgs(1, 2),
 		Run:   S3CmdLs,

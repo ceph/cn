@@ -23,7 +23,7 @@ var (
 // cliClusterPurge is the Cobra CLI call
 func cliClusterPurge() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "purge",
+		Use:   "purge [cluster]",
 		Short: "Purge an object storage server. DANGEROUS!",
 		Args:  cobra.ExactArgs(1),
 		Run:   purgeNano,

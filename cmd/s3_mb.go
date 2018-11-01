@@ -10,7 +10,7 @@ import (
 // cliS3CmdMb is the Cobra CLI call
 func cliS3CmdMb() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mb CLUSTER BUCKET",
+		Use:   "mb [CLUSTER] [BUCKET]",
 		Short: "Make bucket",
 		Args:  cobra.ExactArgs(2),
 		Run:   S3CmdMb,

@@ -10,7 +10,7 @@ import (
 // cliClusterStatus is the Cobra CLI call
 func cliClusterStatus() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "status",
+		Use:   "status [cluster]",
 		Short: "Stat an object storage server",
 		Args:  cobra.ExactArgs(1),
 		Run:   statusNano,

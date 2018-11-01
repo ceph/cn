@@ -10,7 +10,7 @@ import (
 // cliS3CmdCp is the Cobra CLI call
 func cliS3CmdCp() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "cp CLUSTER BUCKET1/OBJECT1 BUCKET2/OBJECT2",
+		Use:   "cp [CLUSTER] [BUCKET1/OBJECT1] [BUCKET2/OBJECT2]",
 		Short: "Copy object",
 		Args:  cobra.ExactArgs(3),
 		Run:   S3CmdCp,

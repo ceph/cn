@@ -30,7 +30,7 @@ var (
 // cliClusterStart is the Cobra CLI call
 func cliClusterStart() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "start",
+		Use:   "start [cluster]",
 		Short: "Start an object storage server",
 		Args:  cobra.ExactArgs(1),
 		Run:   startNano,

@@ -130,6 +130,10 @@ func Main(version string) {
 }
 
 func init() {
+	if os.Getenv("CN_REGISTRY") == "redhat" {
+		imageName = "registry.access.redhat.com/rhceph/rhceph-3-rhel7"
+	}
+
 	rootCmd.AddCommand(
 		cmdCluster,
 		cmdS3,

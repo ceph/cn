@@ -23,6 +23,8 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -46,5 +48,9 @@ func CliImageList() *cobra.Command {
 
 // listImageTags lists container image tags
 func listImageTags(cmd *cobra.Command, args []string) {
-	listDockerRegistryImageTags()
+	if os.Getenv("CN_REGISTRY") == "redhat" {
+		listRedHatRegistryImageTags()
+	} else {
+		listDockerRegistryImageTags()
+	}
 }

@@ -912,5 +912,5 @@ func listRedHatRegistryImageTags() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	parseMap(m, "tags", "rhceph-3-rhel7:")
+	parseMap(m, "tags", "registry.access.redhat.com/rhceph/rhceph-3-rhel7:")
 }

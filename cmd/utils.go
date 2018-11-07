@@ -246,7 +246,7 @@ func enterContainer(containerName string) error {
 
 // grepForSuccess searches for the word 'SUCCESS' inside the container logs
 func grepForSuccess(containerName string) bool {
-	out, err := getDocker().ContainerLogs(ctx, containerName, types.ContainerLogsOptions{ShowStdout: true, Since: "30s"})
+	out, err := getDocker().ContainerLogs(ctx, containerName, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		log.Fatal(err)
 	}

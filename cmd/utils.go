@@ -161,7 +161,7 @@ func execContainer(containerName string, cmd []string) string {
 		log.Fatal(err)
 	}
 
-	optionsAttach := types.ExecStartCheck{
+	optionsAttach := types.ExecConfig{
 		Detach: false,
 		Tty:    false,
 	}
@@ -195,7 +195,7 @@ func enterContainer(containerName string) error {
 	// get the exec ID
 	execID := response.ID
 
-	optionsAttach := types.ExecStartCheck{
+	optionsAttach := types.ExecConfig{
 		Tty: true,
 	}
 

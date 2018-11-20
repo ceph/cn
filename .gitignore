@@ -1,3 +1,6 @@
-cn*
+cn-*
+cn
 _*
 .vscode/*
+Gopkg.lock
+vendor/

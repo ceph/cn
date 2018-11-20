@@ -5,8 +5,11 @@ go:
 git:
   depth: false
 
+dist: xenial
+
 services:
   - docker
+
 branches:
   only:
     - master
@@ -14,6 +17,7 @@ branches:
 
 before_install:
   - docker --version
+  - go get -u github.com/golang/dep/cmd/dep
 
 jobs:
   include:

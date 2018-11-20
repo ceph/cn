@@ -25,15 +25,7 @@ ifneq ("$(shell pwd)","$(GOPATH)/src/github.com/ceph/cn")
 endif
 
 prepare:
-	go get github.com/docker/docker/api
-	go get github.com/docker/docker/client
-	go get github.com/inconshreveable/mousetrap
-	go get github.com/spf13/cobra
-	go get github.com/jmoiron/jsonq
-	go get github.com/apcera/termtables
-	go get golang.org/x/sys/unix
-	go get github.com/elgs/gojq
-	go get golang.org/x/crypto/ssh/terminal
+	dep ensure
 
 darwin:
 	make GOOS=darwin GOARCH:=amd64

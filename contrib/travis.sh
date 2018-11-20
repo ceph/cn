@@ -6,7 +6,6 @@ set -ex
 # VARIABLES #
 #############
 PENULTIMATE_TAG=$(git describe --abbrev=0 --tags "$(git rev-list --tags --skip=1 --max-count=1)") # this is n-1 tag
-LAST_COMMIT_SHORT_SHA1=$(git log --pretty=format:'%h' -n 1)
 
 
 #############
@@ -15,9 +14,6 @@ LAST_COMMIT_SHORT_SHA1=$(git log --pretty=format:'%h' -n 1)
 function edit_readme {
     #  we replace the n-1 tag with the last one
     sed -i "s/$PENULTIMATE_TAG/$TRAVIS_TAG/g" README.md
-
-    # we replace the curl line with the new sha1
-    sed -i "s|\\(^curl.*\\)-[0-9a-f]\\{5,40\\}-\\(.*-a[mr][dm]64.*\\)|\\1-$LAST_COMMIT_SHORT_SHA1-\\2|g" README.md
 }
 
 function commit_changed_readme {

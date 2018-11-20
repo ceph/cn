@@ -8,6 +8,42 @@ cn is a little program written in Go that helps you interact with the S3 API by 
 This is brought to you by the power of Ceph and Containers. Under the hood, cn runs a Ceph container and exposes a [Rados Gateway](http://docs.ceph.com/docs/master/radosgw/). For convenience, cn also comes with a set of commands to work with the S3 gateway. Before you ask "why not using s3cmd instead?", then you will be happy to read that internally cn uses `s3cmd` and act as a wrapper around the most commonly used commands.
 Also, keep in mind that the CLI is just for convenience, and the primary use case is you developing your application directly on the S3 API.
 
+## Build
+
+You can build `cn` by using `make`.
+Be sure `dep` is installed:
+
+```
+$ go get github.com/golang/dep/cmd/dep
+```
+
+Then, add `~/go/bin` to your `$PATH`:
+
+```
+$ export PATH=$PATH:~/go/bin
+```
+
+Build `cn`:
+
+```
+$ make
+rm -f cn cn &>/dev/null || true
+dep ensure
+GOOS=linux GOARCH=amd64 go build -i -ldflags="-X main.version=cea247c-dirty -X main.tag=devel -X main.branch=guits-doc_build" -o cn-devel-cea247c-dirty-linux-amd64 main.go
+ln -sf "cn-devel-cea247c-dirty-linux-amd64" cn
+```
+
+Once the build is done, you should have a symlink `cn` pointing to the binary that just got built:
+
+```
+$ ls -l
+total 10692
+-rw-rw-r--. 1 guits guits    15292 20 nov.  22:03 ceph-nano-logo-vertical.jpg
+drwxrwxr-x. 2 guits guits     4096 20 nov.  22:03 cmd
+lrwxrwxrwx. 1 guits guits       34 20 nov.  22:27 cn -> cn-devel-cea247c-dirty-linux-amd64
+-rwxrwxr-x. 1 guits guits 10881196 20 nov.  22:27 cn-devel-cea247c-dirty-linux-amd64
+```
+
 ## Installation
 
 cn relies on Docker so it must be installed on your machine. If you're not running a Linux workstation you can install [Docker for Mac](https://docs.docker.com/docker-for-mac/).

@@ -167,7 +167,7 @@ echo "Building binaries for git tag $TAG"
 make clean-all
 make prepare
 rm -rf "$GOPATH"/src/github.com/docker/docker/vendor/github.com/docker/go-connections/nat
-make -s release TAG="$TAG" || fatal "Cannot build ceph-nano !"
+make -s release VERSION="$TAG" || fatal "Cannot build ceph-nano !"
 
 rm cn || fatal "Cannot remove cn"
 ln -sf cn-*-"$LOCAL_ARCH" cn || fatal "Cannot link cn for $LOCAL_ARCH"

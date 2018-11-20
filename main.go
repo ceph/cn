@@ -26,10 +26,8 @@ import "github.com/ceph/cn/cmd"
 
 var (
 	version = "undefined"
-	tag     = "undefined"
-	branch  = "undefined"
 )
 
 func main() {
-	cmd.Main(tag + " (" + branch + "/" + version + ")")
+	cmd.Main(version)
 }

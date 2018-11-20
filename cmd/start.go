@@ -147,7 +147,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"EXPOSED_IP=" + ips[0].String(),
 		"DEBUG=verbose",
 		"CEPH_DEMO_UID=" + cephNanoUID,
-		"NETWORK_AUTO_DETECT=4",
+		"MON_IP=127.0.0.1",
+		"CEPH_PUBLIC_NETWORK=0.0.0.0/0",
 		"CEPH_DAEMON=demo",
 		"DEMO_DAEMONS=mon,mgr,osd,rgw",
 		"SREE_VERSION=v0.1", // keep this for backward compatiblity, the option is gone since https://github.com/ceph/ceph-container/pull/1232

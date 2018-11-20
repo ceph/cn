@@ -150,7 +150,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"NETWORK_AUTO_DETECT=4",
 		"CEPH_DAEMON=demo",
 		"DEMO_DAEMONS=mon,mgr,osd,rgw",
-		"SREE_VERSION=v0.1",
+		"SREE_VERSION=v0.1", // keep this for backward compatiblity, the option is gone since https://github.com/ceph/ceph-container/pull/1232
 	}
 
 	volumeBindings := []string{

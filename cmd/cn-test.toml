@@ -1,0 +1,23 @@
+title = "Ceph Nano test configuration file"
+
+[default]
+    [default.ceph.conf]
+        osd_memory_target = 536870912
+        osd_memory_base = 268435456
+        osd_memory_cache_min = 33554432
+        bluestore_cache_autotune_chunk_size = 8388608
+        osd_min_pg_log_entries = 10
+        osd_max_pg_log_entries = 10
+        osd_pg_log_dups_tracked = 10
+        osd_pg_log_trim_min = 10
+
+[test_nano_no_default]
+    MemorySize="1GB"
+    use_default=false
+    [test_nano_no_default.ceph.conf]
+    osd_memory_target = 3841234556
+
+[test_nano_default]
+    use_default=true
+    [test_nano_default.ceph.conf]
+    osd_memory_target = 3841234556

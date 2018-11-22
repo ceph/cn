@@ -27,7 +27,7 @@ function commit_and_push {
     git push https://"$GITHUB_TOKEN"@github.com/ceph/cn master
 }
 
-function commit_specfile {
+function commit_spec_file {
     pushd contrib
         ./tune-spec.sh "$PENULTIMATE_TAG" "$TRAVIS_TAG"
         git add cn.spec

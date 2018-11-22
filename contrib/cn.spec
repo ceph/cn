@@ -1,4 +1,4 @@
-%global source_version 2.0.3
+%global source_version 2.0.4
 %global tag 1
 %global provider        github
 %global provider_tld    com
@@ -50,5 +50,13 @@ install -D -p -m 755 bin/cn %{buildroot}%{_bindir}/cn
 %{_bindir}/cn
 
 %changelog
+* Thu Nov 22 2018  Erwan Velu <evelu@redhat.com> - 2.0.4-1
+- travis: Don't split edit & commit the README
+- contrib/travis.sh: Fixing typo
+- contrib/travis: Updating specfile when releasing
+- Packaging: Adding rpm support
+- Packaging: Simplifying versionning
+- doc: add a 'build' section
+- Bump README with the new release tag: v2.0.3
 * Tue Nov 11 2018 Erwan Velu <evelu@redhat.com> - 2.0.3-1
 - Initial Release

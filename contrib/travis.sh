@@ -11,10 +11,6 @@ PENULTIMATE_TAG=$(git describe --abbrev=0 --tags "$(git rev-list --tags --skip=1
 #############
 # FUNCTIONS #
 #############
-function edit_readme {
-    #  we replace the n-1 tag with the last one
-    sed -i "s/$PENULTIMATE_TAG/$TRAVIS_TAG/g" README.md
-}
 
 function setup_git {
     git config --global user.email "buils@travis-ci.com"
@@ -36,6 +32,8 @@ function commit_spec_file {
 }
 
 function commit_changed_readme {
+    # we replace the n-1 tag with the last one
+    sed -i "s/$PENULTIMATE_TAG/$TRAVIS_TAG/g" README.md
     git add README.md
     commit_and_push "Readme: Bump the new release tag: $TRAVIS_TAG"
 }
@@ -65,7 +63,6 @@ if [[ "$1" == "tag-release" ]]; then
         echo "I'm running on tag $TRAVIS_TAG, let's build a new release!"
         ./contrib/release.sh -g "$GITHUB_TOKEN" -t "$TRAVIS_TAG" -p "$PENULTIMATE_TAG" -b "master"
         git checkout master
-        edit_readme
         setup_git
         commit_spec_file
         commit_changed_readme

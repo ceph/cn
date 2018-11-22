@@ -159,7 +159,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 	}
 
 	ressources := container.Resources{
-		Memory:   536870912, // 512MB
+		Memory:   0, // To be adjusted by config
 		NanoCPUs: 1,
 	}
 
@@ -270,6 +270,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 		Env:          envs,
 		Volumes:      volumes,
 	}
+
+	ressources.Memory = getMemorySize(containerNameToShow)
 
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,

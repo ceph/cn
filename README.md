@@ -23,8 +23,25 @@ Then, add `~/go/bin` to your `$PATH`:
 $ export PATH=$PATH:~/go/bin
 ```
 
-Build `cn`:
+Then, set you `$GOPATH`:
 
+```
+$ export GOPATH=~/go/bin
+```
+
+Create directory 
+```
+mkdir -p ~/go/bin/src/github.com/ceph/
+cd ~/go/bin/src/github.com/ceph/
+```
+
+Download `cn`
+```
+wget https://github.com/ceph/cn/archive/master.zip && unzip master.zip -d cn
+cd cn
+```
+
+Build `cn`:
 ```
 $ make
 rm -f cn cn &>/dev/null || true
@@ -61,12 +78,6 @@ Linux amd64:
 
 ```
 curl -L https://github.com/ceph/cn/releases/download/v2.0.4/cn-v2.0.4-linux-amd64 -o cn && chmod +x cn
-```
-
-Linux arm64:
-
-```
-curl -L https://github.com/ceph/cn/releases/download/v2.0.4/cn-v2.0.4-linux-arm64 -o cn && chmod +x cn
 ```
 
 Test it out

@@ -12,7 +12,7 @@ title = "Ceph Nano test configuration file"
         osd_pg_log_trim_min = 10
 
 [test_nano_no_default]
-    MemorySize="1GB"
+    memory_size="1GB"
     cpu_count=2
     use_default=false
     [test_nano_no_default.ceph.conf]

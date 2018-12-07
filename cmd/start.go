@@ -33,6 +33,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -47,6 +48,9 @@ var (
 
 	// sizeBluestoreBlock is the size of BLUESTORE_BLOCK_SIZE
 	sizeBluestoreBlock string
+
+	// the flavor name of a container
+	flavor string
 )
 
 // cliClusterStart is the Cobra CLI call
@@ -57,6 +61,7 @@ func cliClusterStart() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run:   startNano,
 		Example: "cn cluster start mycluster \n" +
+			"cn cluster start mycluster -f tiny \n" +
 			"cn cluster start mycluster --work-dir /tmp \n" +
 			"cn cluster start mycluster --image ceph/daemon:latest-luminous \n" +
 			"cn cluster start mycluster -b /dev/sdb \n" +
@@ -69,6 +74,7 @@ func cliClusterStart() *cobra.Command {
 	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device. Block device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
 	cmd.Flags().StringVarP(&sizeBluestoreBlock, "size", "s", "", "Configure Ceph Nano underlying storage size when using a specific directory")
 	cmd.Flags().BoolVar(&privilegedContainer, "privileged", false, "Starts the container in privileged mode")
+	cmd.Flags().StringVarP(&flavor, "flavor", "f", "default", "Select the container flavor from the configuration file")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for start")
 
 	return cmd
@@ -76,6 +82,11 @@ func cliClusterStart() *cobra.Command {
 
 // startNano starts Ceph Nano
 func startNano(cmd *cobra.Command, args []string) {
+
+	// Ensure the flavor exists or report an error
+	if viper.Get(flavor) == nil {
+		panic("The flavor " + flavor + " doesn't exists")
+	}
 	// Test for a leftover container
 	// Usually happens when someone fails to run the container on an exposed directory
 	// Typical error on Docker For Mac you will see:
@@ -156,11 +167,6 @@ func runContainer(cmd *cobra.Command, args []string) {
 
 	volumeBindings := []string{
 		workingDirectory + ":" + tempPath,
-	}
-
-	ressources := container.Resources{
-		Memory:   0, // To be adjusted by config
-		NanoCPUs: 1,
 	}
 
 	volumes := map[string]struct{}{
@@ -269,10 +275,13 @@ func runContainer(cmd *cobra.Command, args []string) {
 		ExposedPorts: exposedPorts,
 		Env:          envs,
 		Volumes:      volumes,
+		Labels:       map[string]string{"flavor": flavor},
 	}
 
-	ressources.Memory = getMemorySizeInBytes(containerNameToShow)
-	ressources.NanoCPUs = getCPUCount(containerNameToShow)
+	ressources := container.Resources{
+		Memory:   getMemorySizeInBytes(flavor),
+		NanoCPUs: getCPUCount(flavor),
+	}
 
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
@@ -281,7 +290,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		Privileged:   privilegedContainer,
 	}
 
-	log.Printf("Running cluster %s (%s Memory / %d CPU) ...", containerNameToShow, getMemorySize(containerNameToShow), ressources.NanoCPUs)
+	log.Printf("Running cluster %s (flavor %s : %s Memory / %d CPU) ...", containerNameToShow, flavor, getMemorySize(flavor), ressources.NanoCPUs)
 
 	resp, err := getDocker().ContainerCreate(ctx, config, hostConfig, nil, containerName)
 	if err != nil {

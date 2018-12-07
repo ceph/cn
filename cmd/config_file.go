@@ -129,10 +129,14 @@ func getStringMapFromConfig(name string, containerName string) map[string]interf
 	return defaultConfig
 }
 
-func getMemorySize(containerName string) int64 {
+func getMemorySize(containerName string) string {
+	return getStringFromConfig("MemorySize", containerName)
+}
+
+func getMemorySizeInBytes(containerName string) int64 {
 	var bytes units.Base2Bytes
 	var err error
-	bytes, err = units.ParseBase2Bytes(getStringFromConfig("MemorySize", containerName))
+	bytes, err = units.ParseBase2Bytes(getMemorySize(containerName))
 	if err != nil {
 		panic(err)
 	}

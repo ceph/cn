@@ -47,3 +47,19 @@ func TestUseDefault(t *testing.T) {
 	assert.Equal(t, false, useDefault("test_nano_no_default"))
 	assert.Equal(t, true, useDefault("test_nano_default"))
 }
+
+func TestCephConf(t *testing.T) {
+	readConfigFile(configFile)
+	assert.Equal(t, map[string]interface{}{"osd_memory_target": int64(3841234556)}, getCephConf("test_nano_no_default"))
+	expectedOutput := map[string]interface{}{
+		"bluestore_cache_autotune_chunk_size": int64(8388608),
+		"osd_max_pg_log_entries":              int64(10),
+		"osd_memory_base":                     int64(268435456),
+		"osd_memory_cache_min":                int64(33554432),
+		"osd_memory_target":                   int64(3841234556),
+		"osd_min_pg_log_entries":              int64(10),
+		"osd_pg_log_dups_tracked":             int64(10),
+		"osd_pg_log_trim_min":                 int64(10),
+	}
+	assert.Equal(t, expectedOutput, getCephConf("test_nano_default"))
+}

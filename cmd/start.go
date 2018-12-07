@@ -271,8 +271,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 		Volumes:      volumes,
 	}
 
-	ressources.Memory = getMemorySize(containerName)
-	ressources.NanoCPUs = getCPUCount(containerName)
+	ressources.Memory = getMemorySizeInBytes(containerNameToShow)
+	ressources.NanoCPUs = getCPUCount(containerNameToShow)
 
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
@@ -281,7 +281,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		Privileged:   privilegedContainer,
 	}
 
-	log.Println("Running cluster " + containerNameToShow + "...")
+	log.Printf("Running cluster %s (%s Memory / %d CPU) ...", containerNameToShow, getMemorySize(containerNameToShow), ressources.NanoCPUs)
 
 	resp, err := getDocker().ContainerCreate(ctx, config, hostConfig, nil, containerName)
 	if err != nil {

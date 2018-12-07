@@ -68,7 +68,7 @@ func readConfigFile(customFile ...string) string {
 // If the configuration file is missing, this section will generated the mandatory elements
 func setDefaultConfig() {
 	viper.SetDefault("default.use_default", "true") // All containers inherit from default
-	viper.SetDefault("default.MemorySize", "512MB")
+	viper.SetDefault("default.memory_size", "512MB")
 	viper.SetDefault("default.cpu_count", 1)
 }
 
@@ -130,7 +130,7 @@ func getStringMapFromConfig(name string, containerFlavor string) map[string]inte
 }
 
 func getMemorySize(containerFlavor string) string {
-	return getStringFromConfig("MemorySize", containerFlavor)
+	return getStringFromConfig("memory_size", containerFlavor)
 }
 
 func getMemorySizeInBytes(containerFlavor string) int64 {

@@ -13,6 +13,7 @@ title = "Ceph Nano test configuration file"
 
 [test_nano_no_default]
     MemorySize="1GB"
+    cpu_count=2
     use_default=false
     [test_nano_no_default.ceph.conf]
     osd_memory_target = 3841234556

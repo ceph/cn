@@ -55,6 +55,7 @@ func readConfigFile(customFile ...string) {
 func setDefaultConfig() {
 	viper.SetDefault("default.use_default", "true") // All containers inherit from default
 	viper.SetDefault("default.MemorySize", "512MB")
+	viper.SetDefault("default.cpu_count", 1)
 }
 
 func getStringFromConfig(name string, containerName string) string {
@@ -66,6 +67,28 @@ func getStringFromConfig(name string, containerName string) string {
 	containerValue := viper.GetString(containerName + "." + name)
 	if len(containerValue) > 0 {
 		value = containerValue
+	}
+	return value
+}
+
+func getInt64FromConfig(name string, containerName string) int64 {
+	var value int64
+	var foundValue = false
+	if useDefault(containerName) {
+		// We need to ensure the key exists unless that could populate a 0 value
+		if viper.Get("default."+name) != nil {
+			value = viper.GetInt64("default." + name)
+			foundValue = true
+		}
+	}
+	// We need to ensure the key exists unless that could populate a 0 value
+	if viper.Get(containerName+"."+name) != nil {
+		value = viper.GetInt64(containerName + "." + name)
+		foundValue = true
+	}
+
+	if !foundValue {
+		panic(name + " int64 value in " + containerName + "doesn't exists")
 	}
 	return value
 }
@@ -100,6 +123,10 @@ func getMemorySize(containerName string) int64 {
 		panic(err)
 	}
 	return int64(bytes)
+}
+
+func getCPUCount(containerName string) int64 {
+	return getInt64FromConfig("cpu_count", containerName)
 }
 
 func getCephConf(containerName string) map[string]interface{} {

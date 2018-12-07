@@ -38,7 +38,7 @@ func TestTitle(t *testing.T) {
 
 func TestMemorySize(t *testing.T) {
 	readConfigFile(configFile)
-	assert.Equal(t, int64(536870912), getMemorySize())
+	assert.Equal(t, int64(536870912), getMemorySize("test_nano_default"))
 	assert.Equal(t, int64(1073741824), getMemorySize("test_nano_no_default"))
 }
 

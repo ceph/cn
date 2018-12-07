@@ -78,14 +78,10 @@ func useDefault(containerName string) bool {
 	return false
 }
 
-func getMemorySize(containerName ...string) int64 {
+func getMemorySize(containerName string) int64 {
 	var bytes units.Base2Bytes
 	var err error
-	if len(containerName) > 0 {
-		bytes, err = units.ParseBase2Bytes(getValueFromConfig("MemorySize", containerName[0]))
-	} else {
-		bytes, err = units.ParseBase2Bytes(getValueFromConfig("MemorySize"))
-	}
+	bytes, err = units.ParseBase2Bytes(getStringFromConfig("MemorySize", containerName))
 	if err != nil {
 		panic(err)
 	}

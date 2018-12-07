@@ -132,6 +132,8 @@ func Main(version string) {
 func init() {
 	if configurationFile := readConfigFile(); len(configurationFile) > 0 {
 		fmt.Printf("Using %s as configuration file\n", configurationFile)
+	} else {
+		fmt.Println("No configuration file found")
 	}
 
 	if os.Getenv("CN_REGISTRY") == "redhat" {

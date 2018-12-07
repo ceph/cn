@@ -30,6 +30,7 @@ import (
 )
 
 func readConfigFile(customFile ...string) {
+	setDefaultConfig()
 	if len(customFile) > 0 {
 		var filename = path.Base(customFile[0])
 		var fileDir = path.Dir(customFile[0])
@@ -47,22 +48,34 @@ func readConfigFile(customFile ...string) {
 		viper.AddConfigPath(".")          // optionally look for config in the working directory
 		viper.ReadInConfig()              // Find and read the config file, we don't really care if no config file is found
 	}
-	setDefaultConfig()
 }
 
 // Set the default values for defined types
 // If the configuration file is missing, this section will generated the mandatory elements
 func setDefaultConfig() {
+	viper.SetDefault("default.use_default", "true") // All containers inherit from default
 	viper.SetDefault("default.MemorySize", "512MB")
 }
 
-func getValueFromConfig(name string, cluster ...string) string {
-	var keyname = "default" + "." + name
-	// If a clustername is given let's override the keyname with it
-	if len(cluster) == 1 {
-		keyname = cluster[0] + "." + name
+func getStringFromConfig(name string, containerName string) string {
+	var value = ""
+	// If we are requested to get the status of use_default, we cannot call useDefault ;)
+	if name == "use_default" || useDefault(containerName) {
+		value = viper.GetString("default" + "." + name)
 	}
-	return viper.GetString(keyname)
+	containerValue := viper.GetString(containerName + "." + name)
+	if len(containerValue) > 0 {
+		value = containerValue
+	}
+	return value
+}
+
+func useDefault(containerName string) bool {
+	useDefaultValue := getStringFromConfig("use_default", containerName)
+	if (len(useDefaultValue) > 0) && (useDefaultValue == "true") {
+		return true
+	}
+	return false
 }
 
 func getMemorySize(containerName ...string) int64 {

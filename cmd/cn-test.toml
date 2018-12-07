@@ -18,6 +18,5 @@ title = "Ceph Nano test configuration file"
     osd_memory_target = 3841234556
 
 [test_nano_default]
-    use_default=true
     [test_nano_default.ceph.conf]
     osd_memory_target = 3841234556

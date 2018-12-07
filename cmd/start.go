@@ -271,7 +271,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 		Volumes:      volumes,
 	}
 
-	ressources.Memory = getMemorySize(containerNameToShow)
+	ressources.Memory = getMemorySize(containerName)
+	ressources.NanoCPUs = getCPUCount(containerName)
 
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,

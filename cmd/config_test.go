@@ -63,3 +63,9 @@ func TestCephConf(t *testing.T) {
 	}
 	assert.Equal(t, expectedOutput, getCephConf("test_nano_default"))
 }
+
+func TestCPUCount(t *testing.T) {
+	readConfigFile(configFile)
+	assert.Equal(t, int64(1), getCPUCount("test_nano_default"))
+	assert.Equal(t, int64(2), getCPUCount("test_nano_no_default"))
+}

@@ -72,23 +72,23 @@ func setDefaultConfig() {
 	viper.SetDefault("default.cpu_count", 1)
 }
 
-func getStringFromConfig(name string, containerName string) string {
+func getStringFromConfig(name string, containerFlavor string) string {
 	var value = ""
 	// If we are requested to get the status of use_default, we cannot call useDefault ;)
-	if name == "use_default" || useDefault(containerName) {
+	if name == "use_default" || useDefault(containerFlavor) {
 		value = viper.GetString("default" + "." + name)
 	}
-	containerValue := viper.GetString(containerName + "." + name)
+	containerValue := viper.GetString(containerFlavor + "." + name)
 	if len(containerValue) > 0 {
 		value = containerValue
 	}
 	return value
 }
 
-func getInt64FromConfig(name string, containerName string) int64 {
+func getInt64FromConfig(name string, containerFlavor string) int64 {
 	var value int64
 	var foundValue = false
-	if useDefault(containerName) {
+	if useDefault(containerFlavor) {
 		// We need to ensure the key exists unless that could populate a 0 value
 		if viper.Get("default."+name) != nil {
 			value = viper.GetInt64("default." + name)
@@ -96,31 +96,31 @@ func getInt64FromConfig(name string, containerName string) int64 {
 		}
 	}
 	// We need to ensure the key exists unless that could populate a 0 value
-	if viper.Get(containerName+"."+name) != nil {
-		value = viper.GetInt64(containerName + "." + name)
+	if viper.Get(containerFlavor+"."+name) != nil {
+		value = viper.GetInt64(containerFlavor + "." + name)
 		foundValue = true
 	}
 
 	if !foundValue {
-		panic(name + " int64 value in " + containerName + "doesn't exists")
+		panic(name + " int64 value in " + containerFlavor + "doesn't exists")
 	}
 	return value
 }
 
-func useDefault(containerName string) bool {
-	useDefaultValue := getStringFromConfig("use_default", containerName)
+func useDefault(containerFlavor string) bool {
+	useDefaultValue := getStringFromConfig("use_default", containerFlavor)
 	if (len(useDefaultValue) > 0) && (useDefaultValue == "true") {
 		return true
 	}
 	return false
 }
 
-func getStringMapFromConfig(name string, containerName string) map[string]interface{} {
+func getStringMapFromConfig(name string, containerFlavor string) map[string]interface{} {
 	var defaultConfig = make(map[string]interface{})
-	if useDefault(containerName) {
+	if useDefault(containerFlavor) {
 		defaultConfig = viper.GetStringMap("default" + "." + name)
 	}
-	containerValues := viper.GetStringMap(containerName + "." + name)
+	containerValues := viper.GetStringMap(containerFlavor + "." + name)
 	if len(containerValues) > 0 {
 		for key, value := range containerValues {
 			defaultConfig[key] = value
@@ -129,24 +129,24 @@ func getStringMapFromConfig(name string, containerName string) map[string]interf
 	return defaultConfig
 }
 
-func getMemorySize(containerName string) string {
-	return getStringFromConfig("MemorySize", containerName)
+func getMemorySize(containerFlavor string) string {
+	return getStringFromConfig("MemorySize", containerFlavor)
 }
 
-func getMemorySizeInBytes(containerName string) int64 {
+func getMemorySizeInBytes(containerFlavor string) int64 {
 	var bytes units.Base2Bytes
 	var err error
-	bytes, err = units.ParseBase2Bytes(getMemorySize(containerName))
+	bytes, err = units.ParseBase2Bytes(getMemorySize(containerFlavor))
 	if err != nil {
 		panic(err)
 	}
 	return int64(bytes)
 }
 
-func getCPUCount(containerName string) int64 {
-	return getInt64FromConfig("cpu_count", containerName)
+func getCPUCount(containerFlavor string) int64 {
+	return getInt64FromConfig("cpu_count", containerFlavor)
 }
 
-func getCephConf(containerName string) map[string]interface{} {
-	return getStringMapFromConfig("ceph.conf", containerName)
+func getCephConf(containerFlavor string) map[string]interface{} {
+	return getStringMapFromConfig("ceph.conf", containerFlavor)
 }

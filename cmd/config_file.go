@@ -78,6 +78,20 @@ func useDefault(containerName string) bool {
 	return false
 }
 
+func getStringMapFromConfig(name string, containerName string) map[string]interface{} {
+	var defaultConfig = make(map[string]interface{})
+	if useDefault(containerName) {
+		defaultConfig = viper.GetStringMap("default" + "." + name)
+	}
+	containerValues := viper.GetStringMap(containerName + "." + name)
+	if len(containerValues) > 0 {
+		for key, value := range containerValues {
+			defaultConfig[key] = value
+		}
+	}
+	return defaultConfig
+}
+
 func getMemorySize(containerName string) int64 {
 	var bytes units.Base2Bytes
 	var err error
@@ -86,4 +100,8 @@ func getMemorySize(containerName string) int64 {
 		panic(err)
 	}
 	return int64(bytes)
+}
+
+func getCephConf(containerName string) map[string]interface{} {
+	return getStringMapFromConfig("ceph.conf", containerName)
 }

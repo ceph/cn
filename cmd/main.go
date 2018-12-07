@@ -130,7 +130,10 @@ func Main(version string) {
 }
 
 func init() {
-	readConfigFile()
+	if configurationFile := readConfigFile(); len(configurationFile) > 0 {
+		fmt.Printf("Using %s as configuration file\n", configurationFile)
+	}
+
 	if os.Getenv("CN_REGISTRY") == "redhat" {
 		imageName = "registry.access.redhat.com/rhceph/rhceph-3-rhel7"
 	}

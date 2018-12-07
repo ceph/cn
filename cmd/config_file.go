@@ -29,25 +29,39 @@ import (
 	"github.com/spf13/viper"
 )
 
-func readConfigFile(customFile ...string) {
+func readConfigFile(customFile ...string) string {
 	setDefaultConfig()
+
+	// A custom configuration file got passed
+	// Let's handle it directly
 	if len(customFile) > 0 {
 		var filename = path.Base(customFile[0])
 		var fileDir = path.Dir(customFile[0])
 		viper.SetConfigFile(filename)
 		viper.AddConfigPath(fileDir)
-		err := viper.ReadInConfig() // Find and read the config file
+		err := viper.ReadInConfig()
+		// Find and read the config file
 		// If there is no configuration file, that's an error
 		if err != nil {
 			panic(err)
 		}
-	} else {
-		viper.SetConfigName("cn")         // name of config file (without extension)
-		viper.AddConfigPath("/etc/ceph/") // path to look for the config file in
-		viper.AddConfigPath("$HOME/.cn/") // call multiple times to add many search paths
-		viper.AddConfigPath(".")          // optionally look for config in the working directory
-		viper.ReadInConfig()              // Find and read the config file, we don't really care if no config file is found
+		// We return the configuration file found
+		return viper.ConfigFileUsed()
 	}
+
+	// Let's search for a configuration file
+	viper.SetConfigName("cn")         // name of config file (without extension)
+	viper.AddConfigPath("/etc/cn/")   // path to look for the config file in
+	viper.AddConfigPath("$HOME/.cn/") // call multiple times to add many search paths
+	viper.AddConfigPath(".")          // optionally look for config in the working directory
+	// Let's try to read a configuration file
+	if viper.ReadInConfig() == nil {
+		// We return the configuration file found
+		return viper.ConfigFileUsed()
+	}
+
+	// No configuration file is used aka compatiblity mode
+	return ""
 }
 
 // Set the default values for defined types

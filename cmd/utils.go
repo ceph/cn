@@ -536,12 +536,12 @@ func inspectImage(ImageID string, dataType string) string {
 
 // pullImage downloads the container image
 func pullImage() bool {
-	_, _, err := getDocker().ImageInspectWithRaw(ctx, imageName)
+	_, _, err := getDocker().ImageInspectWithRaw(ctx, getImageName())
 	if err != nil {
-		fmt.Println("The container image is not present, pulling it. \n" +
+		fmt.Println("The container image (" + getImageName() + ") is not present, pulling it. \n" +
 			"This operation can take a few minutes.")
 
-		out, err := getDocker().ImagePull(ctx, imageName, types.ImagePullOptions{})
+		out, err := getDocker().ImagePull(ctx, getImageName(), types.ImagePullOptions{})
 		if err != nil {
 			// the error message will appear on a new line after the info above
 			log.Println()
@@ -913,4 +913,22 @@ func listRedHatRegistryImageTags() {
 		log.Fatal(err)
 	}
 	parseMap(m, "tags", "registry.access.redhat.com/rhceph/rhceph-3-rhel7:")
+}
+
+func getImageName() string {
+	// If there is no configuration file, the imageName is the one from the command line
+	// If the imageName is still set to the default, let's return it immediately too
+	if (len(configurationFile) == 0) || (imageName == DEFAULTIMAGE) {
+		return imageName
+	}
+
+	// If there is a '-i' argument, let's check if the entry exists or return an error
+	if !isEntryExists(IMAGES, imageName) {
+		panic("Image " + imageName + " doesn't exists")
+	}
+
+	// If there is no -i argument, the default value defined in setDefaultConfig() will be used
+
+	// Return the imageName from the configuration file
+	return getImageNameFromConfig(imageName)
 }

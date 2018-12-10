@@ -32,6 +32,12 @@ import (
 //FLAVORS is a constant to represent the [flavors] group
 const FLAVORS = "flavors"
 
+//IMAGES is a constant to represent the [images] group
+const IMAGES = "images"
+
+// DEFAULTIMAGE is the default image name to be used
+const DEFAULTIMAGE = "ceph/daemon"
+
 func readConfigFile(customFile ...string) string {
 	setDefaultConfig()
 
@@ -73,6 +79,7 @@ func setDefaultConfig() {
 	viper.SetDefault(FLAVORS+".default.use_default", "true") // All containers inherit from default
 	viper.SetDefault(FLAVORS+".default.memory_size", "512MB")
 	viper.SetDefault(FLAVORS+".default.cpu_count", 1)
+	viper.SetDefault(IMAGES+".default.imageName", DEFAULTIMAGE)
 }
 
 func getStringFromConfig(group string, item string, name string) string {
@@ -152,4 +159,15 @@ func getCPUCount(containerFlavor string) int64 {
 
 func getCephConf(containerFlavor string) map[string]interface{} {
 	return getStringMapFromConfig(FLAVORS, containerFlavor, "ceph.conf")
+}
+
+func getImageNameFromConfig(entry string) string {
+	return getStringFromConfig(IMAGES, entry, "image_name")
+}
+
+func isEntryExists(group string, item string) bool {
+	if viper.Get(group+"."+item) != nil {
+		return true
+	}
+	return false
 }

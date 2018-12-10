@@ -1,7 +1,13 @@
 title = "Ceph Nano test configuration file"
 
-[default]
-    [default.ceph.conf]
+# As per the code, the configuration file is structured like
+#[group]
+#  [item]
+#    itemValue=value
+
+[flavors]
+  [flavors.default]
+    [flavors.default.ceph.conf]
         osd_memory_target = 536870912
         osd_memory_base = 268435456
         osd_memory_cache_min = 33554432
@@ -11,13 +17,13 @@ title = "Ceph Nano test configuration file"
         osd_pg_log_dups_tracked = 10
         osd_pg_log_trim_min = 10
 
-[test_nano_no_default]
+  [flavors.test_nano_no_default]
     memory_size="1GB"
     cpu_count=2
     use_default=false
-    [test_nano_no_default.ceph.conf]
-    osd_memory_target = 3841234556
+    [flavors.test_nano_no_default.ceph.conf]
+      osd_memory_target = 3841234556
 
-[test_nano_default]
-    [test_nano_default.ceph.conf]
-    osd_memory_target = 3841234556
+  [flavors.test_nano_default]
+    [flavors.test_nano_default.ceph.conf]
+      osd_memory_target = 3841234556

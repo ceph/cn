@@ -46,8 +46,8 @@ func TestMemorySize(t *testing.T) {
 
 func TestUseDefault(t *testing.T) {
 	readConfigFile(configFile)
-	assert.Equal(t, false, useDefault("test_nano_no_default"))
-	assert.Equal(t, true, useDefault("test_nano_default"))
+	assert.Equal(t, false, useDefault(FLAVORS, "test_nano_no_default"))
+	assert.Equal(t, true, useDefault(FLAVORS, "test_nano_default"))
 }
 
 func TestCephConf(t *testing.T) {

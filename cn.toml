@@ -1,16 +1,21 @@
-title = "Default flavors"
-[default]
-  # This section is here to override the default builtins of ceph-nano
-  # memory_size = "512MB"
-  # use_default = true
-  # cpu_count = 1
+title = "Default configuration file"
 
-[medium]
-  memory_size="768MB"
+[flavors]
+  [flavors.default]
+    # This section is here to override the default builtins of ceph-nano
+    # memory_size = "512MB"
+    # use_default = true
+    # cpu_count = 1
 
-[large]
-  memory_size="1GB"
+  [flavors.medium]
+    memory_size="768MB"
 
-[huge]
-  cpu_count=2
-  memory_size="4GB"
+
+  [flavors.large]
+    memory_size="1GB"
+
+  [flavors.huge]
+    cpu_count=2
+    memory_size="4GB"
+
+

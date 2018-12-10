@@ -71,3 +71,25 @@ func TestCPUCount(t *testing.T) {
 	assert.Equal(t, int64(1), getCPUCount("test_nano_default"))
 	assert.Equal(t, int64(2), getCPUCount("test_nano_no_default"))
 }
+
+func TestImageName(t *testing.T) {
+	// There is no configuration file
+	configurationFile = ""
+
+	// Without any configuration file, the default should be satisfied
+	assert.Equal(t, DEFAULTIMAGE, getImageName())
+
+	// Without any configuration file, any -i argument should be preserved
+	imageName = "nawak"
+	assert.Equal(t, "nawak", getImageName())
+
+	// Now, we have a configuration file
+	configurationFile = readConfigFile(configFile)
+
+	// Let's ensure the basic reading of the configuration file works
+	assert.Equal(t, "ceph/daemon:latest-mimic", getImageNameFromConfig("mimic"))
+
+	// If a -i is passed with a configuration file, let's report the image_name from the configuration file
+	imageName = "redhat"
+	assert.Equal(t, "registry.access.redhat.com/rhceph/rhceph-3-rhel7", getImageName())
+}

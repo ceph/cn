@@ -84,7 +84,7 @@ func cliClusterStart() *cobra.Command {
 func startNano(cmd *cobra.Command, args []string) {
 
 	// Ensure the flavor exists or report an error
-	if viper.Get(flavor) == nil {
+	if viper.Get("flavors."+flavor) == nil {
 		panic("The flavor " + flavor + " doesn't exists")
 	}
 	// Test for a leftover container

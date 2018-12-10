@@ -29,6 +29,9 @@ import (
 	"github.com/spf13/viper"
 )
 
+//FLAVORS is a constant to represent the [flavors] group
+const FLAVORS = "flavors"
+
 func readConfigFile(customFile ...string) string {
 	setDefaultConfig()
 
@@ -67,62 +70,62 @@ func readConfigFile(customFile ...string) string {
 // Set the default values for defined types
 // If the configuration file is missing, this section will generated the mandatory elements
 func setDefaultConfig() {
-	viper.SetDefault("default.use_default", "true") // All containers inherit from default
-	viper.SetDefault("default.memory_size", "512MB")
-	viper.SetDefault("default.cpu_count", 1)
+	viper.SetDefault(FLAVORS+".default.use_default", "true") // All containers inherit from default
+	viper.SetDefault(FLAVORS+".default.memory_size", "512MB")
+	viper.SetDefault(FLAVORS+".default.cpu_count", 1)
 }
 
-func getStringFromConfig(name string, containerFlavor string) string {
+func getStringFromConfig(group string, item string, name string) string {
 	var value = ""
 	// If we are requested to get the status of use_default, we cannot call useDefault ;)
-	if name == "use_default" || useDefault(containerFlavor) {
-		value = viper.GetString("default" + "." + name)
+	if name == "use_default" || useDefault(group, item) {
+		value = viper.GetString(group + ".default." + name)
 	}
-	containerValue := viper.GetString(containerFlavor + "." + name)
-	if len(containerValue) > 0 {
-		value = containerValue
+	itemValue := viper.GetString(group + "." + item + "." + name)
+	if len(itemValue) > 0 {
+		value = itemValue
 	}
 	return value
 }
 
-func getInt64FromConfig(name string, containerFlavor string) int64 {
+func getInt64FromConfig(group string, item string, name string) int64 {
 	var value int64
 	var foundValue = false
-	if useDefault(containerFlavor) {
+	if useDefault(group, item) {
 		// We need to ensure the key exists unless that could populate a 0 value
-		if viper.Get("default."+name) != nil {
-			value = viper.GetInt64("default." + name)
+		if viper.Get(group+".default."+name) != nil {
+			value = viper.GetInt64(group + ".default." + name)
 			foundValue = true
 		}
 	}
 	// We need to ensure the key exists unless that could populate a 0 value
-	if viper.Get(containerFlavor+"."+name) != nil {
-		value = viper.GetInt64(containerFlavor + "." + name)
+	if viper.Get(group+"."+item+"."+name) != nil {
+		value = viper.GetInt64(group + "." + item + "." + name)
 		foundValue = true
 	}
 
 	if !foundValue {
-		panic(name + " int64 value in " + containerFlavor + "doesn't exists")
+		panic(name + " int64 value in " + item + "doesn't exists")
 	}
 	return value
 }
 
-func useDefault(containerFlavor string) bool {
-	useDefaultValue := getStringFromConfig("use_default", containerFlavor)
+func useDefault(group string, item string) bool {
+	useDefaultValue := getStringFromConfig(group, item, "use_default")
 	if (len(useDefaultValue) > 0) && (useDefaultValue == "true") {
 		return true
 	}
 	return false
 }
 
-func getStringMapFromConfig(name string, containerFlavor string) map[string]interface{} {
+func getStringMapFromConfig(group string, item string, name string) map[string]interface{} {
 	var defaultConfig = make(map[string]interface{})
-	if useDefault(containerFlavor) {
-		defaultConfig = viper.GetStringMap("default" + "." + name)
+	if useDefault(group, item) {
+		defaultConfig = viper.GetStringMap(group + ".default" + "." + name)
 	}
-	containerValues := viper.GetStringMap(containerFlavor + "." + name)
-	if len(containerValues) > 0 {
-		for key, value := range containerValues {
+	itemValues := viper.GetStringMap(group + "." + item + "." + name)
+	if len(itemValues) > 0 {
+		for key, value := range itemValues {
 			defaultConfig[key] = value
 		}
 	}
@@ -130,7 +133,7 @@ func getStringMapFromConfig(name string, containerFlavor string) map[string]inte
 }
 
 func getMemorySize(containerFlavor string) string {
-	return getStringFromConfig("memory_size", containerFlavor)
+	return getStringFromConfig(FLAVORS, containerFlavor, "memory_size")
 }
 
 func getMemorySizeInBytes(containerFlavor string) int64 {
@@ -144,9 +147,9 @@ func getMemorySizeInBytes(containerFlavor string) int64 {
 }
 
 func getCPUCount(containerFlavor string) int64 {
-	return getInt64FromConfig("cpu_count", containerFlavor)
+	return getInt64FromConfig(FLAVORS, containerFlavor, "cpu_count")
 }
 
 func getCephConf(containerFlavor string) map[string]interface{} {
-	return getStringMapFromConfig("ceph.conf", containerFlavor)
+	return getStringMapFromConfig(FLAVORS, containerFlavor, "ceph.conf")
 }

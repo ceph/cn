@@ -73,7 +73,7 @@ func cliClusterStart() *cobra.Command {
 	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device. Block device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
 	cmd.Flags().StringVarP(&sizeBluestoreBlock, "size", "s", "", "Configure Ceph Nano underlying storage size when using a specific directory")
 	cmd.Flags().BoolVar(&privilegedContainer, "privileged", false, "Starts the container in privileged mode")
-	cmd.Flags().StringVarP(&flavor, "flavor", "f", "default", "Select the container flavor")
+	cmd.Flags().StringVarP(&flavor, "flavor", "f", "default", "Select the container flavor. Use 'flavors ls' command to list available flavors.")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for start")
 
 	return cmd

@@ -925,3 +925,11 @@ func getImageName() string {
 	// Returning what the user provided, surely a custom value.
 	return imageName
 }
+
+// PrettyPrint to print a datastructure
+func PrettyPrint(v interface{}) {
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err == nil {
+		fmt.Println(string(b))
+	}
+}

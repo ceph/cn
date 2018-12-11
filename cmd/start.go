@@ -69,11 +69,11 @@ func cliClusterStart() *cobra.Command {
 	}
 	cmd.Flags().SortFlags = false
 	cmd.Flags().StringVarP(&workingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
-	cmd.Flags().StringVarP(&imageName, "image", "i", DEFAULTIMAGE, "USE AT YOUR OWN RISK. Ceph container image to use, format is 'registry/username/image:tag'. The registry is optional.\nWhen running with a configuration file, this value points to the name of the image defined into it.")
+	cmd.Flags().StringVarP(&imageName, "image", "i", DEFAULTIMAGE, "USE AT YOUR OWN RISK. Ceph container image to use, format is 'registry/username/image:tag'.\nA lookup is done in the configuration file to use an existing entry with this name unless the parameter is used as-is.")
 	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device. Block device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
 	cmd.Flags().StringVarP(&sizeBluestoreBlock, "size", "s", "", "Configure Ceph Nano underlying storage size when using a specific directory")
 	cmd.Flags().BoolVar(&privilegedContainer, "privileged", false, "Starts the container in privileged mode")
-	cmd.Flags().StringVarP(&flavor, "flavor", "f", "default", "Select the container flavor from the configuration file")
+	cmd.Flags().StringVarP(&flavor, "flavor", "f", "default", "Select the container flavor")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for start")
 
 	return cmd

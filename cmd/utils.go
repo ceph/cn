@@ -916,19 +916,12 @@ func listRedHatRegistryImageTags() {
 }
 
 func getImageName() string {
-	// If there is no configuration file, the imageName is the one from the command line
-	// If the imageName is still set to the default, let's return it immediately too
-	if (len(configurationFile) == 0) || (imageName == DEFAULTIMAGE) {
-		return imageName
+	// If there is a '-i' argument, let's check if the entry exists
+	// If there is one, let's return the image_name of it
+	if isEntryExists(IMAGES, imageName) {
+		return getImageNameFromConfig(imageName)
 	}
 
-	// If there is a '-i' argument, let's check if the entry exists or return an error
-	if !isEntryExists(IMAGES, imageName) {
-		log.Fatal("Image " + imageName + " doesn't exists")
-	}
-
-	// If there is no -i argument, the default value defined in setDefaultConfig() will be used
-
-	// Return the imageName from the configuration file
-	return getImageNameFromConfig(imageName)
+	// Returning what the user provided, surely a custom value.
+	return imageName
 }

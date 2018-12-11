@@ -182,3 +182,8 @@ func isEntryExists(group string, item string) bool {
 	}
 	return false
 }
+
+// Return items from a given group
+func getItemsFromGroup(group string) map[string]interface{} {
+	return viper.AllSettings()[group].(map[string]interface{})
+}

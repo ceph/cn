@@ -6,29 +6,12 @@ title = "Default configuration file"
     # memory_size = "512MB"
     # use_default = true
     # cpu_count = 1
-
-  [flavors.medium]
-    memory_size="768MB"
-
-
-  [flavors.large]
-    memory_size="1GB"
-
-  [flavors.huge]
-    cpu_count=2
-    memory_size="4GB"
-
+  [flavors.mycustom]
+    # memory_size = "10GB"
 
 [images]
   [images.default]
   # This section is here to override the default builtins of ceph-nano
   # image_name="registry/username/image:tag"
-
-  [images.mimic]
-    image_name="ceph/daemon:latest-mimic"
-
-  [images.luminous]
-    image_name="ceph/daemon:latest-luminous"
-
-  [images.redhat]
-    image_name="registry.access.redhat.com/rhceph/rhceph-3-rhel7"
+  [images.mycustom]
+  # image_name="myregistry/myusername/myimage:mytag"

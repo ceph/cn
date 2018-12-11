@@ -33,11 +33,8 @@ title = "Ceph Nano test configuration file"
     # This section is here to override the default builtins of ceph-nano
     # image_name="registry/username/image:tag"
 
-  [images.mimic]
-    image_name="ceph/daemon:latest-mimic"
+  [images.real1]
+    image_name="ceph/daemon:latest-real1"
 
-  [images.luminous]
-    image_name="ceph/daemon:latest-luminous"
-
-  [images.redhat]
-    image_name="registry.access.redhat.com/rhceph/rhceph-3-rhel7"
+  [images.complex]
+    image_name="this.url.is.complex/cool/for-a-test"

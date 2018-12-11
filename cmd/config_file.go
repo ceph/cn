@@ -39,6 +39,9 @@ const IMAGES = "images"
 // DEFAULTIMAGE is the default image name to be used
 const DEFAULTIMAGE = "ceph/daemon"
 
+// LATESTIMAGE is the prefix for the latest ceph images
+const LATESTIMAGE = DEFAULTIMAGE + ":latest-"
+
 func readConfigFile(customFile ...string) string {
 	setDefaultConfig()
 
@@ -80,7 +83,14 @@ func setDefaultConfig() {
 	viper.SetDefault(FLAVORS+".default.use_default", "true") // All containers inherit from default
 	viper.SetDefault(FLAVORS+".default.memory_size", "512MB")
 	viper.SetDefault(FLAVORS+".default.cpu_count", 1)
-	viper.SetDefault(IMAGES+".default.imageName", DEFAULTIMAGE)
+	viper.SetDefault(FLAVORS+".medium.memory_size", "768MB")
+	viper.SetDefault(FLAVORS+".large.memory_size", "1GB")
+	viper.SetDefault(FLAVORS+".huge.memory_size", "4GB")
+	viper.SetDefault(FLAVORS+".huge.cpu_count", 2)
+	viper.SetDefault(IMAGES+".default.image_name", DEFAULTIMAGE)
+	viper.SetDefault(IMAGES+".mimic.image_name", LATESTIMAGE+"mimic")
+	viper.SetDefault(IMAGES+".luminous.image_name", LATESTIMAGE+"luminous")
+	viper.SetDefault(IMAGES+".redhat.image_name", "registry.access.redhat.com/rhceph/rhceph-3-rhel7")
 }
 
 func getStringFromConfig(group string, item string, name string) string {

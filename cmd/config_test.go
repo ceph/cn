@@ -37,6 +37,11 @@ func TestTitle(t *testing.T) {
 }
 
 func TestMemorySize(t *testing.T) {
+	// Testing the builtin configuration
+	assert.Equal(t, "512MB", getMemorySize("default"))
+	assert.Equal(t, "4GB", getMemorySize("huge"))
+
+	// Testing with a configuration file
 	readConfigFile(configFile)
 	assert.Equal(t, "512MB", getMemorySize("test_nano_default"))
 	assert.Equal(t, int64(536870912), getMemorySizeInBytes("test_nano_default"))
@@ -67,6 +72,11 @@ func TestCephConf(t *testing.T) {
 }
 
 func TestCPUCount(t *testing.T) {
+	// Testing the builtin configuration
+	assert.Equal(t, int64(1), getCPUCount("default"))
+	assert.Equal(t, int64(2), getCPUCount("huge"))
+
+	// Testing with a configuration file
 	readConfigFile(configFile)
 	assert.Equal(t, int64(1), getCPUCount("test_nano_default"))
 	assert.Equal(t, int64(2), getCPUCount("test_nano_no_default"))
@@ -83,13 +93,17 @@ func TestImageName(t *testing.T) {
 	imageName = "nawak"
 	assert.Equal(t, "nawak", getImageName())
 
+	// The default builtin should be kept too
+	imageName = "mimic"
+	assert.Equal(t, LATESTIMAGE+"mimic", getImageName())
+
 	// Now, we have a configuration file
 	configurationFile = readConfigFile(configFile)
 
 	// Let's ensure the basic reading of the configuration file works
-	assert.Equal(t, "ceph/daemon:latest-mimic", getImageNameFromConfig("mimic"))
+	assert.Equal(t, "ceph/daemon:latest-real1", getImageNameFromConfig("real1"))
 
 	// If a -i is passed with a configuration file, let's report the image_name from the configuration file
-	imageName = "redhat"
-	assert.Equal(t, "registry.access.redhat.com/rhceph/rhceph-3-rhel7", getImageName())
+	imageName = "complex"
+	assert.Equal(t, "this.url.is.complex/cool/for-a-test", getImageName())
 }

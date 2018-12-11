@@ -924,7 +924,7 @@ func getImageName() string {
 
 	// If there is a '-i' argument, let's check if the entry exists or return an error
 	if !isEntryExists(IMAGES, imageName) {
-		panic("Image " + imageName + " doesn't exists")
+		log.Fatal("Image " + imageName + " doesn't exists")
 	}
 
 	// If there is no -i argument, the default value defined in setDefaultConfig() will be used

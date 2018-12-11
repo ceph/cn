@@ -23,6 +23,7 @@
 package cmd
 
 import (
+	"log"
 	"path"
 
 	"github.com/alecthomas/units"
@@ -52,7 +53,7 @@ func readConfigFile(customFile ...string) string {
 		// Find and read the config file
 		// If there is no configuration file, that's an error
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		// We return the configuration file found
 		return viper.ConfigFileUsed()
@@ -112,7 +113,7 @@ func getInt64FromConfig(group string, item string, name string) int64 {
 	}
 
 	if !foundValue {
-		panic(name + " int64 value in " + item + "doesn't exists")
+		log.Fatal(name + " int64 value in " + item + "doesn't exists")
 	}
 	return value
 }
@@ -148,7 +149,7 @@ func getMemorySizeInBytes(containerFlavor string) int64 {
 	var err error
 	bytes, err = units.ParseBase2Bytes(getMemorySize(containerFlavor))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return int64(bytes)
 }

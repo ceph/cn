@@ -83,6 +83,7 @@ func setDefaultConfig() {
 	viper.SetDefault(FLAVORS+".default.use_default", "true") // All containers inherit from default
 	viper.SetDefault(FLAVORS+".default.memory_size", "512MB")
 	viper.SetDefault(FLAVORS+".default.cpu_count", 1)
+	viper.SetDefault(FLAVORS+".default.privileged", false)
 	viper.SetDefault(FLAVORS+".medium.memory_size", "768MB")
 	viper.SetDefault(FLAVORS+".large.memory_size", "1GB")
 	viper.SetDefault(FLAVORS+".huge.memory_size", "4GB")
@@ -127,6 +128,28 @@ func getInt64FromConfig(group string, item string, name string) int64 {
 
 	if !foundValue {
 		log.Fatal(name + " int64 value in " + item + "doesn't exists")
+	}
+	return value
+}
+
+func getBoolFromConfig(group string, item string, name string) bool {
+	var value bool
+	var foundValue = false
+	if useDefault(group, item) {
+		// We need to ensure the key exists unless that could populate a 0 value
+		if viper.IsSet(group + ".default." + name) {
+			value = viper.GetBool(group + ".default." + name)
+			foundValue = true
+		}
+	}
+	// We need to ensure the key exists unless that could populate a 0 value
+	if viper.IsSet(group + "." + item + "." + name) {
+		value = viper.GetBool(group + "." + item + "." + name)
+		foundValue = true
+	}
+
+	if !foundValue {
+		log.Fatal(name + " bool value in " + item + "doesn't exists")
 	}
 	return value
 }

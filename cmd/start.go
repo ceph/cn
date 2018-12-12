@@ -36,9 +36,6 @@ import (
 )
 
 var (
-	// privilegedContainer whether or not the container should run Privileged
-	privilegedContainer bool
-
 	// dataOsd points to either the directory or drive to use to store Ceph's data
 	dataOsd string
 
@@ -64,15 +61,13 @@ func cliClusterStart() *cobra.Command {
 			"cn cluster start mycluster --work-dir /tmp \n" +
 			"cn cluster start mycluster --image ceph/daemon:latest-luminous \n" +
 			"cn cluster start mycluster -b /dev/sdb \n" +
-			"cn cluster start mycluster -b /srv/nano -s 20GB \n" +
-			"cn cluster start mycluster --privileged \n",
+			"cn cluster start mycluster -b /srv/nano -s 20GB \n",
 	}
 	cmd.Flags().SortFlags = false
 	cmd.Flags().StringVarP(&workingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
 	cmd.Flags().StringVarP(&imageName, "image", "i", DEFAULTIMAGE, "USE AT YOUR OWN RISK. Ceph container image to use, format is 'registry/username/image:tag'.\nThe image name could also be an alias coming from the hardcoded values or the configuration file.\nUse 'image show-aliases' to list all existing aliases.")
 	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device. Block device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
 	cmd.Flags().StringVarP(&sizeBluestoreBlock, "size", "s", "", "Configure Ceph Nano underlying storage size when using a specific directory")
-	cmd.Flags().BoolVar(&privilegedContainer, "privileged", false, "Starts the container in privileged mode")
 	cmd.Flags().StringVarP(&flavor, "flavor", "f", "default", "Select the container flavor. Use 'flavors ls' command to list available flavors.")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for start")
 
@@ -264,7 +259,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 			}
 			// If we arrive here, it should be safe to use the device.
 			envs = append(envs, "OSD_DEVICE="+dataOsd)
-			privilegedContainer = true
+			setPrivileged(flavor, true)
 			volumeBindings = append(volumeBindings, "/dev:/dev")
 			// place holder once 'demo' will use ceph-volume
 			// volumeBindings = append(volumeBindings, "/run/lvm/lvmetad.socket:/run/lvm/lvmetad.socket")
@@ -289,7 +284,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		PortBindings: portBindings,
 		Binds:        volumeBindings,
 		Resources:    ressources,
-		Privileged:   privilegedContainer,
+		Privileged:   getPrivileged(flavor),
 	}
 
 	log.Printf("Running cluster %s | image %s | flavor %s {%s Memory, %d CPU} ...", containerNameToShow, getImageName(), flavor, getMemorySize(flavor), ressources.NanoCPUs)

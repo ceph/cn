@@ -82,6 +82,11 @@ func TestCPUCount(t *testing.T) {
 	assert.Equal(t, int64(2), getCPUCount("test_nano_no_default"))
 }
 
+func TestIsEntryExist(t *testing.T) {
+	assert.Equal(t, true, isEntryExists(FLAVORS, "default.use_default"))
+	assert.Equal(t, false, isEntryExists(FLAVORS, "default.nawak"))
+}
+
 func TestImageName(t *testing.T) {
 	// There is no configuration file
 	configurationFile = ""

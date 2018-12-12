@@ -111,13 +111,13 @@ func getInt64FromConfig(group string, item string, name string) int64 {
 	var foundValue = false
 	if useDefault(group, item) {
 		// We need to ensure the key exists unless that could populate a 0 value
-		if viper.Get(group+".default."+name) != nil {
+		if viper.IsSet(group + ".default." + name) {
 			value = viper.GetInt64(group + ".default." + name)
 			foundValue = true
 		}
 	}
 	// We need to ensure the key exists unless that could populate a 0 value
-	if viper.Get(group+"."+item+"."+name) != nil {
+	if viper.IsSet(group + "." + item + "." + name) {
 		value = viper.GetInt64(group + "." + item + "." + name)
 		foundValue = true
 	}
@@ -177,10 +177,7 @@ func getImageNameFromConfig(entry string) string {
 }
 
 func isEntryExists(group string, item string) bool {
-	if viper.Get(group+"."+item) != nil {
-		return true
-	}
-	return false
+	return viper.IsSet(group + "." + item)
 }
 
 // Return items from a given group

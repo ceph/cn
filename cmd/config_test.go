@@ -138,3 +138,18 @@ func TestUnderlyingStorage(t *testing.T) {
 	dataOsd = "/dev/nawak"
 	assert.Equal(t, "/dev/nawak", getUnderlyingStorage("test_nano_no_default"))
 }
+
+func TestSize(t *testing.T) {
+	// Test the builtin values
+	assert.Equal(t, "", getSize("default"))
+
+	// Now, we have a configuration file
+	readConfigFile(configFile)
+
+	// Ensure the values are properly read from the configuration file
+	assert.Equal(t, "20GB", getSize("test_nano_no_default"))
+
+	// Ensure that enforcing a flags on the CLI is taking over the configuration
+	sizeBluestoreBlock = "1M"
+	assert.Equal(t, "1M", getSize("test_nano_no_default"))
+}

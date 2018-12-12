@@ -988,3 +988,14 @@ func getUnderlyingStorage(containerFlavor string) string {
 	// Unless return the value from the flavor
 	return getStringFromConfig(FLAVORS, containerFlavor, "data")
 }
+
+func getSize(containerFlavor string) string {
+
+	// If the user provided a -s, let's return that value
+	if len(sizeBluestoreBlock) > 0 {
+		return sizeBluestoreBlock
+	}
+
+	// Unless return the value from the flavor
+	return getStringFromConfig(FLAVORS, containerFlavor, "size")
+}

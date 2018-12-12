@@ -85,6 +85,7 @@ func setDefaultConfig() {
 	viper.SetDefault(FLAVORS+".default.cpu_count", 1)
 	viper.SetDefault(FLAVORS+".default.privileged", false)
 	viper.SetDefault(FLAVORS+".default.data", "")
+	viper.SetDefault(FLAVORS+".default.size", "")
 	viper.SetDefault(FLAVORS+".medium.memory_size", "768MB")
 	viper.SetDefault(FLAVORS+".large.memory_size", "1GB")
 	viper.SetDefault(FLAVORS+".huge.memory_size", "4GB")

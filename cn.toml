@@ -1,4 +1,4 @@
-title = "Default configuration file"
+title = "Default Ceph Nano configuration file"
 
 [flavors]
   [flavors.default]

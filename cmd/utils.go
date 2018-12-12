@@ -916,11 +916,15 @@ func listRedHatRegistryImageTags() {
 	parseMap(m, "tags", "registry.access.redhat.com/rhceph/rhceph-3-rhel7:")
 }
 
-func getImageName() string {
+func getImageName(customImageName ...string) string {
+	var image_name = imageName
+	if len(customImageName) > 0 {
+		image_name = customImageName[0]
+	}
 	// If there is a '-i' argument, let's check if the entry exists
 	// If there is one, let's return the image_name of it
-	if isEntryExists(IMAGES, imageName) {
-		return getImageNameFromConfig(imageName)
+	if isEntryExists(IMAGES, image_name) {
+		return getImageNameFromConfig(image_name)
 	}
 
 	// Returning what the user provided, surely a custom value.

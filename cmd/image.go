@@ -23,6 +23,9 @@
 package cmd
 
 import (
+	"fmt"
+
+	"github.com/apcera/termtables"
 	"github.com/spf13/cobra"
 )
 
@@ -38,5 +41,29 @@ func init() {
 	cmdImage.AddCommand(
 		CliImageUpdate(),
 		CliImageList(),
+		cliShowAliases(),
 	)
+}
+
+// cliFlavorsList is the Cobra CLI call
+func cliShowAliases() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "show-aliases",
+		Short: "Print the list of aliases",
+		Args:  cobra.NoArgs,
+		Run:   listAliases,
+	}
+	return cmd
+}
+
+func listAliases(cmd *cobra.Command, args []string) {
+	table := termtables.CreateTable()
+	table.AddHeaders("ALIAS", "IMAGE_NAME")
+	for image := range getItemsFromGroup(IMAGES) {
+		// Don't print the default configuration as an alias
+		if image != "default" {
+			table.AddRow(image, getImageName(image))
+		}
+	}
+	fmt.Println(table.Render())
 }

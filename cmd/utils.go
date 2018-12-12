@@ -44,6 +44,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alecthomas/units"
 	"github.com/docker/docker/api/types"
 	"github.com/elgs/gojq"
 	"github.com/jmoiron/jsonq"
@@ -932,4 +933,34 @@ func PrettyPrint(v interface{}) {
 	if err == nil {
 		fmt.Println(string(b))
 	}
+}
+
+// getMemorySize reports the defined memory size for a flavor
+func getMemorySize(containerFlavor string) string {
+	return getStringFromConfig(FLAVORS, containerFlavor, "memory_size")
+}
+
+// getMemorySizeInBytes transform a user-defined input (like 1GB) in bytes
+func getMemorySizeInBytes(containerFlavor string) int64 {
+	var bytes units.Base2Bytes
+	var err error
+	bytes, err = units.ParseBase2Bytes(getMemorySize(containerFlavor))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return int64(bytes)
+}
+
+// getCPUCount return the number of CPUs for a flavor
+func getCPUCount(containerFlavor string) int64 {
+	return getInt64FromConfig(FLAVORS, containerFlavor, "cpu_count")
+}
+
+//getCephConf return the Ceph configuration for a flavor
+func getCephConf(containerFlavor string) map[string]interface{} {
+	return getStringMapFromConfig(FLAVORS, containerFlavor, "ceph.conf")
+}
+
+func getImageNameFromConfig(entry string) string {
+	return getStringFromConfig(IMAGES, entry, "image_name")
 }

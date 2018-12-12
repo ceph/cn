@@ -26,7 +26,6 @@ import (
 	"log"
 	"path"
 
-	"github.com/alecthomas/units"
 	"github.com/spf13/viper"
 )
 
@@ -148,32 +147,6 @@ func getStringMapFromConfig(group string, item string, name string) map[string]i
 		}
 	}
 	return defaultConfig
-}
-
-func getMemorySize(containerFlavor string) string {
-	return getStringFromConfig(FLAVORS, containerFlavor, "memory_size")
-}
-
-func getMemorySizeInBytes(containerFlavor string) int64 {
-	var bytes units.Base2Bytes
-	var err error
-	bytes, err = units.ParseBase2Bytes(getMemorySize(containerFlavor))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return int64(bytes)
-}
-
-func getCPUCount(containerFlavor string) int64 {
-	return getInt64FromConfig(FLAVORS, containerFlavor, "cpu_count")
-}
-
-func getCephConf(containerFlavor string) map[string]interface{} {
-	return getStringMapFromConfig(FLAVORS, containerFlavor, "ceph.conf")
-}
-
-func getImageNameFromConfig(entry string) string {
-	return getStringFromConfig(IMAGES, entry, "image_name")
 }
 
 func isEntryExists(group string, item string) bool {

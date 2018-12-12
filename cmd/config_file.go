@@ -41,6 +41,9 @@ const DEFAULTIMAGE = "ceph/daemon"
 // LATESTIMAGE is the prefix for the latest ceph images
 const LATESTIMAGE = DEFAULTIMAGE + ":latest-"
 
+// DEFAULTWORKDIRECTORY is the default work directory
+const DEFAULTWORKDIRECTORY = "/usr/share/ceph-nano"
+
 func readConfigFile(customFile ...string) string {
 	setDefaultConfig()
 
@@ -86,6 +89,7 @@ func setDefaultConfig() {
 	viper.SetDefault(FLAVORS+".default.privileged", false)
 	viper.SetDefault(FLAVORS+".default.data", "")
 	viper.SetDefault(FLAVORS+".default.size", "")
+	viper.SetDefault(FLAVORS+".default.work_directory", DEFAULTWORKDIRECTORY)
 	viper.SetDefault(FLAVORS+".medium.memory_size", "768MB")
 	viper.SetDefault(FLAVORS+".large.memory_size", "1GB")
 	viper.SetDefault(FLAVORS+".huge.memory_size", "4GB")

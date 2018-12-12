@@ -999,3 +999,18 @@ func getSize(containerFlavor string) string {
 	// Unless return the value from the flavor
 	return getStringFromConfig(FLAVORS, containerFlavor, "size")
 }
+
+func getWorkDirectory(containerFlavor string) string {
+
+	// If the user provided a -d, let's return that value
+	if (len(workingDirectory) > 0) && (workingDirectory != DEFAULTWORKDIRECTORY) {
+		return workingDirectory
+	}
+
+	// Unless return the value from the flavor
+	return getStringFromConfig(FLAVORS, containerFlavor, "work_directory")
+}
+
+func setWorkDirectory(value string) {
+	workingDirectory = value
+}

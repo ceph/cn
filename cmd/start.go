@@ -64,7 +64,7 @@ func cliClusterStart() *cobra.Command {
 			"cn cluster start mycluster -b /srv/nano -s 20GB \n",
 	}
 	cmd.Flags().SortFlags = false
-	cmd.Flags().StringVarP(&workingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
+	cmd.Flags().StringVarP(&workingDirectory, "work-dir", "d", DEFAULTWORKDIRECTORY, "Directory to work from")
 	cmd.Flags().StringVarP(&imageName, "image", "i", DEFAULTIMAGE, "USE AT YOUR OWN RISK. Ceph container image to use, format is 'registry/username/image:tag'.\nThe image name could also be an alias coming from the hardcoded values or the configuration file.\nUse 'image show-aliases' to list all existing aliases.")
 	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device.\nBlock device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
 	cmd.Flags().StringVarP(&sizeBluestoreBlock, "size", "s", "", "Configure Ceph Nano underlying storage size when using a specific directory")
@@ -88,12 +88,12 @@ func startNano(cmd *cobra.Command, args []string) {
 	// Usually happens when someone fails to run the container on an exposed directory
 	// Typical error on Docker For Mac you will see:
 	// panic: Error response from daemon: Mounts denied:
-	// The path /usr/share/ceph-nano is not shared from OS X and is not known to Docker.
+	// The path DEFAULTWORKDIRECTORY is not shared from OS X and is not known to Docker.
 	// You can configure shared paths from Docker -> Preferences... -> File Sharing.
 	containerNameToShow := args[0]
 	containerName := containerNamePrefix + containerNameToShow
-	if len(workingDirectory) == 0 {
-		workingDirectory = workingDirectory + "-" + containerNameToShow
+	if len(getWorkDirectory(flavor)) == 0 {
+		setWorkDirectory(getWorkDirectory(flavor) + "-" + containerNameToShow)
 	}
 
 	if status := containerStatus(containerName, true, "created"); status {
@@ -163,7 +163,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 	}
 
 	volumeBindings := []string{
-		workingDirectory + ":" + tempPath,
+		getWorkDirectory(flavor) + ":" + tempPath,
 	}
 
 	volumes := map[string]struct{}{
@@ -303,7 +303,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 		if strings.Contains(err.Error(), "Mounts denied") {
 			log.Println("ERROR: It looks like you need to use the --work-dir option. \n" +
 				"This typically happens when Docker is not running natively (e.g: Docker for Mac/Windows). \n" +
-				"The path /usr/share/ceph-nano is not shared from OS X / Windows and is not known to Docker. \n" +
+				"The path " + DEFAULTWORKDIRECTORY + " is not shared from OS X / Windows and is not known to Docker. \n" +
 				"You can configure shared paths from Docker -> Preferences... -> File Sharing.) \n" +
 				"Alternatively, you can simply use the --work-dir option to point to an already shared directory. \n" +
 				"On Docker for Mac / Windows, shared directories can be found in the settings.")

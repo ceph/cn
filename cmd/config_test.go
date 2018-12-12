@@ -153,3 +153,18 @@ func TestSize(t *testing.T) {
 	sizeBluestoreBlock = "1M"
 	assert.Equal(t, "1M", getSize("test_nano_no_default"))
 }
+
+func TestWorkDirectory(t *testing.T) {
+	// Test the builtin values
+	assert.Equal(t, DEFAULTWORKDIRECTORY, getWorkDirectory("default"))
+
+	// Now, we have a configuration file
+	readConfigFile(configFile)
+
+	// Ensure the values are properly read from the configuration file
+	assert.Equal(t, "/tmp/nano/", getWorkDirectory("test_nano_no_default"))
+
+	// Ensure that enforcing a flags on the CLI is taking over the configuration
+	workingDirectory = "/tmp/nawak"
+	assert.Equal(t, "/tmp/nawak", getWorkDirectory("test_nano_no_default"))
+}

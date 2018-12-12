@@ -977,3 +977,14 @@ func getCephConf(containerFlavor string) map[string]interface{} {
 func getImageNameFromConfig(entry string) string {
 	return getStringFromConfig(IMAGES, entry, "image_name")
 }
+
+func getUnderlyingStorage(containerFlavor string) string {
+
+	// If the user provided a -b, let's return that value
+	if len(dataOsd) > 0 {
+		return dataOsd
+	}
+
+	// Unless return the value from the flavor
+	return getStringFromConfig(FLAVORS, containerFlavor, "data")
+}

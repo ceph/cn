@@ -123,3 +123,18 @@ func TestImageName(t *testing.T) {
 	imageName = "complex"
 	assert.Equal(t, "this.url.is.complex/cool/for-a-test", getImageName())
 }
+
+func TestUnderlyingStorage(t *testing.T) {
+	// Test the builtin values
+	assert.Equal(t, "", getUnderlyingStorage("default"))
+
+	// Now, we have a configuration file
+	readConfigFile(configFile)
+
+	// Ensure the values are properly read from the configuration file
+	assert.Equal(t, "/dev/sdb1", getUnderlyingStorage("test_nano_no_default"))
+
+	// Ensure that enforcing a flags on the CLI is taking over the configuration
+	dataOsd = "/dev/nawak"
+	assert.Equal(t, "/dev/nawak", getUnderlyingStorage("test_nano_no_default"))
+}

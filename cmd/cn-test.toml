@@ -22,6 +22,7 @@ title = "Ceph Nano test configuration file"
     cpu_count=2
     use_default=false
     privileged=true
+    data="/dev/sdb1"
     [flavors.test_nano_no_default.ceph.conf]
       osd_memory_target = 3841234556
 

@@ -847,33 +847,14 @@ func whoAmI() (string, string) {
 }
 
 // toBytes converts storage units into bytes to ease comparison between different units
-func toBytes(value string) int {
-	value = strings.ToLower(value)
-
-	storageUnits := map[string]int{
-		"kib": 1000,
-		"kb":  1024,
-		"mb":  1024 * 1024,
-		"mib": 1000 * 1000,
-		"gb":  1024 * 1024 * 1024,
-		"gib": 1000 * 1000 * 1000,
-		"tb":  1024 * 1024 * 1024 * 1024,
-		"tib": 1000 * 1000 * 1000 * 1000,
-		"pb":  1024 * 1024 * 1024 * 1024 * 1024,
-		"pib": 1000 * 1000 * 1000 * 1000 * 1000,
+func toBytes(value string) int64 {
+	var bytes units.Base2Bytes
+	var err error
+	bytes, err = units.ParseBase2Bytes(value)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	for k, v := range storageUnits {
-		if strings.Contains(value, k) {
-			fmt.Println("Key:", k, "Value:", v, "Given", value)
-			valueWithoutUnit := strings.Replace(value, k, "", 1)
-			valueWithoutUnitToInt, _ := strconv.ParseInt(valueWithoutUnit, 0, 64)
-
-			return int(valueWithoutUnitToInt * int64(v))
-		}
-	}
-
-	return 0
+	return int64(bytes)
 }
 
 func listDockerRegistryImageTags() {
@@ -955,13 +936,7 @@ func getMemorySize(containerFlavor string) string {
 
 // getMemorySizeInBytes transform a user-defined input (like 1GB) in bytes
 func getMemorySizeInBytes(containerFlavor string) int64 {
-	var bytes units.Base2Bytes
-	var err error
-	bytes, err = units.ParseBase2Bytes(getMemorySize(containerFlavor))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return int64(bytes)
+	return toBytes(getMemorySize(containerFlavor))
 }
 
 // getCPUCount return the number of CPUs for a flavor

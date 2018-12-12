@@ -48,6 +48,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/elgs/gojq"
 	"github.com/jmoiron/jsonq"
+	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/sys/unix"
 )
@@ -929,6 +930,14 @@ func getImageName(customImageName ...string) string {
 
 	// Returning what the user provided, surely a custom value.
 	return imageName
+}
+
+func getPrivileged(containerFlavor string) bool {
+	return getBoolFromConfig(FLAVORS, containerFlavor, "privileged")
+}
+
+func setPrivileged(containerFlavor string, value bool) {
+	viper.SetDefault(FLAVORS+"."+containerFlavor+".privileged", value)
 }
 
 // PrettyPrint to print a datastructure

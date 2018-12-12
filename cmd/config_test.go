@@ -87,6 +87,17 @@ func TestIsEntryExist(t *testing.T) {
 	assert.Equal(t, false, isEntryExists(FLAVORS, "default.nawak"))
 }
 
+func TestPrivileged(t *testing.T) {
+	// Test the builtin values of privileged
+	assert.Equal(t, false, getPrivileged("default"))
+	setPrivileged("default", true)
+	assert.Equal(t, true, getPrivileged("default"))
+
+	// Test values coming from the configuration file
+	readConfigFile(configFile)
+	assert.Equal(t, true, getPrivileged("test_nano_no_default"))
+}
+
 func TestImageName(t *testing.T) {
 	// There is no configuration file
 	configurationFile = ""

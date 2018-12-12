@@ -323,8 +323,6 @@ _cn_cluster_start()
     flags+=("--size=")
     two_word_flags+=("-s")
     local_nonpersistent_flags+=("--size=")
-    flags+=("--privileged")
-    local_nonpersistent_flags+=("--privileged")
     flags+=("--help")
     local_nonpersistent_flags+=("--help")
 

@@ -66,7 +66,7 @@ func cliClusterStart() *cobra.Command {
 	cmd.Flags().SortFlags = false
 	cmd.Flags().StringVarP(&workingDirectory, "work-dir", "d", "/usr/share/ceph-nano", "Directory to work from")
 	cmd.Flags().StringVarP(&imageName, "image", "i", DEFAULTIMAGE, "USE AT YOUR OWN RISK. Ceph container image to use, format is 'registry/username/image:tag'.\nThe image name could also be an alias coming from the hardcoded values or the configuration file.\nUse 'image show-aliases' to list all existing aliases.")
-	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device. Block device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
+	cmd.Flags().StringVarP(&dataOsd, "data", "b", "", "Configure Ceph Nano underlying storage with a specific directory or physical block device.\nBlock device support only works on Linux running under 'root', only also directory might need running as 'root' if SeLinux is enabled.")
 	cmd.Flags().StringVarP(&sizeBluestoreBlock, "size", "s", "", "Configure Ceph Nano underlying storage size when using a specific directory")
 	cmd.Flags().StringVarP(&flavor, "flavor", "f", "default", "Select the container flavor. Use 'flavors ls' command to list available flavors.")
 	cmd.Flags().BoolVar(&Help, "help", false, "help for start")
@@ -171,8 +171,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 		"/var/lib/ceph": struct{}{},
 	}
 
-	if len(dataOsd) != 0 {
-		testDev, err := getFileType(dataOsd)
+	if len(getUnderlyingStorage(flavor)) != 0 {
+		testDev, err := getFileType(getUnderlyingStorage(flavor))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -180,15 +180,15 @@ func runContainer(cmd *cobra.Command, args []string) {
 			log.Fatalf("We only accept a directory or a block device, however the specified file type is a %s", testDev)
 		}
 		if testDev == "directory" {
-			testEmptyDir := isEmpty(dataOsd)
+			testEmptyDir := isEmpty(getUnderlyingStorage(flavor))
 			if !testEmptyDir {
-				log.Fatal(dataOsd + " is not empty, doing nothing.")
+				log.Fatal(getUnderlyingStorage(flavor) + " is not empty, doing nothing.")
 			}
 			if runtime.GOOS == "linux" {
-				applySeLinuxLabel(dataOsd)
+				applySeLinuxLabel(getUnderlyingStorage(flavor))
 			}
-			envs = append(envs, "OSD_PATH="+dataOsd)
-			volumeBindings = append(volumeBindings, dataOsd+":"+dataOsd)
+			envs = append(envs, "OSD_PATH="+getUnderlyingStorage(flavor))
+			volumeBindings = append(volumeBindings, getUnderlyingStorage(flavor)+":"+getUnderlyingStorage(flavor))
 
 			// Did someone specify a particular size for cn data store in this directory?
 			if len(sizeBluestoreBlock) != 0 {
@@ -215,13 +215,13 @@ func runContainer(cmd *cobra.Command, args []string) {
 			// 3. test if they are partitions in that partition table (you can have a partition table with 0 partitions)
 
 			// First test: is the device opened by a process?!«
-			testDevOpen, _ := exclusiveOpenFailsOnDevice(dataOsd)
+			testDevOpen, _ := exclusiveOpenFailsOnDevice(getUnderlyingStorage(flavor))
 			if testDevOpen {
-				log.Fatal(dataOsd + " is accessed by another process, doing nothing.")
+				log.Fatal(getUnderlyingStorage(flavor) + " is accessed by another process, doing nothing.")
 			}
 
 			// Second test: search for filesystem and partition table
-			diskFormat := getDiskFormat(dataOsd)
+			diskFormat := getDiskFormat(getUnderlyingStorage(flavor))
 			lines := strings.Split(diskFormat, "\n")
 			var fstype, pttype string
 			for _, l := range lines {
@@ -237,7 +237,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 				// to https://www.kernel.org/pub/linux/utils/util-linux/v2.21/libblkid-docs/.
 				if cs[0] == "TYPE" {
 					fstype = cs[1]
-					log.Fatal(dataOsd + " has a filesystem: " + fstype + ", doing nothing.")
+					log.Fatal(getUnderlyingStorage(flavor) + " has a filesystem: " + fstype + ", doing nothing.")
 				} else if cs[0] == "PTTYPE" {
 					// Third test: number of partitions
 					pttype = cs[1]
@@ -250,15 +250,15 @@ func runContainer(cmd *cobra.Command, args []string) {
 					// So we remove the first 2 lines of the output
 					// The third one is always the partition number
 					partedUselessLinesCount := 2
-					num := getDiskPartitions(dataOsd)
+					num := getDiskPartitions(getUnderlyingStorage(flavor))
 					partCount := len(num) - partedUselessLinesCount
 					if partCount != 0 {
-						log.Fatal(dataOsd + " has a partition table type " + pttype + " and " + strconv.Itoa(partCount) + " partition(s) doing nothing.")
+						log.Fatal(getUnderlyingStorage(flavor) + " has a partition table type " + pttype + " and " + strconv.Itoa(partCount) + " partition(s) doing nothing.")
 					}
 				}
 			}
 			// If we arrive here, it should be safe to use the device.
-			envs = append(envs, "OSD_DEVICE="+dataOsd)
+			envs = append(envs, "OSD_DEVICE="+getUnderlyingStorage(flavor))
 			setPrivileged(flavor, true)
 			volumeBindings = append(volumeBindings, "/dev:/dev")
 			// place holder once 'demo' will use ceph-volume

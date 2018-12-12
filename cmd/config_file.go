@@ -79,6 +79,7 @@ func readConfigFile(customFile ...string) string {
 // Set the default values for defined types
 // If the configuration file is missing, this section will generated the mandatory elements
 func setDefaultConfig() {
+	// Handling the built-in flavor
 	viper.SetDefault(FLAVORS+".default.use_default", "true") // All containers inherit from default
 	viper.SetDefault(FLAVORS+".default.memory_size", "512MB")
 	viper.SetDefault(FLAVORS+".default.cpu_count", 1)
@@ -86,7 +87,10 @@ func setDefaultConfig() {
 	viper.SetDefault(FLAVORS+".large.memory_size", "1GB")
 	viper.SetDefault(FLAVORS+".huge.memory_size", "4GB")
 	viper.SetDefault(FLAVORS+".huge.cpu_count", 2)
+
+	// Handling the built-in image aliases
 	viper.SetDefault(IMAGES+".default.image_name", DEFAULTIMAGE)
+	// Setting up the aliases to be reported in 'image show-aliases' command
 	viper.SetDefault(IMAGES+".mimic.image_name", LATESTIMAGE+"mimic")
 	viper.SetDefault(IMAGES+".luminous.image_name", LATESTIMAGE+"luminous")
 	viper.SetDefault(IMAGES+".redhat.image_name", "registry.access.redhat.com/rhceph/rhceph-3-rhel7")

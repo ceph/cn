@@ -191,10 +191,10 @@ func runContainer(cmd *cobra.Command, args []string) {
 			volumeBindings = append(volumeBindings, getUnderlyingStorage(flavor)+":"+getUnderlyingStorage(flavor))
 
 			// Did someone specify a particular size for cn data store in this directory?
-			if len(sizeBluestoreBlock) != 0 {
-				sizeBluestoreBlockToBytes := toBytes(sizeBluestoreBlock)
+			if len(getSize(flavor)) != 0 {
+				sizeBluestoreBlockToBytes := toBytes(getSize(flavor))
 				if sizeBluestoreBlockToBytes == 0 {
-					log.Fatal("Wrong unit passed: ", sizeBluestoreBlock, ". Please refer to https://en.wikipedia.org/wiki/Byte.")
+					log.Fatal("Wrong unit passed: ", getSize(flavor), ". Please refer to https://en.wikipedia.org/wiki/Byte.")
 				}
 				envs = append(envs, "BLUESTORE_BLOCK_SIZE="+string(sizeBluestoreBlockToBytes))
 			}

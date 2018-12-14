@@ -81,6 +81,14 @@ func showFlavors(cmd *cobra.Command, args []string) {
 	flavor := FLAVORS + "." + flavorName
 	if isEntryExists(FLAVORS, flavorName) {
 		fmt.Println("\nDetails of the flavor " + flavorName + ":")
-		PrettyPrint(viper.Get(flavor))
+		if flavorName == "default" {
+			PrettyPrint(getDefaultParameters())
+		} else {
+			//PrettyPrint(viper.AllKeys())
+			PrettyPrint(viper.Get(flavor))
+		}
+	} else {
+		// The flavor doesn't exist, let's report an empty structure
+		fmt.Println("{}")
 	}
 }

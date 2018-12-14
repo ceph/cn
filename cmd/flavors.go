@@ -79,7 +79,7 @@ func listFlavors(cmd *cobra.Command, args []string) {
 func showFlavors(cmd *cobra.Command, args []string) {
 	flavorName := args[0]
 	flavor := FLAVORS + "." + flavorName
-	if viper.IsSet(flavor) {
+	if isEntryExists(FLAVORS, flavorName) {
 		fmt.Println("\nDetails of the flavor " + flavorName + ":")
 		PrettyPrint(viper.Get(flavor))
 	}

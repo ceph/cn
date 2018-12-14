@@ -127,7 +127,7 @@ func getInt64FromConfig(group string, item string, name string) int64 {
 		}
 	}
 	// We need to ensure the key exists unless that could populate a 0 value
-	if viper.IsSet(group + "." + item + "." + name) {
+	if isParameterExist(group, item, name) {
 		value = viper.GetInt64(group + "." + item + "." + name)
 		foundValue = true
 	}
@@ -189,4 +189,20 @@ func isEntryExists(group string, item string) bool {
 // Return items from a given group
 func getItemsFromGroup(group string) map[string]interface{} {
 	return viper.AllSettings()[group].(map[string]interface{})
+}
+
+// Does this parameter exist in the configuration
+func isParameterExist(group string, item string, parameter string) bool {
+	return viper.IsSet(group + "." + item + "." + parameter)
+}
+
+	// The default parameters are not reported by Get(), so let's search in all keys if we find it
+	for _, param := range viper.AllKeys() {
+		if strings.HasPrefix(param, group+"."+item+"."+parameter) {
+			return true
+		}
+	}
+	//fmt.Println(viper.AllKeys())
+	// We didn't find anything
+	return false
 }

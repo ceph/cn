@@ -77,12 +77,12 @@ func cliClusterStart() *cobra.Command {
 // startNano starts Ceph Nano
 func startNano(cmd *cobra.Command, args []string) {
 
-	// Ensure the flavor exists or report an error
-	if !isEntryExists(FLAVORS, flavor) {
+	// Ensure the flavor exist or report an error
+	if !isEntryExist(FLAVORS, flavor) {
 		if len(configurationFile) == 0 {
 			log.Fatal("Using flavors requires a configuration file")
 		}
-		log.Fatal("The flavor " + flavor + " doesn't exists")
+		log.Fatal("The flavor " + flavor + " doesn't exist")
 	}
 	// Test for a leftover container
 	// Usually happens when someone fails to run the container on an exposed directory

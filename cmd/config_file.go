@@ -176,7 +176,7 @@ func getStringMapFromConfig(group string, item string, name string) map[string]i
 	return defaultConfig
 }
 
-func isEntryExists(group string, item string) bool {
+func isEntryExist(group string, item string) bool {
 	return viper.IsSet(group + "." + item)
 }
 

@@ -25,6 +25,7 @@ package cmd
 import (
 	"log"
 	"path"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -60,6 +61,10 @@ func readConfigFile(customFile ...string) string {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		// Let's import all the default value into flavors
+		mergeFlavorsWithDefault()
+
 		// We return the configuration file found
 		return viper.ConfigFileUsed()
 	}
@@ -71,6 +76,8 @@ func readConfigFile(customFile ...string) string {
 	viper.AddConfigPath(".")          // optionally look for config in the working directory
 	// Let's try to read a configuration file
 	if viper.ReadInConfig() == nil {
+		// Let's import all the default value into flavors
+		mergeFlavorsWithDefault()
 		// We return the configuration file found
 		return viper.ConfigFileUsed()
 	}
@@ -83,7 +90,7 @@ func readConfigFile(customFile ...string) string {
 // If the configuration file is missing, this section will generated the mandatory elements
 func setDefaultConfig() {
 	// Handling the built-in flavor
-	viper.SetDefault(FLAVORS+".default.use_default", "true") // All containers inherit from default
+	viper.SetDefault(FLAVORS+".default.use_default", true) // All containers inherit from default
 	viper.SetDefault(FLAVORS+".default.memory_size", "512MB")
 	viper.SetDefault(FLAVORS+".default.cpu_count", 1)
 	viper.SetDefault(FLAVORS+".default.privileged", false)
@@ -96,6 +103,7 @@ func setDefaultConfig() {
 	viper.SetDefault(FLAVORS+".huge.cpu_count", 2)
 
 	// Handling the built-in image aliases
+	viper.SetDefault(IMAGES+".default.use_default", true) // All containers inherit from default
 	viper.SetDefault(IMAGES+".default.image_name", DEFAULTIMAGE)
 	// Setting up the aliases to be reported in 'image show-aliases' command
 	viper.SetDefault(IMAGES+".mimic.image_name", LATESTIMAGE+"mimic")
@@ -106,9 +114,6 @@ func setDefaultConfig() {
 func getStringFromConfig(group string, item string, name string) string {
 	var value = ""
 	// If we are requested to get the status of use_default, we cannot call useDefault ;)
-	if name == "use_default" || useDefault(group, item) {
-		value = viper.GetString(group + ".default." + name)
-	}
 	itemValue := viper.GetString(group + "." + item + "." + name)
 	if len(itemValue) > 0 {
 		value = itemValue
@@ -119,13 +124,7 @@ func getStringFromConfig(group string, item string, name string) string {
 func getInt64FromConfig(group string, item string, name string) int64 {
 	var value int64
 	var foundValue = false
-	if useDefault(group, item) {
-		// We need to ensure the key exists unless that could populate a 0 value
-		if viper.IsSet(group + ".default." + name) {
-			value = viper.GetInt64(group + ".default." + name)
-			foundValue = true
-		}
-	}
+
 	// We need to ensure the key exists unless that could populate a 0 value
 	if isParameterExist(group, item, name) {
 		value = viper.GetInt64(group + "." + item + "." + name)
@@ -133,39 +132,34 @@ func getInt64FromConfig(group string, item string, name string) int64 {
 	}
 
 	if !foundValue {
-		log.Fatal(name + " int64 value in " + item + "doesn't exists")
+		log.Fatal(name + " int64 value in " + item + "doesn't exist")
 	}
 	return value
 }
 
 func getBoolFromConfig(group string, item string, name string) bool {
-	var value bool
-	var foundValue = false
-	if useDefault(group, item) {
-		// We need to ensure the key exists unless that could populate a 0 value
-		if viper.IsSet(group + ".default." + name) {
-			value = viper.GetBool(group + ".default." + name)
-			foundValue = true
-		}
-	}
-	// We need to ensure the key exists unless that could populate a 0 value
-	if viper.IsSet(group + "." + item + "." + name) {
-		value = viper.GetBool(group + "." + item + "." + name)
-		foundValue = true
+	// We need to ensure the key exist unless that could populate a wrong value
+	if isParameterExist(group, item, name) {
+		return viper.GetBool(group + "." + item + "." + name)
 	}
 
-	if !foundValue {
-		log.Fatal(name + " bool value in " + item + "doesn't exists")
+	// If we are reaching this point, let's check if we are in the chicken/egg case trigger by mergeFlavorsWithDefault
+	// As mergeFlavorsWithDefault checks if use_default is while its not yet populated
+	// In such case, we should read the default first
+	if name == "use_default" {
+		if isParameterExist(group, "default", name) {
+			return viper.GetBool(group + ".default." + name)
+		}
 	}
-	return value
+
+	// If we reach that point, that means this bool doesn't exist
+	log.Fatal(name + " bool value in " + item + " doesn't exist")
+	// We cannot reach this point
+	return false
 }
 
 func useDefault(group string, item string) bool {
-	useDefaultValue := getStringFromConfig(group, item, "use_default")
-	if (len(useDefaultValue) > 0) && (useDefaultValue == "true") {
-		return true
-	}
-	return false
+	return getBoolFromConfig(group, item, "use_default")
 }
 
 func getStringMapFromConfig(group string, item string, name string) map[string]interface{} {
@@ -196,13 +190,43 @@ func isParameterExist(group string, item string, parameter string) bool {
 	return viper.IsSet(group + "." + item + "." + parameter)
 }
 
-	// The default parameters are not reported by Get(), so let's search in all keys if we find it
+// Afunction to list the default parameters as they are not seen
+func getDefaultParameters() map[string]interface{} {
+	returnValue := make(map[string]interface{})
+	// For each keys in the configuration
 	for _, param := range viper.AllKeys() {
-		if strings.HasPrefix(param, group+"."+item+"."+parameter) {
-			return true
+		// If there is a default entry
+		if strings.HasPrefix(param, FLAVORS+".default.") {
+			// extract the parameter name
+			parameter := strings.SplitAfter(param, FLAVORS+".default.")[1]
+			// Let's return the association parameter/value
+			returnValue[parameter] = viper.Get(param)
 		}
 	}
-	//fmt.Println(viper.AllKeys())
-	// We didn't find anything
-	return false
+	return returnValue
+}
+
+// Considering the use_default value, let's merge the default values in other flavors
+func mergeFlavorsWithDefault() {
+	// For each flavor
+	for flavor := range getItemsFromGroup(FLAVORS) {
+
+		// Let's skip the default flavor
+		if flavor == "default" {
+			continue
+		}
+
+		// Nothing to do if the flavor set the use_default=false
+		if !useDefault(FLAVORS, flavor) {
+			continue
+		}
+		// For every default parameter
+		for defaultParameter, defaultValue := range getDefaultParameters() {
+			// If the flavor doesn't define it
+			if viper.Get(FLAVORS+"."+flavor+"."+defaultParameter) == nil {
+				// Let's copy the default value in this flavor
+				viper.SetDefault(FLAVORS+"."+flavor+"."+defaultParameter, defaultValue)
+			}
+		}
+	}
 }

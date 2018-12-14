@@ -905,7 +905,7 @@ func getImageName(customImageName ...string) string {
 	}
 	// If there is a '-i' argument, let's check if the entry exists
 	// If there is one, let's return the image_name of it
-	if isEntryExists(IMAGES, image_name) {
+	if isEntryExist(IMAGES, image_name) {
 		return getImageNameFromConfig(image_name)
 	}
 

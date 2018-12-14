@@ -31,18 +31,50 @@ import (
 
 var configFile = "cn-test.toml"
 
+func TestDefaultConfig(t *testing.T) {
+	// Testing the builtin configuration
+	assert.Equal(t, "512MB", getMemorySize("default"))
+	assert.Equal(t, "4GB", getMemorySize("huge"))
+	assert.Equal(t, int64(1), getCPUCount("default"))
+	assert.Equal(t, int64(2), getCPUCount("huge"))
+	assert.Equal(t, DEFAULTWORKDIRECTORY, getWorkDirectory("default"))
+	assert.Equal(t, true, isEntryExists(FLAVORS, "default.use_default"))
+	assert.Equal(t, false, isEntryExists(FLAVORS, "default.nawak"))
+	assert.Equal(t, false, getPrivileged("default"))
+	setPrivileged("default", true)
+	assert.Equal(t, true, getPrivileged("default"))
+	setPrivileged("default", false)
+	assert.Equal(t, "", getSize("default"))
+
+	defaultImageName := imageName
+	// Without any configuration file, the default should be satisfied
+	assert.Equal(t, DEFAULTIMAGE, getImageName())
+
+	// Without any configuration file, any -i argument should be preserved
+	imageName = "nawak"
+	assert.Equal(t, "nawak", getImageName())
+
+	// The default builtin should be kept too
+	imageName = "mimic"
+	assert.Equal(t, LATESTIMAGE+"mimic", getImageName())
+
+	imageName = defaultImageName
+	assert.Equal(t, "", getUnderlyingStorage("default"))
+}
+
+func TestReadConfigFile(t *testing.T) {
+	assert.Equal(t, configFile, readConfigFile(configFile))
+}
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// STARTING HERE ALL TESTS ARE RUN AGAINST A CONFIGURATION FILE
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 func TestTitle(t *testing.T) {
-	readConfigFile(configFile)
 	assert.Equal(t, "Ceph Nano test configuration file", viper.Get("title"))
 }
 
 func TestMemorySize(t *testing.T) {
-	// Testing the builtin configuration
-	assert.Equal(t, "512MB", getMemorySize("default"))
-	assert.Equal(t, "4GB", getMemorySize("huge"))
-
-	// Testing with a configuration file
-	readConfigFile(configFile)
 	assert.Equal(t, "512MB", getMemorySize("test_nano_default"))
 	assert.Equal(t, int64(536870912), getMemorySizeInBytes("test_nano_default"))
 	assert.Equal(t, "1GB", getMemorySize("test_nano_no_default"))
@@ -50,13 +82,11 @@ func TestMemorySize(t *testing.T) {
 }
 
 func TestUseDefault(t *testing.T) {
-	readConfigFile(configFile)
 	assert.Equal(t, false, useDefault(FLAVORS, "test_nano_no_default"))
 	assert.Equal(t, true, useDefault(FLAVORS, "test_nano_default"))
 }
 
 func TestCephConf(t *testing.T) {
-	readConfigFile(configFile)
 	assert.Equal(t, map[string]interface{}{"osd_memory_target": int64(3841234556)}, getCephConf("test_nano_no_default"))
 	expectedOutput := map[string]interface{}{
 		"bluestore_cache_autotune_chunk_size": int64(8388608),
@@ -72,99 +102,59 @@ func TestCephConf(t *testing.T) {
 }
 
 func TestCPUCount(t *testing.T) {
-	// Testing the builtin configuration
-	assert.Equal(t, int64(1), getCPUCount("default"))
-	assert.Equal(t, int64(2), getCPUCount("huge"))
-
-	// Testing with a configuration file
-	readConfigFile(configFile)
 	assert.Equal(t, int64(1), getCPUCount("test_nano_default"))
 	assert.Equal(t, int64(2), getCPUCount("test_nano_no_default"))
 }
 
-func TestIsEntryExist(t *testing.T) {
-	assert.Equal(t, true, isEntryExists(FLAVORS, "default.use_default"))
-	assert.Equal(t, false, isEntryExists(FLAVORS, "default.nawak"))
-}
-
 func TestPrivileged(t *testing.T) {
-	// Test the builtin values of privileged
-	assert.Equal(t, false, getPrivileged("default"))
-	setPrivileged("default", true)
-	assert.Equal(t, true, getPrivileged("default"))
-
-	// Test values coming from the configuration file
-	readConfigFile(configFile)
 	assert.Equal(t, true, getPrivileged("test_nano_no_default"))
 }
 
 func TestImageName(t *testing.T) {
-	// There is no configuration file
-	configurationFile = ""
-
-	// Without any configuration file, the default should be satisfied
-	assert.Equal(t, DEFAULTIMAGE, getImageName())
-
-	// Without any configuration file, any -i argument should be preserved
-	imageName = "nawak"
-	assert.Equal(t, "nawak", getImageName())
-
-	// The default builtin should be kept too
-	imageName = "mimic"
-	assert.Equal(t, LATESTIMAGE+"mimic", getImageName())
-
-	// Now, we have a configuration file
-	configurationFile = readConfigFile(configFile)
-
+	defaultImageName := imageName
 	// Let's ensure the basic reading of the configuration file works
 	assert.Equal(t, "ceph/daemon:latest-real1", getImageNameFromConfig("real1"))
 
 	// If a -i is passed with a configuration file, let's report the image_name from the configuration file
 	imageName = "complex"
 	assert.Equal(t, "this.url.is.complex/cool/for-a-test", getImageName())
+	imageName = defaultImageName
 }
 
 func TestUnderlyingStorage(t *testing.T) {
-	// Test the builtin values
-	assert.Equal(t, "", getUnderlyingStorage("default"))
-
-	// Now, we have a configuration file
-	readConfigFile(configFile)
-
+	defaultDataOsd := dataOsd
 	// Ensure the values are properly read from the configuration file
 	assert.Equal(t, "/dev/sdb1", getUnderlyingStorage("test_nano_no_default"))
 
 	// Ensure that enforcing a flags on the CLI is taking over the configuration
 	dataOsd = "/dev/nawak"
 	assert.Equal(t, "/dev/nawak", getUnderlyingStorage("test_nano_no_default"))
+	dataOsd = defaultDataOsd
 }
 
 func TestSize(t *testing.T) {
-	// Test the builtin values
-	assert.Equal(t, "", getSize("default"))
-
-	// Now, we have a configuration file
-	readConfigFile(configFile)
-
+	defaultSizeBluestoreBlock := sizeBluestoreBlock
 	// Ensure the values are properly read from the configuration file
 	assert.Equal(t, "20GB", getSize("test_nano_no_default"))
 
 	// Ensure that enforcing a flags on the CLI is taking over the configuration
 	sizeBluestoreBlock = "1M"
 	assert.Equal(t, "1M", getSize("test_nano_no_default"))
+	sizeBluestoreBlock = defaultSizeBluestoreBlock
 }
 
 func TestWorkDirectory(t *testing.T) {
-	// Test the builtin values
-	assert.Equal(t, DEFAULTWORKDIRECTORY, getWorkDirectory("default"))
-
-	// Now, we have a configuration file
-	readConfigFile(configFile)
-
+	defaultWorkingDirectory := workingDirectory
 	// Ensure the values are properly read from the configuration file
 	assert.Equal(t, "/tmp/nano/", getWorkDirectory("test_nano_no_default"))
 
 	// Ensure that enforcing a flags on the CLI is taking over the configuration
 	workingDirectory = "/tmp/nawak"
 	assert.Equal(t, "/tmp/nawak", getWorkDirectory("test_nano_no_default"))
+	workingDirectory = defaultWorkingDirectory
+}
+
+func TestMerge(t *testing.T) {
+	assert.Equal(t, false, isParameterExist(FLAVORS, "test_nano_no_default", "new_param"))
+	assert.Equal(t, true, isParameterExist(FLAVORS, "test_nano_default", "new_param"))
 }

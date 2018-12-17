@@ -112,13 +112,15 @@ func setDefaultConfig() {
 }
 
 func getStringFromConfig(group string, item string, name string) string {
-	var value string
-	// If we are requested to get the status of use_default, we cannot call useDefault ;)
-	itemValue := viper.GetString(group + "." + item + "." + name)
-	if len(itemValue) > 0 {
-		value = itemValue
+	// We need to ensure the key exists unless that could populate an empty string
+	if isParameterExist(group, item, name) {
+		return viper.GetString(group + "." + item + "." + name)
 	}
-	return value
+
+	log.Fatal(name + " string value in " + item + "doesn't exist")
+
+	// We never reach this point
+	return ""
 }
 
 func getInt64FromConfig(group string, item string, name string) int64 {

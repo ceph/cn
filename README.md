@@ -101,6 +101,7 @@ Available Commands:
   version      Print the version of cn
   kube         Outputs cn kubernetes template (cn kube > kube-cn.yml)
   update-check Print cn current and latest version number
+  flavors      Interact with flavors
 
 Flags:
   -h, --help   help for cn
@@ -125,6 +126,15 @@ S3 secret key is: Ap8ue6ait0MqgnCIKT7UrCRJGLUoyBhtS2McbNxE
 S3 object server address is: http://10.36.116.164:8001
 Ceph Nano browser address is: http://10.36.116.164:5001
 ```
+
+### Selecting the cluster flavor
+Is it possible to select the cluster flavor by using the ``-f `` option on the command line.
+
+```
+$ ./cn cluster start mycluster -f huge
+```
+
+The full documentation of flavors can be found [here](CONFIGURATION.md)
 
 ## Your first S3 bucket
 
@@ -159,16 +169,36 @@ $ ./cn cluster ls
 
 ```
 $ ./cn image ls
-ceph/daemon:master-a104cb7-jewel-ubuntu-16.04-x86_64
-ceph/daemon:master-a104cb7-kraken-ubuntu-16.04-x86_64
-ceph/daemon:master-a104cb7-jewel-ubuntu-14.04-x86_64
-ceph/daemon:master-a104cb7-kraken-centos-7-x86_64
-ceph/daemon:master-a104cb7-luminous-centos-7-x86_64
-ceph/daemon:master-a104cb7-luminous-ubuntu-16.04-x86_64
-ceph/daemon:master-a104cb7-jewel-centos-7-x86_64
-ceph/daemon:master-5f44af9-kraken-ubuntu-16.04-x86_64
-ceph/daemon:master-5f44af9-kraken-centos-7-x86_64
-...
-...
-...
+ceph/daemon:latest-mimic
+ceph/daemon:latest-luminous
+ceph/daemon:latest-master
+ceph/daemon:master-0b3eb04-mimic-centos-7
+ceph/daemon:master-0b3eb04-luminous-centos-7
+ceph/daemon:master-0b3eb04-luminous-opensuse-42.3-x86_64
+ceph/daemon:master-0b3eb04-master-centos-7-x86_64
+ceph/daemon:master-0b3eb04-luminous-centos-7-x86_64
+ceph/daemon:master-0b3eb04-mimic-centos-7-x86_64
+[...]
 ```
+
+### Using images aliases
+The image option (`-i`) support aliases to simply the command line.
+It is possible to list the aliases by running the `image show-aliases` command as per below :
+
+```
+$ ./cn image show-aliases
++----------+--------------------------------------------------+
+| ALIAS    | IMAGE_NAME                                       |
++----------+--------------------------------------------------+
+| mimic    | ceph/daemon:latest-mimic                         |
+| luminous | ceph/daemon:latest-luminous                      |
+| redhat   | registry.access.redhat.com/rhceph/rhceph-3-rhel7 |
++----------+--------------------------------------------------+
+```
+Aliases can be use in place of the traditional image name as per the following example:
+
+```
+$ ./cn cluster start mycluster -i mimic
+```
+
+It is also possible to create new aliases as detailed [here](CONFIGURATION.md)

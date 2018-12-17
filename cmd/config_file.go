@@ -30,10 +30,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-//FLAVORS is a constant to represent the [flavors] group
+// FLAVORS is a constant to represent the [flavors] group
 const FLAVORS = "flavors"
 
-//IMAGES is a constant to represent the [images] group
+// IMAGES is a constant to represent the [images] group
 const IMAGES = "images"
 
 // DEFAULTIMAGE is the default image name to be used
@@ -62,7 +62,7 @@ func readConfigFile(customFile ...string) string {
 			log.Fatal(err)
 		}
 
-		// Let's import all the default value into flavors
+		// Let's import all the default values into flavors
 		mergeFlavorsWithDefault()
 
 		// We return the configuration file found
@@ -87,7 +87,7 @@ func readConfigFile(customFile ...string) string {
 }
 
 // Set the default values for defined types
-// If the configuration file is missing, this section will generated the mandatory elements
+// If the configuration file is missing, this section will generate the mandatory elements
 func setDefaultConfig() {
 	// Handling the built-in flavor
 	viper.SetDefault(FLAVORS+".default.use_default", true) // All containers inherit from default
@@ -112,7 +112,7 @@ func setDefaultConfig() {
 }
 
 func getStringFromConfig(group string, item string, name string) string {
-	var value = ""
+	var value string
 	// If we are requested to get the status of use_default, we cannot call useDefault ;)
 	itemValue := viper.GetString(group + "." + item + "." + name)
 	if len(itemValue) > 0 {
@@ -143,9 +143,10 @@ func getBoolFromConfig(group string, item string, name string) bool {
 		return viper.GetBool(group + "." + item + "." + name)
 	}
 
-	// If we are reaching this point, let's check if we are in the chicken/egg case trigger by mergeFlavorsWithDefault
-	// As mergeFlavorsWithDefault checks if use_default is while its not yet populated
-	// In such case, we should read the default first
+	// If we are reaching this point, let's check if we are in the chicken/egg case triggered by mergeFlavorsWithDefault()
+	// mergeFlavorsWithDefault() checks if 'use_default' is set while its not yet populated.
+	// As use_default is a bool, this function is called and the default value should be considered by reading the default value directly.
+	// Default values are usually set by mergeFlavorsWithDefault(). That's why getting a default value of use_default makes chicken/egg case.
 	if name == "use_default" {
 		if isParameterExist(group, "default", name) {
 			return viper.GetBool(group + ".default." + name)
@@ -190,7 +191,7 @@ func isParameterExist(group string, item string, parameter string) bool {
 	return viper.IsSet(group + "." + item + "." + parameter)
 }
 
-// Afunction to list the default parameters as they are not seen
+// A function to list the default parameters as they are not always seen
 func getDefaultParameters() map[string]interface{} {
 	returnValue := make(map[string]interface{})
 	// For each keys in the configuration
@@ -216,7 +217,7 @@ func mergeFlavorsWithDefault() {
 			continue
 		}
 
-		// Nothing to do if the flavor set the use_default=false
+		// Nothing to do if the flavor sets the use_default=false
 		if !useDefault(FLAVORS, flavor) {
 			continue
 		}

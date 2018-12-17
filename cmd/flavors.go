@@ -59,10 +59,11 @@ func cliFlavorsList() *cobra.Command {
 // cliFlavorsShow is the Cobra CLI call
 func cliFlavorsShow() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show",
-		Short: "Show a flavor",
-		Args:  cobra.ExactArgs(1),
-		Run:   showFlavors,
+		Use:                   "show [flavor]",
+		Short:                 "Show a flavor",
+		Args:                  cobra.ExactArgs(1),
+		Run:                   showFlavors,
+		DisableFlagsInUseLine: true,
 	}
 	return cmd
 }
@@ -80,7 +81,7 @@ func showFlavors(cmd *cobra.Command, args []string) {
 	flavorName := args[0]
 	flavor := FLAVORS + "." + flavorName
 	if isEntryExist(FLAVORS, flavorName) {
-		fmt.Println("\nDetails of the flavor " + flavorName + ":")
+		fmt.Println("Details of the flavor " + flavorName + ":")
 		if flavorName == "default" {
 			PrettyPrint(getDefaultParameters())
 		} else {

@@ -940,17 +940,17 @@ func getMemorySize(containerFlavor string) string {
 	return getStringFromConfig(FLAVORS, containerFlavor, "memory_size")
 }
 
-// getMemorySizeInBytes transform a user-defined input (like 1GB) in bytes
+// getMemorySizeInBytes transforms a user-defined input (like 1GB) in bytes
 func getMemorySizeInBytes(containerFlavor string) int64 {
 	return toBytes(getMemorySize(containerFlavor))
 }
 
-// getCPUCount return the number of CPUs for a flavor
+// getCPUCount returns the number of CPUs for a flavor
 func getCPUCount(containerFlavor string) int64 {
 	return getInt64FromConfig(FLAVORS, containerFlavor, "cpu_count")
 }
 
-//getCephConf return the Ceph configuration for a flavor
+//getCephConf returns the Ceph configuration for a flavor
 func getCephConf(containerFlavor string) map[string]interface{} {
 	return getStringMapFromConfig(FLAVORS, containerFlavor, "ceph.conf")
 }

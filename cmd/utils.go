@@ -473,17 +473,12 @@ func dockerInspect(containerName string, pattern string) string {
 		log.Fatal(err)
 	}
 
-	if pattern == "Binds" {
-		parts := strings.Split(inspect.HostConfig.Binds[0], ":")
-		return parts[0]
-	}
-
-	if pattern == "PortBindingsRgw" {
-		parts := strings.Split(inspect.Config.Env[0], "=")
-		return parts[1]
-	}
-
-	if pattern == "PortBindingsBrowser" {
+	switch pattern {
+	case "Binds":
+		return strings.Split(inspect.HostConfig.Binds[0], ":")[0]
+	case "PortBindingsRgw":
+		return strings.Split(inspect.Config.Env[0], "=")[1]
+	case "PortBindingsBrowser":
 		parts := strings.Split(inspect.Config.Env[1], "=")
 		// test if parts[1] could be a number, this handle the case where you are running cn
 		// with an old container image with no UI inside
@@ -491,13 +486,12 @@ func dockerInspect(containerName string, pattern string) string {
 			return parts[1]
 		}
 		return "NoUIYet"
-	}
 
-	// The part is helpful when passing a dedicated directory to store Ceph's data
-	// We look for bindmounts, if we find more than 1 (the first one is the work-dir)
-	// then this means we passed a dedicated directory, this is used by the purge function
-	// to remove the OSD data content once we purge the cluster
-	if pattern == "BindsData" {
+	case "BindsData":
+		// The part is helpful when passing a dedicated directory to store Ceph's data
+		// We look for bindmounts, if we find more than 1 (the first one is the work-dir)
+		// then this means we passed a dedicated directory, this is used by the purge function
+		// to remove the OSD data content once we purge the cluster
 		parts := inspect.HostConfig.Binds
 		if len(inspect.HostConfig.Binds) >= 2 {
 			parts = strings.Split(parts[1], ":")
@@ -505,11 +499,18 @@ func dockerInspect(containerName string, pattern string) string {
 			return "noDataDir"
 		}
 		return parts[1]
-	}
 
-	// this assumes a default that we are looking for the image name
-	parts := inspect.Config.Image
-	return parts
+	case "flavor":
+		flavor := inspect.Config.Labels["flavor"]
+		if len(flavor) > 0 {
+			return flavor
+		}
+		return "unknown"
+
+	default:
+		// this assumes a default that we are looking for the image name
+		return inspect.Config.Image
+	}
 }
 
 // inspectImage inspects a given image

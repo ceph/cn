@@ -59,7 +59,7 @@ func showNanoClusters() {
 	}
 
 	table := termtables.CreateTable()
-	table.AddHeaders("NAME", "STATUS", "IMAGE", "IMAGE RELEASE", "IMAGE CREATION TIME")
+	table.AddHeaders("NAME", "STATUS", "IMAGE", "IMAGE RELEASE", "IMAGE CREATION TIME", "FLAVOR")
 
 	// run the loop on both indexes, it's fine they have the same length
 	for _, container := range containers {
@@ -71,8 +71,9 @@ func showNanoClusters() {
 				containerImgCreated := inspectImage(container.ImageID[7:], "created")
 				containerImgRelease := inspectImage(container.ImageID[7:], "release")
 				containerNameToShow := container.Names[i][len(containerNamePrefix):]
+				containerFlavor := dockerInspect(container.Names[i], "flavor")
 				// We trim again so we can remove the '/' since container name returned is /ceph-nano
-				table.AddRow(containerNameToShow[1:], container.State, containerImgTag, containerImgRelease, containerImgCreated)
+				table.AddRow(containerNameToShow[1:], container.State, containerImgTag, containerImgRelease, containerImgCreated, containerFlavor)
 			}
 		}
 	}

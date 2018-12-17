@@ -79,9 +79,6 @@ func startNano(cmd *cobra.Command, args []string) {
 
 	// Ensure the flavor exist or report an error
 	if !isEntryExist(FLAVORS, flavor) {
-		if len(configurationFile) == 0 {
-			log.Fatal("Using flavors requires a configuration file")
-		}
 		log.Fatal("The flavor " + flavor + " doesn't exist")
 	}
 	// Test for a leftover container

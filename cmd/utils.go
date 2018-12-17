@@ -519,21 +519,26 @@ func inspectImage(ImageID string, dataType string) string {
 		// sometimes the image does not exist anymore, we want to report that
 		return "image is not present, did you remove it?"
 	}
-	if dataType == "tag" {
+
+	switch dataType {
+
+	case "tag":
 		// If the tag disappeared, probably because a newer tag with a same appeared
 		// Let's return RepoDigests
 		if len(i.RepoTags) == 0 {
 			return strings.Join(i.RepoDigests, "")
 		}
 		return i.RepoTags[0]
-	}
-	if dataType == "created" {
+
+	case "created":
 		return i.Created
+
+	default:
+		if len(i.ContainerConfig.Labels["RELEASE"]) == 0 {
+			return "unknown image release, are you running an official image?"
+		}
+		return i.ContainerConfig.Labels["RELEASE"]
 	}
-	if len(i.ContainerConfig.Labels["RELEASE"]) == 0 {
-		return "unknown image release, are you running an official image?"
-	}
-	return i.ContainerConfig.Labels["RELEASE"]
 }
 
 // pullImage downloads the container image

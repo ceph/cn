@@ -40,14 +40,16 @@ mv vendor/* Godeps/_workspace/src/
 %build
 export GOPATH=$(pwd):$(pwd)/Godeps/_workspace:%{gopath}
 export LDFLAGS="$LDFLAGS -X main.version=%{source_version}"
-%gobuild -o bin/cn main.go 
+%gobuild -o bin/cn main.go
 
 %install
 install -D -p -m 755 bin/cn %{buildroot}%{_bindir}/cn
+install -D -p -m 644 cn.toml %{buildroot}%{_sysconfdir}/cn/
 
 %files
 %doc README.md
 %{_bindir}/cn
+%{_sysconfdir}/cn/cn.toml
 
 %changelog
 * Thu Nov 22 2018  Erwan Velu <evelu@redhat.com> - 2.0.4-1

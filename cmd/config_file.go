@@ -218,6 +218,9 @@ func getDefaultParameters() map[string]interface{} {
 func mergeFlavorsWithDefault() {
 	// For each flavor
 	for flavor := range getItemsFromGroup(FLAVORS) {
+		// Adding the name of the flavor in the flavor itself
+		// This is useful to render it to users
+		viper.SetDefault(FLAVORS+"."+flavor+".name", flavor)
 
 		// Let's skip the default flavor
 		if flavor == "default" {

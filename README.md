@@ -54,19 +54,19 @@ Open your terminal and download the cn binary.
 macOS:
 
 ```
-curl -L https://github.com/ceph/cn/releases/download/v2.0.4/cn-v2.0.4-darwin-amd64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v2.1.0/cn-v2.1.0-darwin-amd64 -o cn && chmod +x cn
 ```
 
 Linux amd64:
 
 ```
-curl -L https://github.com/ceph/cn/releases/download/v2.0.4/cn-v2.0.4-linux-amd64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v2.1.0/cn-v2.1.0-linux-amd64 -o cn && chmod +x cn
 ```
 
 Linux arm64:
 
 ```
-curl -L https://github.com/ceph/cn/releases/download/v2.0.4/cn-v2.0.4-linux-arm64 -o cn && chmod +x cn
+curl -L https://github.com/ceph/cn/releases/download/v2.1.0/cn-v2.1.0-linux-arm64 -o cn && chmod +x cn
 ```
 
 Test it out

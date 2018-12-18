@@ -81,7 +81,6 @@ func showFlavors(cmd *cobra.Command, args []string) {
 	flavorName := args[0]
 	flavor := FLAVORS + "." + flavorName
 	if isEntryExist(FLAVORS, flavorName) {
-		fmt.Println("Details of the flavor " + flavorName + ":")
 		if flavorName == "default" {
 			PrettyPrint(getDefaultParameters())
 		} else {

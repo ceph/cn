@@ -102,6 +102,7 @@ Available Commands:
   kube         Outputs cn kubernetes template (cn kube > kube-cn.yml)
   update-check Print cn current and latest version number
   flavors      Interact with flavors
+  completion   Generates bash completion scripts
 
 Flags:
   -h, --help   help for cn

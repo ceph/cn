@@ -31,6 +31,19 @@ function commit_spec_file {
     commit_and_push "Packaging: Update specfile version to $TRAVIS_TAG"
 }
 
+function commit_bash_completion {
+    COMPLETION_FILE="contrib/cn_completion.sh"
+
+    # Generating the new completion file
+    ./cn completion > $COMPLETION_FILE
+
+    # Does the completion file being modified
+    if git ls-files -m | grep -q "$COMPLETION_FILE"; then
+        git add $COMPLETION_FILE
+        commit_and_push "contrib: Updating bash completion script"
+    fi
+}
+
 function commit_changed_readme {
     # we replace the n-1 tag with the last one
     sed -i "s/$PENULTIMATE_TAG/$TRAVIS_TAG/g" README.md
@@ -66,6 +79,7 @@ if [[ "$1" == "tag-release" ]]; then
         setup_git
         commit_spec_file
         commit_changed_readme
+        commit_bash_completion
     else
         echo "Not running on a tag, nothing to do!"
     fi

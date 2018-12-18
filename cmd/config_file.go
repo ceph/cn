@@ -46,11 +46,16 @@ const LATESTIMAGE = DEFAULTIMAGE + ":latest-"
 const DEFAULTWORKDIRECTORY = "/usr/share/ceph-nano"
 
 func readConfigFile(customFile ...string) string {
+	// By default, we consider there is no configuration file
+	var configurationFile string
+
+	// Loading the builtin values
 	setDefaultConfig()
 
 	// A custom configuration file got passed
 	// Let's handle it directly
 	if len(customFile) > 0 {
+		// customFile is an array of optional arguments
 		var filename = path.Base(customFile[0])
 		var fileDir = path.Dir(customFile[0])
 		viper.SetConfigFile(filename)
@@ -62,28 +67,28 @@ func readConfigFile(customFile ...string) string {
 			log.Fatal(err)
 		}
 
-		// Let's import all the default values into flavors
-		mergeFlavorsWithDefault()
-
-		// We return the configuration file found
-		return viper.ConfigFileUsed()
+		configurationFile = viper.ConfigFileUsed()
+		goto out
 	}
 
-	// Let's search for a configuration file
+	// Let's search for a configuration file on the system
 	viper.SetConfigName("cn")         // name of config file (without extension)
 	viper.AddConfigPath("/etc/cn/")   // path to look for the config file in
 	viper.AddConfigPath("$HOME/.cn/") // call multiple times to add many search paths
 	viper.AddConfigPath(".")          // optionally look for config in the working directory
-	// Let's try to read a configuration file
+
+	// Let's try to read an optional configuration file
 	if viper.ReadInConfig() == nil {
-		// Let's import all the default value into flavors
-		mergeFlavorsWithDefault()
-		// We return the configuration file found
-		return viper.ConfigFileUsed()
+		configurationFile = viper.ConfigFileUsed()
+		goto out
 	}
 
-	// No configuration file is used aka compatiblity mode
-	return ""
+	// 'Out' label is a place to exit this function properly
+out:
+	// Let's import all the default value into flavors (builtins + customs from configuration file)
+	mergeFlavorsWithDefault()
+	// Returning the actual configuration file
+	return configurationFile
 }
 
 // Set the default values for defined types
@@ -92,7 +97,7 @@ func setDefaultConfig() {
 	// Handling the built-in flavor
 	viper.SetDefault(FLAVORS+".default.use_default", true) // All containers inherit from default
 	viper.SetDefault(FLAVORS+".default.memory_size", "512MB")
-	viper.SetDefault(FLAVORS+".default.cpu_count", 1)
+	viper.SetDefault(FLAVORS+".default.cpu_count", int64(1))
 	viper.SetDefault(FLAVORS+".default.privileged", false)
 	viper.SetDefault(FLAVORS+".default.data", "")
 	viper.SetDefault(FLAVORS+".default.size", "")
@@ -100,7 +105,7 @@ func setDefaultConfig() {
 	viper.SetDefault(FLAVORS+".medium.memory_size", "768MB")
 	viper.SetDefault(FLAVORS+".large.memory_size", "1GB")
 	viper.SetDefault(FLAVORS+".huge.memory_size", "4GB")
-	viper.SetDefault(FLAVORS+".huge.cpu_count", 2)
+	viper.SetDefault(FLAVORS+".huge.cpu_count", int64(2))
 
 	// Handling the built-in image aliases
 	viper.SetDefault(IMAGES+".default.use_default", true) // All containers inherit from default
@@ -117,7 +122,7 @@ func getStringFromConfig(group string, item string, name string) string {
 		return viper.GetString(group + "." + item + "." + name)
 	}
 
-	log.Fatal(name + " string value in " + item + "doesn't exist")
+	log.Fatal(name + " string value in " + item + " doesn't exist")
 
 	// We never reach this point
 	return ""
@@ -134,7 +139,7 @@ func getInt64FromConfig(group string, item string, name string) int64 {
 	}
 
 	if !foundValue {
-		log.Fatal(name + " int64 value in " + item + "doesn't exist")
+		log.Fatal(name + " int64 value in " + item + " doesn't exist")
 	}
 	return value
 }

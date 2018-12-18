@@ -36,6 +36,7 @@ func TestDefaultConfig(t *testing.T) {
 	assert.Equal(t, "512MB", getMemorySize("default"))
 	assert.Equal(t, "4GB", getMemorySize("huge"))
 	assert.Equal(t, int64(1), getCPUCount("default"))
+	assert.Equal(t, int64(1), getCPUCount("medium")) // If mergeFlavorsWithDefault() is called, this value must be set to 1
 	assert.Equal(t, int64(2), getCPUCount("huge"))
 	assert.Equal(t, DEFAULTWORKDIRECTORY, getWorkDirectory("default"))
 	assert.Equal(t, true, isEntryExist(FLAVORS, "default.use_default"))

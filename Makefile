@@ -26,7 +26,7 @@ endif
 
 prepare:
 	dep ensure
-	cd cmd; go test -timeout 1m -count 5
+	unset GOOS; unset GOARCH; cd cmd; go test -timeout 1m -count 5
 
 darwin:
 	make GOOS=darwin GOARCH:=amd64

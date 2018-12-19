@@ -44,8 +44,8 @@ export LDFLAGS="$LDFLAGS -X main.version=%{source_version}"
 
 %install
 install -D -p -m 755 bin/cn %{buildroot}%{_bindir}/cn
-install -D -p -m 644 cn.toml %{buildroot}%{_sysconfdir}/cn/
-install -D -p -m 644 contrib/cn_completion.sh %{buildroot}%{_sysconfdir}/bash_completion.d/
+install -D -p -m 644 cn.toml %{buildroot}%{_sysconfdir}/cn/cn.toml
+install -D -p -m 644 contrib/cn_completion.sh %{buildroot}%{_sysconfdir}/bash_completion.d/cn_completion.sh
 
 %files
 %doc README.md

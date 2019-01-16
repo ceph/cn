@@ -181,11 +181,12 @@ func runContainer(cmd *cobra.Command, args []string) {
 			if !testEmptyDir {
 				log.Fatal(getUnderlyingStorage(flavor) + " is not empty, doing nothing.")
 			}
-			if runtime.GOOS == "linux" {
-				applySeLinuxLabel(getUnderlyingStorage(flavor))
-			}
 			envs = append(envs, "OSD_PATH="+getUnderlyingStorage(flavor))
 			volumeBindings = append(volumeBindings, getUnderlyingStorage(flavor)+":"+getUnderlyingStorage(flavor))
+			if runtime.GOOS == "linux"  {
+				// Add z option while bindmounting directory so that docker can modify SeLinux labels if SeLinux is Enforced.
+				volumeBindings[len(volumeBindings)-1] +=  ":z"
+			} 
 
 			// Did someone specify a particular size for cn data store in this directory?
 			if len(getSize(flavor)) != 0 {

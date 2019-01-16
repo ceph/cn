@@ -53,48 +53,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// getSeLinuxStatus gets SeLinux status
-func getSeLinuxStatus() string {
-	testBinaryExist("getenforce")
-
-	out, err := exec.Command("getenforce").Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return string(out)
-}
-
-// applySeLinuxLabel checks if SeLinux is installed and set to Enforcing,
-// we relabel our workingDirectory to allow the container to access files in this directory
-func applySeLinuxLabel(dir string) {
-	testBinaryExist("getenforce")
-
-	selinuxStatus := getSeLinuxStatus()
-	lines := strings.Split(selinuxStatus, "\n")
-	for _, l := range lines {
-		if len(l) <= 0 {
-			// Ignore empty line.
-			continue
-		}
-		if l == "Enforcing" {
-			meUserName, meID := whoAmI()
-			if meID != "0" {
-				log.Fatal("Hey " + meUserName + "! Run me as 'root' so I can apply the right SeLinux label on " + dir)
-			}
-			if _, err := os.Stat(dir); os.IsNotExist(err) {
-				os.Mkdir(dir, 0755)
-			}
-			testBinaryExist("chcon")
-			cmd := "chcon " + " -Rt" + " svirt_sandbox_file_t " + dir
-			_, err := exec.Command("chcon", "-Rt", "svirt_sandbox_file_t", dir).Output()
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Println("Executing: " + cmd)
-		}
-	}
-}
-
 // byLastOctetValue implements sort.Interface used in sorting a list
 // of ip address by their last octet value.
 type byLastOctetValue []net.IP

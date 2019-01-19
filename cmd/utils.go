@@ -409,10 +409,6 @@ func echoInfo(containerName string) {
 	// Fetch Amazon Keys
 	cephNanoAccessKey, cephNanoSecretKey := getAwsKey(containerName)
 
-	// Get Ceph health
-	cmd := []string{"ceph", "health"}
-	c := execContainer(containerName, cmd)
-
 	// Get IPs, later using the first IP of the list is not ideal
 	// However, Docker binds RGW port on 0.0.0.0 so any address will work
 	ips, _ := getInterfaceIPv4s()
@@ -421,8 +417,7 @@ func echoInfo(containerName string) {
 	dir := dockerInspect(containerName, "Binds")
 
 	infoLine :=
-		"\n" + strings.TrimSpace(c) + " is the Ceph status \n" +
-			"Your working directory is: " + dir + "\n" +
+		"\n" + "Your working directory is: " + dir + "\n" +
 			"S3 access key is: " + cephNanoAccessKey + "\n" +
 			"S3 secret key is: " + cephNanoSecretKey + "\n" +
 			"S3 object server address is: http://" + ips[0].String() + ":" + rgwPort + "\n"

@@ -416,15 +416,13 @@ func echoInfo(containerName string) {
 	// Get the working directory
 	dir := dockerInspect(containerName, "Binds")
 
-	infoLine :=
-		"\n" + "Your working directory is: " + dir + "\n" +
-			"S3 access key is: " + cephNanoAccessKey + "\n" +
-			"S3 secret key is: " + cephNanoSecretKey + "\n" +
-			"S3 object server address is: http://" + ips[0].String() + ":" + rgwPort + "\n"
-
+	infoLine := "\n" + "Endpoint: http://" + ips[0].String() + ":" + rgwPort + "\n"
 	if cnBrowserPort != "NoUIYet" {
-		infoLine = infoLine + "Ceph Nano browser address is: http://" + ips[0].String() + ":" + cnBrowserPort + "\n"
+		infoLine = infoLine + "Dashboard: http://" + ips[0].String() + ":" + cnBrowserPort + "\n"
 	}
+    infoLine = infoLine + "Access key: " + cephNanoAccessKey + "\n" +
+                          "Secret key: " + cephNanoSecretKey + "\n" +
+                          "Working directory: " + dir + "\n"
 	fmt.Println(infoLine)
 }
 

@@ -120,12 +120,11 @@ Running ceph-nano...
 The container image is not present, pulling it.
 This operation can take a few minutes......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
 
-HEALTH_OK is the Ceph status
-Your working directory is: /tmp
-S3 access key is: 4EO5O2IP4LSGSBC8CUG3
-S3 secret key is: Ap8ue6ait0MqgnCIKT7UrCRJGLUoyBhtS2McbNxE
-S3 object server address is: http://10.36.116.164:8001
-Ceph Nano browser address is: http://10.36.116.164:5001
+Endpoint: http://10.36.116.164:8000
+Dashboard: http://10.36.116.164:5001
+Access key is: 9ZU1QBYX13KPLXXDDCY2
+Secret key is: nthNG1xb7ta5IDKiJKM8626pQitqsalEo0ta7B9E
+Working directory: /usr/share/ceph-nano
 ```
 
 ### Selecting the cluster flavor

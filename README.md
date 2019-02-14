@@ -1,12 +1,24 @@
 # cn (ceph-nano)
 
-![Ceph, the future of storage](ceph-nano-logo-vertical.jpg)
+![Ceph, the future of storage](ceph-nano-logo-vertical.jpg) 
 
 ## The project
 
 cn is a little program written in Go that helps you interact with the S3 API by providing a REST S3 compatible gateway. The target audience is developers building their applications on Amazon S3. It is also an exciting tool to showcase Ceph Rados Gateway S3 compatibility.
 This is brought to you by the power of Ceph and Containers. Under the hood, cn runs a Ceph container and exposes a [Rados Gateway](http://docs.ceph.com/docs/master/radosgw/). For convenience, cn also comes with a set of commands to work with the S3 gateway. Before you ask "why not using s3cmd instead?", then you will be happy to read that internally cn uses `s3cmd` and act as a wrapper around the most commonly used commands.
 Also, keep in mind that the CLI is just for convenience, and the primary use case is you developing your application directly on the S3 API.
+
+## Table of contents
+
+ * [Build](#build)
+ * [Installation](#installation)
+ * [Get started](#get-started)
+   * [Selecting the cluster flavor](#selecting-the-cluster-flavor)
+ * [Your first S3 bucket](#your-first-s3-bucket)
+ * [Multi-cluster support](#multi-cluster-support)
+ * [List Ceph container images available](#list-ceph-container-images-available)
+   * [Using images aliases](#using-images-aliases)
+ * [Enable mgr dashboard](#enable-mgr-dashboard)
 
 ## Build
 
@@ -202,3 +214,73 @@ $ ./cn cluster start mycluster -i mimic
 ```
 
 It is also possible to create new aliases as detailed [here](CONFIGURATION.md)
+
+
+## Enable mgr dashboard
+
+### **TODO:** This is a **temporary hack** to enable the manager dashboard
+
+Currently `cn` does not expose a port for the mgr dashboard.
+It only exposes port 8000 for S3 API, and port 5000 for [Sree - S3 web client](https://github.com/cannium/Sree).
+To expose also the mgr dashboard port we currently have to do some hacks.
+
+This section will guide you how to manually commit a new image and then run a new container with the desired expose ports.
+
+### Commit a copy of the docker image:
+```
+./cn cluster start temp -d /tmp
+docker commit ceph-nano-temp ceph-nano
+./cn cluster purge temp --yes-i-am-sure
+```
+
+### Run the container:
+```
+docker run -dt --name cn -p 8080:8080 -p 5000:5000 -p 8000:8000 ceph-nano
+```
+
+### Enable dashboard:
+(Note: 'enable dashboard' command will cause the container to exit, so need to start it after)
+```
+docker exec cn ceph config set mgr mgr/dashboard/ssl false
+docker exec cn ceph config set mgr mgr/dashboard/server_addr 0.0.0.0
+docker exec cn ceph config set mgr mgr/dashboard/server_port 8080
+docker exec cn ceph mgr module enable dashboard
+until docker exec cn ceph; do docker start cn; sleep 1; done # wait for the services to start
+docker exec cn ceph dashboard set-login-credentials nano nano
+```
+
+### Note that the Object Gateway tab in the dashboard is not enabled yet, so run the following to enable RGW dashboard:
+```
+RGW_USER=$(docker exec cn radosgw-admin user create --uid=rgw --display-name=rgw --system)
+RGW_ACCESS=$(echo $RGW_USER | awk '{ for (i=1;i<=NF;++i) if ($i ~ /access_key/) { split($(i+1),a,"\""); print a[2] } }')
+RGW_SECRET=$(echo $RGW_USER | awk '{ for (i=1;i<=NF;++i) if ($i ~ /secret_key/) { split($(i+1),a,"\""); print a[2] } }')
+docker exec cn ceph dashboard set-rgw-api-access-key "$RGW_ACCESS"
+docker exec cn ceph dashboard set-rgw-api-secret-key "$RGW_SECRET"
+docker exec cn ceph dashboard set-rgw-api-host 127.0.0.1
+docker exec cn ceph dashboard set-rgw-api-port 8000
+docker exec cn ceph dashboard set-rgw-api-scheme http
+docker exec cn ceph dashboard set-rgw-api-user-id rgw
+```
+
+### The dashboard should now be accessible:
+- Open http://127.0.0.1:8080
+- Login with user `nano` and password `nano`
+
+### Troubleshooting - verify that your config dump should look like this:
+```
+$ docker exec cn ceph config dump
+WHO   MASK LEVEL   OPTION                           VALUE                                                        RO 
+  mgr      unknown mgr/dashboard/RGW_API_ACCESS_KEY ********************                                         *  
+  mgr      unknown mgr/dashboard/RGW_API_HOST       127.0.0.1                                                    *  
+  mgr      unknown mgr/dashboard/RGW_API_PORT       8000                                                         *  
+  mgr      unknown mgr/dashboard/RGW_API_SCHEME     http                                                         *  
+  mgr      unknown mgr/dashboard/RGW_API_SECRET_KEY ****************************************                     *  
+  mgr      unknown mgr/dashboard/RGW_API_USER_ID    rgw                                                          *  
+  mgr      unknown mgr/dashboard/password           ************************************************************ *  
+  mgr      unknown mgr/dashboard/server_addr        0.0.0.0                                                      *  
+  mgr      unknown mgr/dashboard/server_port        8080                                                         *  
+  mgr      unknown mgr/dashboard/ssl                false                                                        *  
+  mgr      unknown mgr/dashboard/username           nano                                                         *  
+```
+
+

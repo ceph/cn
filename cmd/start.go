@@ -259,8 +259,8 @@ func runContainer(cmd *cobra.Command, args []string) {
 			envs = append(envs, "OSD_DEVICE="+getUnderlyingStorage(flavor))
 			setPrivileged(flavor, true)
 			volumeBindings = append(volumeBindings, "/dev:/dev")
-			// place holder once 'demo' will use ceph-volume
-			// volumeBindings = append(volumeBindings, "/run/lvm/lvmetad.socket:/run/lvm/lvmetad.socket")
+			volumeBindings = append(volumeBindings, "/var/run/udev/:/var/run/udev/:z")
+			volumeBindings = append(volumeBindings, "/run/lvm:/run/lvm")
 		}
 	}
 

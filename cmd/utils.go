@@ -48,6 +48,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/elgs/gojq"
 	"github.com/jmoiron/jsonq"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/sys/unix"
@@ -945,4 +946,25 @@ func getWorkDirectory(containerFlavor string) string {
 
 func setWorkDirectory(value string) {
 	workingDirectory = value
+}
+
+// makeCephNanoPath is a utility to calculate a relative path to .cn directory.
+func makeCephNanoPath(fileName ...string) string {
+	args := []string{getCephNanoPath()}
+	args = append(args, fileName...)
+	return filepath.Join(args...)
+}
+
+// getCephNanoPath returns the path to the user's .cn directory
+func getCephNanoPath() string {
+	homeDirPath, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// check if the .cn directory exists else create the directory
+	cephNanoPath := filepath.Join(homeDirPath, ".cn")
+	if _, err := os.Stat(cephNanoPath); os.IsNotExist(err) {
+		os.Mkdir(cephNanoPath, os.FileMode(int(0775)))
+	}
+	return cephNanoPath
 }

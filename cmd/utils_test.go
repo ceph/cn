@@ -1,0 +1,61 @@
+/*
+ * Ceph Nano (C) 2019 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Below main package has canonical imports for 'go get' and 'go build'
+ * to work with all other clones of github.com/ceph/cn repository. For
+ * more information refer https://golang.org/doc/go1.4#canonicalimports
+ */
+
+package cmd
+
+import (
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/mitchellh/go-homedir"
+	"github.com/stretchr/testify/assert"
+)
+
+func patchEnvVar(key, value string) func() {
+	bck := os.Getenv(key)
+	deferFunc := func() {
+		os.Setenv(key, bck)
+	}
+	if value != "" {
+		os.Setenv(key, value)
+	} else {
+		os.Unsetenv(key)
+	}
+	return deferFunc
+}
+
+func TestGetCephNanoPath(t *testing.T) {
+	homedir.DisableCache = true
+	defer func() { homedir.DisableCache = false }()
+	defer patchEnvVar("HOME", "/custom/path/")()
+	expected := filepath.Join("/", "custom", "path", ".cn")
+	assert.Equal(t, expected, getCephNanoPath())
+}
+
+func TestMakeCephNanoPath(t *testing.T) {
+	homedir.DisableCache = true
+	defer func() { homedir.DisableCache = false }()
+	defer patchEnvVar("HOME", "/custom/path/")()
+	expected := filepath.Join("/", "custom", "path", ".cn", "test_last_update_check")
+	assert.Equal(t, expected, makeCephNanoPath("test_last_update_check"))
+}

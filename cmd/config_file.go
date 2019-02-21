@@ -45,6 +45,9 @@ const LATESTIMAGE = DEFAULTIMAGE + ":latest-"
 // DEFAULTWORKDIRECTORY is the default work directory
 const DEFAULTWORKDIRECTORY = "/usr/share/ceph-nano"
 
+// UPDATE is a constant to represent the [update] group
+const UPDATE = "update"
+
 func readConfigFile(customFile ...string) string {
 	// By default, we consider there is no configuration file
 	var configurationFile string
@@ -114,6 +117,10 @@ func setDefaultConfig() {
 	viper.SetDefault(IMAGES+".mimic.image_name", LATESTIMAGE+"mimic")
 	viper.SetDefault(IMAGES+".luminous.image_name", LATESTIMAGE+"luminous")
 	viper.SetDefault(IMAGES+".redhat.image_name", "registry.access.redhat.com/rhceph/rhceph-3-rhel7")
+
+	// Setting up the default update notification configuration
+	viper.SetDefault(UPDATE+".config.want_update_notification", true)
+	viper.SetDefault(UPDATE+".config.reminder_wait_period_in_hours", 24)
 }
 
 func getStringFromConfig(group string, item string, name string) string {
@@ -240,4 +247,20 @@ func mergeFlavorsWithDefault() {
 			}
 		}
 	}
+}
+
+func getFloat64FromConfig(group string, item string, name string) float64 {
+	var value float64
+	var foundValue = false
+
+	// We need to ensure the key exists unless that could populate a 0 value
+	if isParameterExist(group, item, name) {
+		value = viper.GetFloat64(group + "." + item + "." + name)
+		foundValue = true
+	}
+
+	if !foundValue {
+		log.Fatal(name + " float64 value in " + item + " doesn't exist")
+	}
+	return value
 }

@@ -69,6 +69,8 @@ var (
 	// configurationFile is the name of the used configuration file
 	configurationFile = ""
 
+	enableUpdateNotification = true
+
 	rootCmd = &cobra.Command{
 		Use:        cliName,
 		Short:      cliDescription,
@@ -125,7 +127,9 @@ func getDocker() *client.Client {
 // Main is the main function calling the whole program
 func Main(version string) {
 	cnVersion = version
-
+	if enableUpdateNotification {
+		checkUpdateNotification()
+	}
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

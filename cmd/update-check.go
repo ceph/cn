@@ -25,6 +25,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"runtime"
 	"strings"
 
 	"github.com/elgs/gojq"
@@ -73,10 +74,41 @@ func updateCheckNano(cmd *cobra.Command, args []string) {
 	fmt.Println("Latest version:", latestTag)
 
 	if latestTag != cnVersionNum {
-		latestTagURL, err := parser.Query("[0].html_url")
+		assets, err := parser.Query("[0].assets")
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("There is a newer version of cn available. Download it here:", latestTagURL)
+		findURL := true
+		latestTagString, ok := latestTag.(string)
+		if ok {
+			latestBuildURL, err := getLatestBuildURL(runtime.GOOS, runtime.GOARCH, latestTagString, assets)
+			if err == nil {
+				findURL = false
+				fmt.Printf("There is a newer version of cn available. Download it with:'curl -L %s -o cn && chmod +x cn && sudo mv cn /usr/local/bin/'\n", latestBuildURL)
+			}
+		}
+		if findURL {
+			latestTagURL, err := parser.Query("[0].html_url")
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("There is a newer version of cn available. Download it here:", latestTagURL)
+		}
 	}
+}
+
+func getLatestBuildURL(localOS string, localArch string, lastestTag string, assets interface{}) (string, error) {
+	assetsMap := assets.([]interface{})
+	requiredName := "cn-" + lastestTag + "-" + localOS + "-" + localArch
+	for key := range assetsMap {
+		name := assetsMap[key].(map[string]interface{})["name"]
+		browserDownloadURL := assetsMap[key].(map[string]interface{})["browser_download_url"]
+		if name == requiredName {
+			lastestBuildURL, ok := browserDownloadURL.(string)
+			if ok {
+				return lastestBuildURL, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("Failed to fetch specific download url for %s OS with %s Architecture", localOS, localArch)
 }

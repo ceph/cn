@@ -58,7 +58,7 @@ func TestDefaultConfig(t *testing.T) {
 
 	// The default builtin should be kept too
 	imageName = "mimic"
-	assert.Equal(t, LATESTIMAGE+"mimic", getImageName())
+	assert.Equal(t, CEPH_DAEMON_LATESTIMAGE+"mimic", getImageName())
 
 	imageName = defaultImageName
 	assert.Equal(t, "", getUnderlyingStorage("default"))

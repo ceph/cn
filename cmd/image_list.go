@@ -53,4 +53,5 @@ func listImageTags(cmd *cobra.Command, args []string) {
 	} else {
 		listDockerRegistryImageTags()
 	}
+	listQuayRegistryImageTags()
 }

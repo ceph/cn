@@ -37,10 +37,10 @@ const FLAVORS = "flavors"
 const IMAGES = "images"
 
 // DEFAULTIMAGE is the default image name to be used
-const DEFAULTIMAGE = "ceph/daemon"
+const DEFAULTIMAGE = "quay.io/ceph/cn-core"
 
-// LATESTIMAGE is the prefix for the latest ceph images
-const LATESTIMAGE = DEFAULTIMAGE + ":latest-"
+// CEPH_DAEMON_LATESTIMAGE is the prefix for the latest ceph images built by ceph/daemon
+const CEPH_DAEMON_LATESTIMAGE = "ceph/daemon:latest-"
 
 // DEFAULTWORKDIRECTORY is the default work directory
 const DEFAULTWORKDIRECTORY = "/usr/share/ceph-nano"
@@ -114,8 +114,9 @@ func setDefaultConfig() {
 	viper.SetDefault(IMAGES+".default.use_default", true) // All containers inherit from default
 	viper.SetDefault(IMAGES+".default.image_name", DEFAULTIMAGE)
 	// Setting up the aliases to be reported in 'image show-aliases' command
-	viper.SetDefault(IMAGES+".mimic.image_name", LATESTIMAGE+"mimic")
-	viper.SetDefault(IMAGES+".luminous.image_name", LATESTIMAGE+"luminous")
+	viper.SetDefault(IMAGES+".mimic.image_name", CEPH_DAEMON_LATESTIMAGE+"mimic")
+	viper.SetDefault(IMAGES+".luminous.image_name", CEPH_DAEMON_LATESTIMAGE+"luminous")
+	viper.SetDefault(IMAGES+".nautilus.image_name", DEFAULTIMAGE+":latest")
 	viper.SetDefault(IMAGES+".redhat.image_name", "registry.access.redhat.com/rhceph/rhceph-3-rhel7")
 
 	// Setting up the default update notification configuration

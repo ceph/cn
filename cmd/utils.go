@@ -968,3 +968,25 @@ func getCephNanoPath() string {
 	}
 	return cephNanoPath
 }
+
+func listQuayRegistryImageTags() {
+	url := "https://quay.io/api/v1/repository/ceph/cn-core/tag/"
+	output := curlURL(url)
+
+	parser, err := gojq.NewStringQuery(string(output))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tags, err := parser.Query("tags")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tagsList := tags.([]interface{})
+
+	// leave out the last tag as it does not correspond to an available build
+	tagsList = tagsList[:len(tagsList)-1]
+	parseArray(tagsList, "name", "quay.io/ceph/cn-core:")
+
+}

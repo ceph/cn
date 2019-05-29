@@ -147,8 +147,9 @@ func runContainer(cmd *cobra.Command, args []string) {
 	ips, _ := getInterfaceIPv4s()
 
 	envs := []string{
-		"RGW_CIVETWEB_PORT=" + rgwPort, // DON'T TOUCH MY POSITION IN THE SLICE OR YOU WILL BREAK dockerInspect()
+		"RGW_FRONTEND_PORT=" + rgwPort, // DON'T TOUCH MY POSITION IN THE SLICE OR YOU WILL BREAK dockerInspect()
 		"SREE_PORT=" + cnBrowserPort,   // DON'T TOUCH MY POSITION IN THE SLICE OR YOU WILL BREAK dockerInspect()
+		"RGW_CIVETWEB_PORT=" + rgwPort, // Keep this for backward compatiblity, the option is gone since https://github.com/ceph/ceph-container/pull/1356
 		"EXPOSED_IP=" + ips[0].String(),
 		"DEBUG=verbose",
 		"CEPH_DEMO_UID=" + cephNanoUID,

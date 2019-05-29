@@ -132,6 +132,9 @@ metadata:
   	    	env:
   	    	- name: NETWORK_AUTO_DETECT
   	    	  value: "4"
+		- name: RGW_FRONTEND_PORT
+                  value: "8000"
+                # Keep this for backward compatiblity, the option is gone since https://github.com/ceph/ceph-container/pull/1356
   	    	- name: RGW_CIVETWEB_PORT
   	    	  value: "8000"
   	    	- name: SREE_PORT

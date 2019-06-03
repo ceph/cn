@@ -1,4 +1,4 @@
-%global source_version 2.3.0
+%global source_version 2.3.1
 %global tag 1
 %global provider        github
 %global provider_tld    com
@@ -54,6 +54,10 @@ install -D -p -m 644 contrib/cn_completion.sh %{buildroot}%{_sysconfdir}/bash_co
 %{_sysconfdir}/bash_completion.d/cn_completion.sh
 
 %changelog
+* Mon Jun 03 2019  Erwan Velu <evelu@redhat.com> - 2.3.1-1
+- start & kube: add RGW_FRONTEND_PORT variable
+- Readme: Bump the new release tag: v2.3.0
+- Packaging: Update specfile version to v2.3.0
 * Mon Mar 11 2019  Erwan Velu <evelu@redhat.com> - 2.3.0-1
 - update-check: Improving 'update-check' output
 - adds update notification for newer version of nano

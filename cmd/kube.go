@@ -41,6 +41,7 @@ func cliKubeNano() *cobra.Command {
 
 func kubeTemplate(cmd *cobra.Command, args []string) {
 	kubeTmp := `
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -48,13 +49,13 @@ metadata:
   name: cn-pv-claim-var
   labels:
     app: ceph
-	  daemon: nano
+    daemon: nano
 spec:
   # Read more about access modes here: http://kubernetes.io/docs/user-guide/persistent-volumes/#access-modes
   accessModes:
-	- ReadWriteOnce
+  - ReadWriteOnce
   resources:
-	requests:
+    requests:
       storage: 10Gi
   # Uncomment and add storageClass specific to your requirements below. Read more https://kubernetes.io/docs/concepts/storage/persistent-volumes/#class-1
   #storageClassName:
@@ -64,15 +65,15 @@ kind: PersistentVolumeClaim
 metadata:
   name: cn-pv-claim-etc
   labels:
-	app: ceph
-	  daemon: nano
+    app: ceph
+    daemon: nano
 spec:
   # Read more about access modes here: http://kubernetes.io/docs/user-guide/persistent-volumes/#access-modes
   accessModes:
-	- ReadWriteOnce
+  - ReadWriteOnce
   resources:
-	requests:
-	storage: 10Mi
+    requests:
+      storage: 10Mi
   # Uncomment and add storageClass specific to your requirements below. Read more https://kubernetes.io/docs/concepts/storage/persistent-volumes/#class-1
   #storageClassName:
 ---
@@ -97,66 +98,67 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  name: ceph-nano
   labels:
     app: ceph
     daemon: nano
     name: ceph-nano
-  spec:
-    replicas: 1
-    serviceName: ceph-nano
-    selector:
-      matchLabels:
+spec:
+  replicas: 1
+  serviceName: ceph-nano
+  selector:
+    matchLabels:
+      app: ceph
+  template:
+    metadata:
+      name: ceph-nano
+      labels:
         app: ceph
-    template:
-      metadata:
+        daemon: nano
+    spec:
+      containers:
+      - image: ceph/daemon
+        imagePullPolicy: Always
         name: ceph-nano
-        labels:
-  	      app: ceph
-  	      daemon: nano
-  	  spec:
-  	    containers:
-  	    - image: ceph/daemon
-  	      imagePullPolicy: Always
-  	      name: ceph-nano
-  	      ports:
-  	      - containerPort: 8000
-  	    	name: cn-s3
-  	    	protocol: TCP
-  	    	resources:
-  	    	  limits:
-  	    	    cpu: "1"
-  	    	    memory: 512M
-  	    	  requests:
-  	    	    cpu: "1"
-  	    	    memory: 512M
-  	    	env:
-  	    	- name: NETWORK_AUTO_DETECT
-  	    	  value: "4"
-		- name: RGW_FRONTEND_PORT
-                  value: "8000"
-                # Keep this for backward compatiblity, the option is gone since https://github.com/ceph/ceph-container/pull/1356
-  	    	- name: RGW_CIVETWEB_PORT
-  	    	  value: "8000"
-  	    	- name: SREE_PORT
-  	    	  value: "5001"
-  	    	- name: CEPH_DEMO_UID
-  	    	  value: "nano"
-  	    	- name: CEPH_DAEMON
-  	    	  value: "demo"
-  	    	- name: DEBUG
-  	    	  value: "verbose"
-            volumeMounts:
-            - name: cn-varlibceph
-              mountPath: /var/lib/ceph
-            - name: cn-etcceph
-              mountPath: /etc/ceph
-			volumes:
-			- name: cn-varlibceph
-			  persistentVolumeClaim:
-				 claimName: cn-pv-claim-var
-			- name: cn-etcceph
-			  persistentVolumeClaim:
-					claimName: cn-pv-claim-etc
+        ports:
+        - containerPort: 8000
+          name: cn-s3
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 512M
+          requests:
+            cpu: "1"
+            memory: 512M
+        env:
+        - name: NETWORK_AUTO_DETECT
+          value: "4"
+        - name: RGW_FRONTEND_PORT
+          value: "8000"
+        # Keep this for backward compatiblity, the option is gone since https://github.com/ceph/ceph-container/pull/1356
+        - name: RGW_CIVETWEB_PORT
+          value: "8000"
+        - name: SREE_PORT
+          value: "5001"
+        - name: CEPH_DEMO_UID
+          value: "nano"
+        - name: CEPH_DAEMON
+          value: "demo"
+        - name: DEBUG
+          value: "verbose"
+        volumeMounts:
+        - name: cn-varlibceph
+          mountPath: /var/lib/ceph
+        - name: cn-etcceph
+          mountPath: /etc/ceph
+      volumes:
+      - name: cn-varlibceph
+        persistentVolumeClaim:
+          claimName: cn-pv-claim-var
+      - name: cn-etcceph
+        persistentVolumeClaim:
+          claimName: cn-pv-claim-etc
 `
 	fmt.Print(kubeTmp)
 }

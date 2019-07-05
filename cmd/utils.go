@@ -54,6 +54,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const pageSize int = 100
+
 // byLastOctetValue implements sort.Interface used in sorting a list
 // of ip address by their last octet value.
 type byLastOctetValue []net.IP
@@ -295,7 +297,11 @@ func countTags() int {
 
 func pageCount() int {
 	tagCount := countTags()
-	pageCount := tagCount / 10
+	pageCount := tagCount / pageSize
+	remainder := tagCount % pageSize
+	if remainder > 0 {
+		pageCount++
+	}
 	return int(pageCount)
 }
 
@@ -829,7 +835,7 @@ func listDockerRegistryImageTags() {
 
 	for i := 1; i <= numPage; i++ {
 		// convert numPage into a string for concatenation, (see the end)
-		url = "https://registry.hub.docker.com/v2/repositories/ceph/daemon/tags/?page_size=100&page=" + strconv.Itoa(i)
+		url = "https://registry.hub.docker.com/v2/repositories/ceph/daemon/tags/?page_size=" + strconv.Itoa(pageSize) + "&page=" + strconv.Itoa(i)
 		output := curlURL(url)
 
 		// Parsing/Unmarshalling JSON encoding/json

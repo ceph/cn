@@ -7,6 +7,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/apcera/termtables"
+  source = "github.com/brettski/go-termtables"
 
 [[override]]
  name = "github.com/docker/distribution"

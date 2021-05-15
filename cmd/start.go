@@ -195,7 +195,7 @@ func runContainer(cmd *cobra.Command, args []string) {
 				if sizeBluestoreBlockToBytes == 0 {
 					log.Fatal("Wrong unit passed: ", getSize(flavor), ". Please refer to https://en.wikipedia.org/wiki/Byte.")
 				}
-				envs = append(envs, "BLUESTORE_BLOCK_SIZE="+string(sizeBluestoreBlockToBytes))
+				envs = append(envs, "BLUESTORE_BLOCK_SIZE="+strconv.FormatInt(sizeBluestoreBlockToBytes, 10))
 			}
 		}
 		if testDev == "blockdev" {

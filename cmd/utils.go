@@ -124,10 +124,11 @@ func execContainer(containerName string, cmd []string) string {
 		log.Fatal(err)
 	}
 
-	optionsAttach := types.ExecConfig{
+	optionsAttach := types.ExecStartCheck{
 		Detach: false,
 		Tty:    false,
 	}
+
 	connection, err := getDocker().ContainerExecAttach(ctx, response.ID, optionsAttach)
 	if err != nil {
 		log.Fatal(err)
@@ -158,7 +159,7 @@ func enterContainer(containerName string) error {
 	// get the exec ID
 	execID := response.ID
 
-	optionsAttach := types.ExecConfig{
+	optionsAttach := types.ExecStartCheck{
 		Tty: true,
 	}
 
@@ -385,9 +386,9 @@ func echoInfo(containerName string) {
 	if cnBrowserPort != "NoUIYet" {
 		infoLine = infoLine + "Dashboard: http://" + ips[0].String() + ":" + cnBrowserPort + "\n"
 	}
-    infoLine = infoLine + "Access key: " + cephNanoAccessKey + "\n" +
-                          "Secret key: " + cephNanoSecretKey + "\n" +
-                          "Working directory: " + dir + "\n"
+	infoLine = infoLine + "Access key: " + cephNanoAccessKey + "\n" +
+		"Secret key: " + cephNanoSecretKey + "\n" +
+		"Working directory: " + dir + "\n"
 	fmt.Println(infoLine)
 }
 

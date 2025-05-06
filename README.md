@@ -1,3 +1,8 @@
+# ⚠️ This project is no longer maintained. 😢 Feel free to fork or explore alternatives.
+
+<details>
+<summary>Old README</summary>
+
 # cn (ceph-nano)
 
 ![Ceph, the future of storage](ceph-nano-logo-vertical.jpg) 
